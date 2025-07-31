@@ -41,7 +41,6 @@ La carpeta `backend/` contiene una API REST desarrollada con Django que incluye:
 - **4f736bf** (HEAD -> main, origin/main) - Inicio de desarrollo
 - **5302619** - Merge branch 'main' of github.com:FVenegas-V/nexus_tcg
 - **9bd3906** - Commit inicial: estructura Flutter creada con flutter create
-- **8b86e42** - Nuevo cambio prueba
 - **986edb8** - Initial commit
 
 ## Cambios Implementados
@@ -60,14 +59,4 @@ La carpeta `backend/` contiene una API REST desarrollada con Django que incluye:
 - Configuración para Android, iOS, Web y Desktop
 - Widget principal con mensaje de bienvenida
 
-### Pruebas
-✅ **Corrección de errores en tests**
-- Solucionado error de constructor constante en `widget_test.dart`
-- Tests de widgets funcionando correctamente
-
-## Próximos Pasos
-
-- [ ] Implementar modelos de datos para cartas TCG
-- [ ] Integrar autenticación de usuarios
-- [ ] Conectar frontend Flutter con backend Django
 
