@@ -1,5 +1,6 @@
 # nexus_tcg
 
+<<<<<<< HEAD
 A new Flutter project.
 
 ## Getting Started
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+Nuevo Cambio
+>>>>>>> 8b86e42d622d868ae68a9523333959dc67c48507
