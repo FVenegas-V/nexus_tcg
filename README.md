@@ -4,8 +4,7 @@ A new Flutter project.
 
 ## Descripción del Proyecto
 
-Nexus TCG es una aplicación Flutter para un juego de cartas coleccionables, que incluye tanto una aplicación móvil frontend como un backend API desarrollado en Django.
-
+Nexus TCG es una aplicación movil desarrolada en Flutter para comunidades de juegos de cartas coleccionables.
 ## Estructura del Proyecto
 
 ### Frontend (Flutter)
