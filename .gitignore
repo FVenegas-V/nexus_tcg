@@ -33,6 +33,17 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Virtualenv de Django
+/backend/venv/
+# Archivos de Python compilados
+**/__pycache__/
+*.pyc
+
+# Carpeta de compilación de Flutter
+/build/
+/ios/Flutter/Flutter.framework/
+
+
 # Symbolication related
 app.*.symbols
 
