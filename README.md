@@ -1,19 +1,6 @@
 # 🎮 Nexus TCG
 ### *Tu plataforma definitiva para Trading Card Games*
 
-<div align="center">
-
-![Flutter](https://img.shields.io/badge/Flutter-3.0%2B-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.2.4-092E20?style=for-the-badge&logo=django&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-
-![Progreso](https://img.shields.io/badge/Progreso_MVP-10.2%25-4CAF50?style=for-the-badge)
-![Estado](https://img.shields.io/badge/Estado-En_Desarrollo-orange?style=for-the-badge)
-![Licencia](https://img.shields.io/badge/Licencia-MIT-blue?style=for-the-badge)
-
-</div>
-
 ---
 
 ## 🌟 **Descripción del Proyecto**
@@ -26,7 +13,6 @@
 - ⭐ **Reputación de usuarios** - Sistema de valoraciones entre jugadores
 - 📱 **Notificaciones push** - Mantente conectado con tu comunidad
 - 🔍 **Búsqueda avanzada** - Encuentra jugadores, cartas y eventos
-- 🌍 **Geolocalización** - Conecta con jugadores cercanos
 
 ---
 
@@ -114,7 +100,7 @@ lib/
 
 ## 📈 **Roadmap de Desarrollo**
 
-### 🎯 **Próximas Implementaciones (Q3 2025)**
+### 🎯 **Próximas Implementaciones**
 
 #### 🔄 **Fase 1-0004: Verificación de Email** *(Próximo)*
 - 📧 Email de verificación para nuevos usuarios
