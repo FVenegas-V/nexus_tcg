@@ -1,11 +1,11 @@
 # 🎮 Nexus TCG
-### *Tu plataforma definitiva para Trading Card Games*
+### *Tu aplicación movil definitiva para Trading Card Games*
 
 ---
 
 ## 🌟 **Descripción del Proyecto**
 
-**Nexus TCG** es una plataforma social completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
+**Nexus TCG** es una aplicación movil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
