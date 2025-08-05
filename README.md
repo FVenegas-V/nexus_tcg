@@ -1,74 +1,127 @@
-# nexus_tcg
+# 🎮 Nexus TCG
 
-A new Flutter project.
+---
 
-## Descripción del Proyecto
+## 🌟 **Descripción del Proyecto**
 
-Nexus TCG es una aplicación Flutter para un juego de cartas coleccionables, que incluye tanto una aplicación móvil frontend como un backend API desarrollado en Django.
+**Nexus TCG** es una plataforma social completa para jugadores y coleccionistas de TCG (Trading Card Games) que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
-## Estructura del Proyecto
+### ✨ **Características Principales**
+- 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
+- 💬 **Sistema social** - Posts, comentarios, reacciones y discusiones
+- ⭐ **Reputación de usuarios** - Sistema de valoraciones entre jugadores
+- 📱 **Notificaciones push** - Mantente conectado con tu comunidad
+- 🔍 **Búsqueda avanzada** - Encuentra jugadores, cartas y eventos
 
-### Frontend (Flutter)
-- **Framework:** Flutter
-- **Plataformas soportadas:** Android, iOS, Web, Windows, macOS, Linux
-- **Archivo principal:** `lib/main.dart`
+---
 
-### Backend (Django API)
-La carpeta `backend/` contiene una API REST desarrollada con Django que incluye:
+## 📊 **Estado de Desarrollo**
 
-#### Estructura del Backend:
-- **`manage.py`** - Herramienta de línea de comandos de Django para tareas administrativas
-- **`db.sqlite3`** - Base de datos SQLite para desarrollo
-- **`nexus_api/`** - Configuración principal del proyecto Django
-  - `settings.py` - Configuraciones del proyecto (Django 5.2.4)
-  - `urls.py` - Configuración de URLs principales
-  - `wsgi.py` / `asgi.py` - Configuración para despliegue
-- **`users/`** - Aplicación Django para gestión de usuarios
-  - `models.py` - Modelos de datos de usuarios
-  - `views.py` - Vistas de la API
-  - `serializers.py` - Serializadores para la API REST
-  - `admin.py` - Configuración del panel de administración
-  - `migrations/` - Migraciones de base de datos
-- **`venv/`** - Entorno virtual de Python
+<div align="center">
 
-#### Características del Backend:
-- Framework: Django 5.2.4
-- Base de datos: SQLite (desarrollo)
-- API REST para gestión de usuarios
-- Panel de administración de Django disponible
+### 🎯 **Progreso General: 10.2% del MVP**
+*5 de 49 tickets completados*
 
-## Historial de Commits Recientes
+</div>
 
-- **4f736bf** (HEAD -> main, origin/main) - Inicio de desarrollo
-- **5302619** - Merge branch 'main' of github.com:FVenegas-V/nexus_tcg
-- **9bd3906** - Commit inicial: estructura Flutter creada con flutter create
-- **8b86e42** - Nuevo cambio prueba
-- **986edb8** - Initial commit
+| Fase | Descripción | Progreso | Estado |
+|------|-------------|-----------|---------|
+| **Fase 0** | 🏗️ Fundación | 40% (2/5) | 🟡 En Progreso |
+| **Fase 1** | 🔐 Autenticación | 42.9% (3/7) | 🟡 En Progreso |
+| **Fase 2** | 👥 Comunidades | 0% (0/5) | 🔴 Pendiente |
+| **Fase 3** | 💬 Posts & Comentarios | 0% (0/6) | 🔴 Pendiente |
+| **Fase 4** | ⭐ Reputación | 0% (0/5) | 🔴 Pendiente |
+| **Fase 5** | 📱 Notificaciones | 0% (0/4) | 🔴 Pendiente |
+| **Fase 6** | 🔍 Búsqueda | 0% (0/4) | 🔴 Pendiente |
+| **Fase 7** | 📱 Frontend Flutter | 0% (0/8) | 🔴 Pendiente |
+| **Fase 8** | 🚀 Producción | 0% (0/5) | 🔴 Pendiente |
 
-## Cambios Implementados
+### 🎉 **Últimas Implementaciones Completadas**
 
-### Backend
-✅ **Configuración inicial del proyecto Django**
-- Creado proyecto Django `nexus_api` con configuración base
-- Implementada aplicación `users` para gestión de usuarios
-- Configurado entorno virtual Python
-- Base de datos SQLite inicializada
-- Estructura de serializadores y vistas preparada para API REST
+#### ✅ **Fase 1-0003: Sistema de Recuperación de Contraseñas** *(Recién Completado)*
+- 🔒 Tokens UUID seguros con expiración de 1 hora
+- 📧 Sistema de email con templates HTML profesionales
+- 🔌 3 nuevas APIs REST para flujo completo
+- 🧪 Testing exhaustivo (unitarios + integración + demo)
+- 📚 Documentación técnica completa
 
-### Frontend
-✅ **Aplicación Flutter base**
-- Estructura inicial de proyecto Flutter multi-plataforma
-- Configuración para Android, iOS, Web y Desktop
-- Widget principal con mensaje de bienvenida
+#### ✅ **Fase 1-0002: Autenticación JWT** *(Recién Completado)*
+- 🎫 Tokens JWT con refresh automático
+- 🔐 Endpoints seguros con permisos
+- ⏰ Expiración configurable (60min access, 7 días refresh)
 
-### Pruebas
-✅ **Corrección de errores en tests**
-- Solucionado error de constructor constante en `widget_test.dart`
-- Tests de widgets funcionando correctamente
+#### ✅ **Fase 1-0001: Registro de Usuarios** *(Recién Completado)*
+- 👤 Modelo de usuario personalizado
+- ✅ Validaciones completas de datos
+- 🛡️ Hash seguro de contraseñas
 
-## Próximos Pasos
+---
 
-- [ ] Implementar modelos de datos para cartas TCG
-- [ ] Integrar autenticación de usuarios
-- [ ] Conectar frontend Flutter con backend Django
+## 🏗️ **Arquitectura del Proyecto**
+
+### 🎨 **Frontend (Flutter)**
+```
+lib/
+├── 📱 main.dart              # Punto de entrada principal
+├── 🎨 themes/               # Temas y estilos
+├── 📄 screens/              # Pantallas de la aplicación
+├── 🧩 widgets/              # Componentes reutilizables
+├── 🔧 services/             # Servicios y API calls
+├── 📦 models/               # Modelos de datos
+└── 🗂️ utils/                # Utilidades y helpers
+```
+
+**Tecnologías Frontend:**
+- ![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?style=flat-square&logo=flutter) **Flutter 3.0+** - Framework multiplataforma
+- ![Dart](https://img.shields.io/badge/Dart-3.0+-0175C2?style=flat-square&logo=dart) **Dart 3.0+** - Lenguaje de programación
+- 📱 **Plataformas**: Android, iOS.
+
+
+**Tecnologías Backend:**
+- ![Django](https://img.shields.io/badge/Django-5.2.4-092E20?style=flat-square&logo=django) **Django 5.2.4** - Framework web robusto
+- ![DRF](https://img.shields.io/badge/DRF-Latest-red?style=flat-square) **Django REST Framework** - APIs REST potentes
+- ![JWT](https://img.shields.io/badge/JWT-Simple_JWT-000000?style=flat-square) **JWT Authentication** - Autenticación segura
+- ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prod-336791?style=flat-square&logo=postgresql) **PostgreSQL** - Base de datos producción
+- ![SQLite](https://img.shields.io/badge/SQLite-Dev-003B57?style=flat-square&logo=sqlite) **SQLite** - Base de datos desarrollo
+
+---
+
+## 🛡️ **Seguridad Implementada**
+
+- 🔐 **Autenticación JWT** con refresh tokens
+- 🔒 **Tokens UUID** criptográficamente seguros para recuperación
+- ⏰ **Expiración automática** de tokens (1 hora)
+- 🛡️ **Hash seguro** de contraseñas con Django
+- ✅ **Validaciones** exhaustivas en todos los endpoints
+- 🚫 **Tokens de un solo uso** para evitar reutilización
+
+---
+
+## 📈 **Roadmap de Desarrollo**
+
+### 🎯 **Próximas Implementaciones (Q3 2025)**
+
+#### 🔄 **Fase 1-0004: Verificación de Email** *(Próximo)*
+- 📧 Email de verificación para nuevos usuarios
+- 🔗 Links de activación con tokens seguros
+- ✅ Estados de verificación en perfil
+
+#### 👥 **Fase 2: Sistema de Comunidades**
+- 🏷️ Modelos para diferentes tipos de TCG
+- 🔍 Búsqueda y filtrado de comunidades
+- 📝 Suscripción a comunidades de interés
+
+#### 💬 **Fase 3: Posts y Comentarios**
+- 📰 Sistema de posts con imágenes
+- 💬 Comentarios anidados
+- ❤️ Sistema de reacciones (likes/emojis)
+
+
+---
+
+### 🎮 *"Conectando jugadores, construyendo comunidades"*
+
+**Hecho con ❤️ para la comunidad TCG**
+
+</div>
 
