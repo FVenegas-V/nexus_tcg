@@ -39,6 +39,17 @@ migrate_working_dir/
 **/__pycache__/
 *.pyc
 
+# Variables de entorno (Django)
+/backend/.env
+*.env
+!.env.example
+.env.example
+
+# Base de datos local
+/backend/db.sqlite3
+POSTGRESQL_SETUP.md
+JWT_AUTH_DOCS.md
+
 # Carpeta de compilación de Flutter
 /build/
 /ios/Flutter/Flutter.framework/
@@ -50,7 +61,25 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Prompts
+guidelines.md
+instructions.md
+ticket-template.md
+
+#docs
+01-architecture-overview.md
+02-database-design.md
+03-api-specification.md
+plan.md
+
+#tickets
+0000-index.md
+fase0-0003.md
+fase1-0002.md
+fase1-0003.md

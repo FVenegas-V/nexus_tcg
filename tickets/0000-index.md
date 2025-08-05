@@ -1,0 +1,196 @@
+# Índice de Tickets - Nexus TCG
+
+## Estado General del Proyecto
+
+**Fase Actual**: Fase 1 - Autenticación y Usuarios (42.9% completada)  
+**Progreso Total**: 10.2% del MVP completado (5/49 tickets)  
+**Próximo Hito**: Sistema de verificación de email  
+
+---
+
+## Fase 0: Fundación 🟡 (40% Completada)
+
+- [x] ~~fase0-0001: Configuración inicial del proyecto Django~~ ✅
+- [x] ~~fase0-0002: Setup de base de datos PostgreSQL~~ ✅ *(Configurado para prod, SQLite para dev)*
+- [ ] fase0-0003: Pipeline CI/CD básico en GitHub Actions 🔴
+- [ ] fase0-0004: Documentación de setup de desarrollo 🔴
+- [ ] fase0-0005: Entorno Docker para desarrollo local 🔴
+
+**Estado**: 2/5 tickets completados
+
+---
+
+## Fase 1: Autenticación y Usuarios 🟡 (42.9% Completada)
+
+- [x] ~~fase1-0001: Registro de usuarios con validación~~ ✅
+- [x] ~~fase1-0002: Sistema de login con JWT tokens~~ ✅ *(Access + Refresh tokens configurados)*
+- [x] ~~fase1-0003: Recuperación de contraseña por email~~ ✅ *(Sistema completo con tokens UUID y email)*
+- [ ] fase1-0004: Verificación de email para nuevos usuarios 🔴
+- [ ] fase1-0005: Cambio de contraseña para usuarios autenticados 🔴  
+- [ ] fase1-0006: Sistema de logging de intentos de acceso 🔴
+- [ ] fase1-0007: Rate limiting para APIs de autenticación 🔴
+
+**Estado**: 3/7 tickets completados (42.9%)  
+**Prioridad Actual**: Implementar fase1-0004 (Verificación de email)
+
+---
+
+## Fase 2: Comunidades Base 🔴 (Pendiente)
+
+- [ ] fase2-0001: Modelos y admin de comunidades 🔴
+- [ ] fase2-0002: API de listado y búsqueda de comunidades 🔴
+- [ ] fase2-0003: Sistema de suscripciones a comunidades 🔴
+- [ ] fase2-0004: Perfiles públicos de usuarios 🔴
+- [ ] fase2-0005: Filtros por tipo de juego 🔴
+
+**Estado**: 0/5 tickets completados
+
+---
+
+## Fase 3: Posts y Comentarios 🔴 (Pendiente)
+
+- [ ] fase3-0001: Modelos de posts y comentarios 🔴
+- [ ] fase3-0002: API de creación de posts 🔴
+- [ ] fase3-0003: API de listado de posts con paginación 🔴
+- [ ] fase3-0004: Sistema de comentarios 🔴
+- [ ] fase3-0005: Sistema de reacciones (likes/emojis) 🔴
+- [ ] fase3-0006: Subida de imágenes en posts 🔴
+
+**Estado**: 0/6 tickets completados
+
+---
+
+## Fase 4: Reputación y Valoraciones 🔴 (Pendiente)
+
+- [ ] fase4-0001: Modelo de valoraciones entre usuarios 🔴
+- [ ] fase4-0002: API de valoración de usuarios 🔴
+- [ ] fase4-0003: Algoritmo de cálculo de reputación 🔴
+- [ ] fase4-0004: Historial de valoraciones 🔴
+- [ ] fase4-0005: Prevención de abuso en valoraciones 🔴
+
+**Estado**: 0/5 tickets completados
+
+---
+
+## Fase 5: Notificaciones Push 🔴 (Pendiente)
+
+- [ ] fase5-0001: Integración con Firebase Cloud Messaging 🔴
+- [ ] fase5-0002: Sistema de notificaciones internas 🔴
+- [ ] fase5-0003: Background jobs para envío de notificaciones 🔴
+- [ ] fase5-0004: Configuración de preferencias de notificaciones 🔴
+
+**Estado**: 0/4 tickets completados
+
+---
+
+## Fase 6: Búsqueda y Filtros 🔴 (Pendiente)
+
+- [ ] fase6-0001: Búsqueda global de contenido 🔴
+- [ ] fase6-0002: Filtros geográficos por proximidad 🔴
+- [ ] fase6-0003: Búsqueda full-text optimizada 🔴
+- [ ] fase6-0004: Sistema de recomendaciones básico 🔴
+
+**Estado**: 0/4 tickets completados
+
+---
+
+## Fase 7: Frontend Flutter 🔴 (Pendiente)
+
+- [ ] fase7-0001: Setup inicial de proyecto Flutter 🔴
+- [ ] fase7-0002: Pantallas de autenticación 🔴
+- [ ] fase7-0003: Navegación principal y estructura 🔴
+- [ ] fase7-0004: Listado y detalle de comunidades 🔴
+- [ ] fase7-0005: Feed de posts con paginación 🔴
+- [ ] fase7-0006: Creación de posts con imágenes 🔴
+- [ ] fase7-0007: Perfil de usuario y configuraciones 🔴
+- [ ] fase7-0008: Sistema de notificaciones en-app 🔴
+
+**Estado**: 0/8 tickets completados
+
+---
+
+## Fase 8: Optimización y Producción 🔴 (Pendiente)
+
+- [ ] fase8-0001: Optimización de performance 🔴
+- [ ] fase8-0002: Setup de monitoreo y alertas 🔴
+- [ ] fase8-0003: Configuración de backup y recovery 🔴
+- [ ] fase8-0004: Hardening de seguridad 🔴
+- [ ] fase8-0005: Deploy en producción 🔴
+
+**Estado**: 0/5 tickets completados
+
+---
+
+## Resumen de Progreso
+
+| Fase | Tickets Totales | Completados | En Progreso | Pendientes | % Completado |
+|------|----------------|-------------|-------------|------------|--------------|
+| Fase 0 | 5 | 2 | 0 | 3 | 40% |
+| Fase 1 | 7 | 2 | 0 | 5 | 29% |
+| Fase 2 | 5 | 0 | 0 | 5 | 0% |
+| Fase 3 | 6 | 0 | 0 | 6 | 0% |
+| Fase 4 | 5 | 0 | 0 | 5 | 0% |
+| Fase 5 | 4 | 0 | 0 | 4 | 0% |
+| Fase 6 | 4 | 0 | 0 | 4 | 0% |
+| Fase 7 | 8 | 0 | 0 | 8 | 0% |
+| Fase 8 | 5 | 0 | 0 | 5 | 0% |
+| **TOTAL** | **49** | **4** | **0** | **45** | **8%** |
+
+---
+
+## Leyenda de Estados
+
+- ✅ **Completado**: Ticket implementado, testeado y aprobado
+- 🟡 **En Progreso**: Ticket actualmente en desarrollo  
+- 🔴 **Pendiente**: Ticket no iniciado
+- ⚠️ **Bloqueado**: Ticket bloqueado por dependencias externas
+
+---
+
+## Próximas Acciones Prioritarias
+
+### Esta Semana
+1. **Implementar fase1-0003** - Sistema de recuperación de contraseña
+2. **Completar fase1-0004** - Gestión básica de perfil
+3. **Opcional: fase0-0003** - CI/CD pipeline básico
+
+### Próxima Semana  
+1. **Finalizar Fase 1** - Autenticación completa con avatares
+2. **Iniciar Fase 2** - Modelos de comunidades
+3. **Setup documentación** - fase0-0004
+
+### Este Mes
+1. **Completar Fase 1** - Sistema de autenticación robusto
+2. **Avanzar Fase 2** - Comunidades básicas
+3. **Configurar staging** - Ambiente de pruebas
+
+---
+
+## Historial de Implementaciones Recientes
+
+### ✅ **Completadas el 5 de agosto de 2025:**
+
+**fase0-0002: Setup de base de datos PostgreSQL**
+- ✅ Configuración de PostgreSQL para producción
+- ✅ SQLite mantenido para desarrollo  
+- ✅ Variables de entorno configuradas
+- ✅ Documentación de setup creada (`POSTGRESQL_SETUP.md`)
+
+**fase1-0002: Sistema de login con JWT tokens**
+- ✅ djangorestframework-simplejwt instalado y configurado
+- ✅ LoginView implementada con validación
+- ✅ ProfileView protegida creada  
+- ✅ Endpoints `/api/auth/login/`, `/api/auth/refresh/`, `/api/users/me/`
+- ✅ Sistema probado completamente
+- ✅ Documentación JWT creada (`JWT_AUTH_DOCS.md`)
+
+### 🧪 **Pruebas Realizadas:**
+- ✅ 2 usuarios de prueba registrados y validados
+- ✅ Sistema de autenticación JWT funcional
+- ✅ APIs protegidas funcionando correctamente
+- ✅ Validaciones de duplicados implementadas
+
+---
+
+**Última actualización**: 5 de agosto de 2025  
+**Próxima revisión**: 12 de agosto de 2025
