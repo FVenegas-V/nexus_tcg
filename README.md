@@ -1,10 +1,24 @@
 # 🎮 Nexus TCG
+### *Tu plataforma definitiva para Trading Card Games*
+
+<div align="center">
+
+![Flutter](https://img.shields.io/badge/Flutter-3.0%2B-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.2.4-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+
+![Progreso](https://img.shields.io/badge/Progreso_MVP-10.2%25-4CAF50?style=for-the-badge)
+![Estado](https://img.shields.io/badge/Estado-En_Desarrollo-orange?style=for-the-badge)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-blue?style=for-the-badge)
+
+</div>
 
 ---
 
 ## 🌟 **Descripción del Proyecto**
 
-**Nexus TCG** es una plataforma social completa para jugadores y coleccionistas de TCG (Trading Card Games) que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
+**Nexus TCG** es una plataforma social completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
@@ -12,6 +26,7 @@
 - ⭐ **Reputación de usuarios** - Sistema de valoraciones entre jugadores
 - 📱 **Notificaciones push** - Mantente conectado con tu comunidad
 - 🔍 **Búsqueda avanzada** - Encuentra jugadores, cartas y eventos
+- 🌍 **Geolocalización** - Conecta con jugadores cercanos
 
 ---
 
@@ -45,12 +60,12 @@
 - 🧪 Testing exhaustivo (unitarios + integración + demo)
 - 📚 Documentación técnica completa
 
-#### ✅ **Fase 1-0002: Autenticación JWT** *(Recién Completado)*
+#### ✅ **Fase 1-0002: Autenticación JWT**
 - 🎫 Tokens JWT con refresh automático
 - 🔐 Endpoints seguros con permisos
 - ⏰ Expiración configurable (60min access, 7 días refresh)
 
-#### ✅ **Fase 1-0001: Registro de Usuarios** *(Recién Completado)*
+#### ✅ **Fase 1-0001: Registro de Usuarios**
 - 👤 Modelo de usuario personalizado
 - ✅ Validaciones completas de datos
 - 🛡️ Hash seguro de contraseñas
