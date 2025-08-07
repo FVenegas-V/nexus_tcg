@@ -48,7 +48,41 @@ migrate_working_dir/
 # Base de datos local
 /backend/db.sqlite3
 POSTGRESQL_SETUP.md
+
+# Archivos de testing y desarrollo
+/backend/test_*.py
+/backend/debug_*.py
+/backend/demo_*.py
+/backend/show_*.py
+
+# Documentación de fases (generada automáticamente)
+FASE1_*_DOCS.md
+RESUMEN_FASE1_*_COMPLETADA.md
 JWT_AUTH_DOCS.md
+
+# Archivos de testing y debugging
+/backend/test_*.py
+/backend/debug_*.py
+/backend/demo_*.py
+/backend/show_*.py
+
+# Archivos específicos de testing (por si los patrones no los cubren)
+/backend/test_endpoints.py
+/backend/test_password_recovery.py
+/backend/test_password_recovery_api.py
+/backend/test_registration.py
+/backend/test_simple.py
+/backend/test_auth_problem.py
+/backend/test_email_verification.py
+/backend/test_email_verification_api.py
+/backend/test_improved_login.py
+
+# Guías y documentación de desarrollo
+/backend/GUIA_*.md
+/backend/*_DOCS.md
+
+# Documentación API reorganizada
+docs/apis/guia-postman.md
 
 # Carpeta de compilación de Flutter
 /build/

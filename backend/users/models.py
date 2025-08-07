@@ -54,6 +54,46 @@ class PasswordResetToken(models.Model):
         """
         self.used_at = timezone.now()
         self.save()
+
+
+class EmailVerificationToken(models.Model):
+    """
+    Modelo para tokens de verificación de email
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification_token')
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Email Verification Token"
+        verbose_name_plural = "Email Verification Tokens"
+    
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            # Token válido por 24 horas (más tiempo que password reset)
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+    
+    def is_valid(self):
+        """
+        Verifica si el token es válido (no usado y no expirado)
+        """
+        return (
+            self.used_at is None and 
+            timezone.now() < self.expires_at
+        )
+    
+    def mark_as_used(self):
+        """
+        Marca el token como usado y verifica el email del usuario
+        """
+        self.used_at = timezone.now()
+        self.user.email_verified = True
+        self.user.save()
+        self.save()
     
     def __str__(self):
         return f"Password reset token for {self.user.email}"

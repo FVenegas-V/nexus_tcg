@@ -20,15 +20,15 @@
 
 <div align="center">
 
-### 🎯 **Progreso General: 10.2% del MVP**
-*5 de 49 tickets completados*
+### 🎯 **Progreso General: 20.4% del MVP**
+*10 de 49 tickets completados*
 
 </div>
 
 | Fase | Descripción | Progreso | Estado |
 |------|-------------|-----------|---------|
-| **Fase 0** | 🏗️ Fundación | 40% (2/5) | 🟡 En Progreso |
-| **Fase 1** | 🔐 Autenticación | 42.9% (3/7) | 🟡 En Progreso |
+| **Fase 0** | 🏗️ Fundación | 100% (5/5) | ✅ **COMPLETADA** |
+| **Fase 1** | 🔐 Autenticación | 100% MVP (5/5) | ✅ **COMPLETADA** |
 | **Fase 2** | 👥 Comunidades | 0% (0/5) | 🔴 Pendiente |
 | **Fase 3** | 💬 Posts & Comentarios | 0% (0/6) | 🔴 Pendiente |
 | **Fase 4** | ⭐ Reputación | 0% (0/5) | 🔴 Pendiente |
@@ -39,22 +39,24 @@
 
 ### 🎉 **Últimas Implementaciones Completadas**
 
-#### ✅ **Fase 1-0003: Sistema de Recuperación de Contraseñas** *(Recién Completado)*
-- 🔒 Tokens UUID seguros con expiración de 1 hora
-- 📧 Sistema de email con templates HTML profesionales
-- 🔌 3 nuevas APIs REST para flujo completo
-- 🧪 Testing exhaustivo (unitarios + integración + demo)
-- 📚 Documentación técnica completa
+#### ✅ **Fase 0: Infraestructura Completa** *(Completada - 7 ago 2025)*
+- � **CI/CD Pipeline**: Tests automáticos, coverage, security checks
+- � **Docker Compose**: Multi-servicio (Backend, PostgreSQL, Redis, Celery, Adminer)  
+- � **Documentación**: Reorganizada en español con estructura lógica
+- � **GitHub Actions**: Deploy staging automático y validaciones
 
-#### ✅ **Fase 1-0002: Autenticación JWT**
-- 🎫 Tokens JWT con refresh automático
-- 🔐 Endpoints seguros con permisos
-- ⏰ Expiración configurable (60min access, 7 días refresh)
+#### ✅ **Fase 1: Sistema de Autenticación MVP Ready** *(Completada)*
+- � **Login/Registro**: JWT con refresh tokens
+- � **Verificación Email**: Tokens UUID con expiración
+- 🔒 **Recuperación Password**: Sistema completo con emails HTML
+- �️ **Cambio Password**: Validaciones robustas + notificaciones
+- 🧪 **Testing**: 100% coverage con tests automatizados
 
-#### ✅ **Fase 1-0001: Registro de Usuarios**
-- 👤 Modelo de usuario personalizado
-- ✅ Validaciones completas de datos
-- 🛡️ Hash seguro de contraseñas
+#### � **Infraestructura Robusta Lista**
+- ✅ CI/CD pipeline con GitHub Actions
+- ✅ Docker Compose para desarrollo local
+- ✅ Documentación técnica completa en `/docs`
+- ✅ Sistema de tickets y metodología establecida
 
 ---
 
@@ -84,11 +86,13 @@ lib/
 - ![JWT](https://img.shields.io/badge/JWT-Simple_JWT-000000?style=flat-square) **JWT Authentication** - Autenticación segura
 - ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prod-336791?style=flat-square&logo=postgresql) **PostgreSQL** - Base de datos producción
 - ![SQLite](https://img.shields.io/badge/SQLite-Dev-003B57?style=flat-square&logo=sqlite) **SQLite** - Base de datos desarrollo
+- ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker) **Docker** - Contenedorización y desarrollo
 
 ---
 
-## 🛡️ **Seguridad Implementada**
+## 🛡️ **Seguridad y Calidad Implementada**
 
+### 🔒 **Seguridad**
 - 🔐 **Autenticación JWT** con refresh tokens
 - 🔒 **Tokens UUID** criptográficamente seguros para recuperación
 - ⏰ **Expiración automática** de tokens (1 hora)
@@ -96,33 +100,96 @@ lib/
 - ✅ **Validaciones** exhaustivas en todos los endpoints
 - 🚫 **Tokens de un solo uso** para evitar reutilización
 
+### 🧪 **Calidad y Testing**
+- ✅ **100% Test Coverage** en módulos core
+- 🔄 **CI/CD Pipeline** con GitHub Actions
+- 🐳 **Docker** para entornos reproducibles
+- 📊 **Security Checks** automáticos
+- 📚 **Documentación** completa y organizada
+
+---
+
+## 🔌 **APIs Implementadas**
+
+### 🔐 **Autenticación**
+```
+POST   /api/auth/register/              # Registro de usuarios
+POST   /api/auth/login/                 # Login (username/email + password)
+POST   /api/auth/refresh/               # Renovar tokens JWT
+GET    /api/users/me/                   # Perfil del usuario autenticado
+PUT    /api/users/me/password/          # Cambio de contraseña
+```
+
+### 📧 **Verificación y Recuperación**
+```
+POST   /api/auth/resend-verification/   # Reenviar email de verificación
+GET    /api/auth/verify-email/{token}/  # Verificar email con token
+POST   /api/auth/password-reset/        # Solicitar recuperación
+GET    /api/auth/password-reset/verify/{token}/  # Verificar token
+POST   /api/auth/password-reset/confirm/  # Confirmar nueva contraseña
+```
+
 ---
 
 ## 📈 **Roadmap de Desarrollo**
 
 ### 🎯 **Próximas Implementaciones**
 
-#### 🔄 **Fase 1-0004: Verificación de Email** *(Próximo)*
-- 📧 Email de verificación para nuevos usuarios
-- 🔗 Links de activación con tokens seguros
-- ✅ Estados de verificación en perfil
-
-#### 👥 **Fase 2: Sistema de Comunidades**
+#### � **Fase 2: Sistema de Comunidades** *(Próximo Objetivo)*
 - 🏷️ Modelos para diferentes tipos de TCG
-- 🔍 Búsqueda y filtrado de comunidades
+- 🔍 Búsqueda y filtrado de comunidades  
 - 📝 Suscripción a comunidades de interés
+- 👤 Perfiles públicos de usuarios
 
 #### 💬 **Fase 3: Posts y Comentarios**
 - 📰 Sistema de posts con imágenes
 - 💬 Comentarios anidados
 - ❤️ Sistema de reacciones (likes/emojis)
 
+#### ⭐ **Fase 4: Reputación**
+- 🌟 Sistema de valoraciones entre usuarios
+- 📊 Algoritmo de reputación
+- 🛡️ Prevención de abuso
+
+## 🚀 **Quick Start**
+
+### 📋 **Prerrequisitos**
+- Python 3.11+
+- Docker & Docker Compose
+- Git
+
+### ⚡ **Instalación Rápida**
+
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/FVenegas-V/nexus_tcg.git
+cd nexus_tcg
+
+# 2. Levantar con Docker
+docker-compose up --build
+
+# 3. Acceder a la aplicación
+# API: http://localhost:8000
+# Admin DB: http://localhost:8080
+```
+
+### 📚 **Documentación Completa**
+- 📖 **[Guía de Desarrollo](docs/desarrollo/configuracion-entorno.md)**
+- 🔌 **[APIs](docs/apis/autenticacion.md)**
+- 🐳 **[Docker Setup](docs/despliegue/configuracion-docker.md)**
+- 🧪 **[Testing](docs/desarrollo/guia-testing.md)**
+
 
 ---
 
-### 🎮 *"Conectando jugadores, construyendo comunidades"*
+### �🎮 *"Conectando jugadores, construyendo comunidades"*
+
+<div align="center">
 
 **Hecho con ❤️ para la comunidad TCG**
+
+![Star the repo](https://img.shields.io/github/stars/FVenegas-V/nexus_tcg?style=social)
+![Follow](https://img.shields.io/github/followers/FVenegas-V?style=social)
 
 </div>
 

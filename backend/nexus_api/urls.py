@@ -23,7 +23,10 @@ from users.views import (
     ProfileView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
-    PasswordResetVerifyTokenView
+    PasswordResetVerifyTokenView,
+    EmailVerificationView,
+    EmailVerificationResendView,
+    ChangePasswordView
 )
 
 urlpatterns = [
@@ -36,6 +39,10 @@ urlpatterns = [
     path('api/auth/password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('api/auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('api/auth/password-reset/verify/<uuid:token>/', PasswordResetVerifyTokenView.as_view(), name='password_reset_verify'),
+    # APIs de verificación de email
+    path('api/auth/verify-email/<uuid:token>/', EmailVerificationView.as_view(), name='email_verification'),
+    path('api/auth/resend-verification/', EmailVerificationResendView.as_view(), name='email_verification_resend'),
     # APIs de usuario
     path('api/users/me/', ProfileView.as_view(), name='profile'),
+    path('api/users/me/password/', ChangePasswordView.as_view(), name='change_password'),
 ]

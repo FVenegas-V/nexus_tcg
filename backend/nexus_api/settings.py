@@ -126,6 +126,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -213,6 +218,9 @@ PASSWORD_RESET_EMAIL_SUBJECT = 'Nexus TCG - Recuperación de Contraseña'
 EMAIL_VERIFIED_FIELD = 'email_verified'
 EMAIL_VERIFICATION_URL = config('EMAIL_VERIFICATION_URL', default='http://localhost:8000/auth/verify-email/')
 EMAIL_VERIFICATION_TOKEN_LIFE = 3600  # 1 hour
+
+# Frontend URL for email links
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 
 # Celery Configuration for Email Tasks (optional for async email sending)
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
