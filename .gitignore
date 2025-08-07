@@ -101,16 +101,16 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Prompts
-guidelines.md
-instructions.md
-ticket-template.md
+# Prompts - Ahora incluidos en el repositorio
+# guidelines.md
+# instructions.md
+# ticket-template.md (removido de .gitignore)
 
-#docs
-01-architecture-overview.md
-02-database-design.md
-03-api-specification.md
-plan.md
+#docs - Ahora incluidos en el repositorio
+# 01-architecture-overview.md
+# 02-database-design.md
+# 03-api-specification.md
+# plan.md (removido de .gitignore)
 
 #tickets
 0000-index.md
