@@ -1,17 +1,18 @@
 # 🎮 Nexus TCG
-### *Tu aplicación movil definitiva para Trading Card Games*
+### *Tu aplicación móvil para Trading Card Games*
 
 ---
 
 ## 🌟 **Descripción del Proyecto**
 
-**Nexus TCG** es una aplicación movil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
+**Nexus TCG** es una aplicación móvil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
-- 💬 **Sistema social** - Posts, comentarios, reacciones y discusiones
+- � **Sistema social** - Posts, comentarios, reacciones y discusiones
 - ⭐ **Reputación de usuarios** - Sistema de valoraciones entre jugadores
-- 📱 **Notificaciones push** - Mantente conectado con tu comunidad
+- 🚀 **GitHub Actions**: Deploy staging automático y validacioness Completadas**
+
 - 🔍 **Búsqueda avanzada** - Encuentra jugadores, cartas y eventos
 
 ---
@@ -20,8 +21,8 @@
 
 <div align="center">
 
-### 🎯 **Progreso General: 20.4% del MVP**
-*10 de 49 tickets completados*
+### 🎯 **Progreso General: 45.8% del MVP**
+*22 de 48 tickets completados*
 
 </div>
 
@@ -29,27 +30,39 @@
 |------|-------------|-----------|---------|
 | **Fase 0** | 🏗️ Fundación | 100% (5/5) | ✅ **COMPLETADA** |
 | **Fase 1** | 🔐 Autenticación | 100% MVP (5/5) | ✅ **COMPLETADA** |
-| **Fase 2** | 👥 Comunidades | 0% (0/5) | 🔴 Pendiente |
+| **Fase 2** | 👥 Comunidades | 100% (5/5) | ✅ **COMPLETADA** |
 | **Fase 3** | 💬 Posts & Comentarios | 0% (0/6) | 🔴 Pendiente |
 | **Fase 4** | ⭐ Reputación | 0% (0/5) | 🔴 Pendiente |
 | **Fase 5** | 📱 Notificaciones | 0% (0/4) | 🔴 Pendiente |
 | **Fase 6** | 🔍 Búsqueda | 0% (0/4) | 🔴 Pendiente |
-| **Fase 7** | 📱 Frontend Flutter | 0% (0/8) | 🔴 Pendiente |
+| **Fase 7** | 📱 Frontend Flutter | 86% (6/7) | ✅ **CASI COMPLETO** |
 | **Fase 8** | 🚀 Producción | 0% (0/5) | 🔴 Pendiente |
 
 ### 🎉 **Últimas Implementaciones Completadas**
 
+#### ✅ **Fase 2: Backend de Comunidades COMPLETO** *(100% Completada - 14 ago 2025)*
+- 🏗️ **Modelos Django**: 5 modelos (Community, CommunityCategory, CommunityMembership, GameType, CommunityTag)
+- 📡 **APIs REST**: 20+ endpoints con filtros avanzados, paginación y búsqueda
+- 🎮 **Sistema de GameTypes**: Filtros por tipo de juego (Magic, Pokemon, Yu-Gi-Oh, etc.)
+- 🏷️ **Sistema de Tags**: Categorización dinámica con autocompletado
+- 👥 **Sistema de Membresías**: Join/leave con validaciones robustas
+- 🛡️ **Permisos Granulares**: 6 clases de permisos por roles (member, moderator, admin)
+- ⚙️ **Admin Panel**: Interface administrativa completa con filtros
+- 🧪 **Testing Completo**: Colección Postman con 20+ pruebas validadas
+- 📋 **Comandos Management**: Carga de datos y estadísticas automáticas
+- 🔍 **Búsqueda Avanzada**: Filtros, sugerencias y autocompletado funcionales
+
 #### ✅ **Fase 0: Infraestructura Completa** *(Completada - 7 ago 2025)*
-- � **CI/CD Pipeline**: Tests automáticos, coverage, security checks
-- � **Docker Compose**: Multi-servicio (Backend, PostgreSQL, Redis, Celery, Adminer)  
-- � **Documentación**: Reorganizada en español con estructura lógica
-- � **GitHub Actions**: Deploy staging automático y validaciones
+- 🔄 **CI/CD Pipeline**: Tests automáticos, coverage, security checks
+- 🐳 **Docker Compose**: Multi-servicio (Backend, PostgreSQL, Redis, Celery, Adminer)  
+- 📚 **Documentación**: Reorganizada en español con estructura lógica
+- 🚀 **GitHub Actions**: Deploy staging automático y validaciones
 
 #### ✅ **Fase 1: Sistema de Autenticación MVP Ready** *(Completada)*
-- � **Login/Registro**: JWT con refresh tokens
-- � **Verificación Email**: Tokens UUID con expiración
+- 🔐 **Login/Registro**: JWT con refresh tokens
+- 📧 **Verificación Email**: Tokens UUID con expiración
 - 🔒 **Recuperación Password**: Sistema completo con emails HTML
-- �️ **Cambio Password**: Validaciones robustas + notificaciones
+- 🛡️ **Cambio Password**: Validaciones robustas + notificaciones
 - 🧪 **Testing**: 100% coverage con tests automatizados
 
 #### � **Infraestructura Robusta Lista**
@@ -81,7 +94,7 @@ lib/
 
 
 **Tecnologías Backend:**
-- ![Django](https://img.shields.io/badge/Django-5.2.4-092E20?style=flat-square&logo=django) **Django 5.2.4** - Framework web robusto
+- ![Django](https://img.shields.io/badge/Django-5.2.4-092E20?style=flat-square&logo=django) **Django 5.2.4** - Framework backend robusto
 - ![DRF](https://img.shields.io/badge/DRF-Latest-red?style=flat-square) **Django REST Framework** - APIs REST potentes
 - ![JWT](https://img.shields.io/badge/JWT-Simple_JWT-000000?style=flat-square) **JWT Authentication** - Autenticación segura
 - ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prod-336791?style=flat-square&logo=postgresql) **PostgreSQL** - Base de datos producción
@@ -117,6 +130,7 @@ POST   /api/auth/register/              # Registro de usuarios
 POST   /api/auth/login/                 # Login (username/email + password)
 POST   /api/auth/refresh/               # Renovar tokens JWT
 GET    /api/users/me/                   # Perfil del usuario autenticado
+PUT    /api/users/me/                   # Actualizar perfil de usuario
 PUT    /api/users/me/password/          # Cambio de contraseña
 ```
 
@@ -127,6 +141,17 @@ GET    /api/auth/verify-email/{token}/  # Verificar email con token
 POST   /api/auth/password-reset/        # Solicitar recuperación
 GET    /api/auth/password-reset/verify/{token}/  # Verificar token
 POST   /api/auth/password-reset/confirm/  # Confirmar nueva contraseña
+```
+
+### 📱 **Frontend Flutter Completado**
+```
+🔐 Autenticación     ✅ Login/registro con validaciones
+🧭 Navegación        ✅ Bottom tabs + rutas protegidas
+👥 Comunidades       ✅ Listado, búsqueda, detalles
+📄 Feed Posts        ✅ Paginación infinita + filtros
+✏️ Crear Posts       ✅ Editor con imágenes + validaciones
+👤 Perfil            ✅ Edición, configuraciones, avatar
+🎨 UI/UX            ✅ Material Design 3 + animaciones
 ```
 
 ---
@@ -165,19 +190,32 @@ POST   /api/auth/password-reset/confirm/  # Confirmar nueva contraseña
 git clone https://github.com/FVenegas-V/nexus_tcg.git
 cd nexus_tcg
 
-# 2. Levantar con Docker
+# 2. Levantar Backend con Docker
 docker-compose up --build
 
-# 3. Acceder a la aplicación
-# API: http://localhost:8000
+# 3. Para Flutter (desarrollo móvil)
+cd nexus_tcg
+flutter pub get
+flutter run
+
+# 4. Acceder a la aplicación
+# API Backend: http://localhost:8000
 # Admin DB: http://localhost:8080
+# Flutter: Emulador o dispositivo físico
 ```
 
 ### 📚 **Documentación Completa**
 - 📖 **[Guía de Desarrollo](docs/desarrollo/configuracion-entorno.md)**
-- 🔌 **[APIs](docs/apis/autenticacion.md)**
-- 🐳 **[Docker Setup](docs/despliegue/configuracion-docker.md)**
+- 🔌 **[APIs Backend](docs/apis/autenticacion.md)**
+- � **[Frontend Flutter](docs/desarrollo/)**
+- �🐳 **[Docker Setup](docs/despliegue/configuracion-docker.md)**
 - 🧪 **[Testing](docs/desarrollo/guia-testing.md)**
+
+### 🎯 **Próximos Pasos**
+- 🚀 **Completar Fase 2** - Gestión avanzada de roles y filtros (fase2-0004, fase2-0005)
+- 🔗 **Integración Flutter + Backend** - Conectar frontend con APIs reales
+- 🔜 **Sistema de Posts** backend (Fase 3)
+- 🔜 **Sistema de Reputación** completo (Fase 4)
 
 
 ---

@@ -1,0 +1,269 @@
+[
+  {
+    "model": "communities.communitycategory",
+    "pk": 1,
+    "fields": {
+      "name": "Competitive",
+      "slug": "competitive",
+      "description": "Comunidades enfocadas en competencia seria, torneos y juego de alto nivel.",
+      "icon": "emoji_events",
+      "color": "#FF5722",
+      "community_count": 0,
+      "is_active": true,
+      "created_at": "2025-08-13T10:00:00Z",
+      "updated_at": "2025-08-13T10:00:00Z"
+    }
+  },
+  {
+    "model": "communities.communitycategory",
+    "pk": 2,
+    "fields": {
+      "name": "Casual",
+      "slug": "casual",
+      "description": "Comunidades para jugadores casuales que buscan diversión sin presión competitiva.",
+      "icon": "group",
+      "color": "#4CAF50",
+      "community_count": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "communities.communitycategory",
+    "pk": 3,
+    "fields": {
+      "name": "Trading",
+      "slug": "trading",
+      "description": "Comunidades especializadas en intercambio y trading de cartas.",
+      "icon": "swap_horiz",
+      "color": "#2196F3",
+      "community_count": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "communities.communitycategory",
+    "pk": 4,
+    "fields": {
+      "name": "Collecting",
+      "slug": "collecting",
+      "description": "Comunidades para coleccionistas y entusiastas de cartas raras.",
+      "icon": "collections",
+      "color": "#9C27B0",
+      "community_count": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "communities.communitycategory",
+    "pk": 5,
+    "fields": {
+      "name": "Beginner-Friendly",
+      "slug": "beginner-friendly",
+      "description": "Comunidades especialmente diseñadas para principiantes y nuevos jugadores.",
+      "icon": "school",
+      "color": "#FF9800",
+      "community_count": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 1,
+    "fields": {
+      "name": "Magic Competitivo México",
+      "description": "Comunidad para jugadores serios de Magic: The Gathering en México. Organizamos torneos semanales, discutimos estrategias de meta y compartimos builds de mazos competitivos.",
+      "slug": "magic-competitivo-mexico",
+      "image_url": "https://example.com/magic-competitive.jpg",
+      "game_type": "Magic: The Gathering",
+      "difficulty_level": "avanzado",
+      "category": 1,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": 500,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["competitivo", "torneos", "standard", "modern", "meta"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 2,
+    "fields": {
+      "name": "Pokemon TCG Casual",
+      "description": "Espacio relajado para jugadores casuales de Pokemon TCG. Compartimos colecciones, estrategias básicas y organizamos partidas amistosas.",
+      "slug": "pokemon-tcg-casual",
+      "image_url": "https://example.com/pokemon-casual.jpg",
+      "game_type": "Pokemon TCG",
+      "difficulty_level": "intermedio",
+      "category": 2,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": null,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["casual", "pokemon", "coleccion", "principiantes"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 3,
+    "fields": {
+      "name": "Yu-Gi-Oh! Trading Hub",
+      "description": "El lugar perfecto para intercambiar cartas de Yu-Gi-Oh!. Publicamos listas de trading, precios de mercado y organizamos intercambios seguros.",
+      "slug": "yugioh-trading-hub",
+      "image_url": "https://example.com/yugioh-trading.jpg",
+      "game_type": "Yu-Gi-Oh!",
+      "difficulty_level": "intermedio",
+      "category": 3,
+      "is_public": true,
+      "requires_approval": true,
+      "max_members": 200,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["trading", "intercambio", "yugioh", "mercado"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 4,
+    "fields": {
+      "name": "Coleccionistas de Magic Vintage",
+      "description": "Comunidad exclusiva para coleccionistas serios de cartas vintage de Magic. Discutimos autenticidad, preservación y valoraciones de cartas raras.",
+      "slug": "magic-vintage-collectors",
+      "image_url": "https://example.com/magic-vintage.jpg",
+      "game_type": "Magic: The Gathering",
+      "difficulty_level": "avanzado",
+      "category": 4,
+      "is_public": false,
+      "requires_approval": true,
+      "max_members": 50,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["vintage", "coleccion", "raras", "inversion"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 5,
+    "fields": {
+      "name": "Magic para Principiantes",
+      "description": "¿Nuevo en Magic: The Gathering? ¡Este es tu lugar! Aprende las reglas básicas, recibe consejos de jugadores experimentados y encuentra tu primer mazo.",
+      "slug": "magic-principiantes",
+      "image_url": "https://example.com/magic-beginners.jpg",
+      "game_type": "Magic: The Gathering",
+      "difficulty_level": "principiante",
+      "category": 5,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": null,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["principiantes", "aprender", "reglas", "primer-mazo"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 6,
+    "fields": {
+      "name": "Pokemon Competitivo VGC",
+      "description": "Comunidad dedicada al Video Game Championships de Pokemon. Analizamos el meta, compartimos equipos y preparamos estrategias para torneos oficiales.",
+      "slug": "pokemon-vgc-competitive",
+      "image_url": "https://example.com/pokemon-vgc.jpg",
+      "game_type": "Pokemon VGC",
+      "difficulty_level": "avanzado",
+      "category": 1,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": 300,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["vgc", "competitivo", "torneos", "estrategia"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 7,
+    "fields": {
+      "name": "Digimon Card Game",
+      "description": "Comunidad en español para el nuevo Digimon Card Game. Desde principiantes hasta expertos, todos son bienvenidos a explorar este emocionante TCG.",
+      "slug": "digimon-card-game",
+      "image_url": "https://example.com/digimon-tcg.jpg",
+      "game_type": "Digimon Card Game",
+      "difficulty_level": "intermedio",
+      "category": 2,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": null,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["digimon", "nuevo", "tcg", "español"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 8,
+    "fields": {
+      "name": "One Piece Card Game ES",
+      "description": "¡El One Piece Card Game ha llegado! Únete para discutir estrategias, intercambiar cartas y organizar partidas del TCG más nuevo del mercado.",
+      "slug": "one-piece-card-game-es",
+      "image_url": "https://example.com/onepiece-tcg.jpg",
+      "game_type": "One Piece Card Game",
+      "difficulty_level": "principiante",
+      "category": 5,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": null,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["onepiece", "nuevo", "estrategia", "principiantes"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 9,
+    "fields": {
+      "name": "Flesh and Blood Mexico",
+      "description": "Comunidad mexicana de Flesh and Blood TCG. Un juego de cartas táctico y profundo que está ganando popularidad mundial.",
+      "slug": "flesh-and-blood-mexico",
+      "image_url": "https://example.com/fab-mexico.jpg",
+      "game_type": "Flesh and Blood",
+      "difficulty_level": "avanzado",
+      "category": 1,
+      "is_public": true,
+      "requires_approval": false,
+      "max_members": 150,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["fab", "tactico", "mexico", "profundo"]
+    }
+  },
+  {
+    "model": "communities.community",
+    "pk": 10,
+    "fields": {
+      "name": "TCG Trading General",
+      "description": "Mercado general para trading de cualquier TCG. Publicamos listas de wants/haves, precios de referencia y organizamos intercambios masivos.",
+      "slug": "tcg-trading-general",
+      "image_url": "https://example.com/tcg-general-trading.jpg",
+      "game_type": "Multi-TCG",
+      "difficulty_level": "intermedio",
+      "category": 3,
+      "is_public": true,
+      "requires_approval": true,
+      "max_members": 1000,
+      "created_by": 1,
+      "member_count": 0,
+      "post_count": 0,
+      "tags": ["trading", "multi-tcg", "intercambio", "general"]
+    }
+  }
+]

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle for better icon appearance -->
+  <circle cx="512" cy="512" r="512" fill="#FFFFFF"/>
+  
+  <!-- Card shape - coral color -->
+  <g transform="translate(150, 250) scale(1.2)">
+    <!-- Rounded rectangle for the card -->
+    <rect x="50" y="50" width="200" height="300" rx="20" ry="20" fill="#FF6B6B" stroke="none"/>
+    
+    <!-- Diamond shape in the center -->
+    <g transform="translate(150, 200)">
+      <polygon points="0,-40 40,0 0,40 -40,0" fill="#FFFFFF"/>
+    </g>
+  </g>
+  
+  <!-- Text "NEXUS TCG" below the card -->
+  <g transform="translate(512, 650)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
+          text-anchor="middle" fill="#666666">NEXUS</text>
+    <text x="0" y="90" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
+          text-anchor="middle" fill="#666666">TCG</text>
+  </g>
+</svg>

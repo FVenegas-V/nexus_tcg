@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/communities/providers/communities_provider.dart';
+import 'features/posts/providers/posts_provider.dart';
+import 'features/profile/providers/profile_provider.dart';
 import 'routes/app_router.dart';
 
 /// Punto de entrada de la aplicación Nexus TCG
@@ -18,7 +21,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       // Configuración de providers para gestión de estado
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CommunitiesProvider()),
+        ChangeNotifierProvider(create: (_) => PostsProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+      ],
       child: MaterialApp.router(
         title: 'Nexus TCG',
         theme: AppTheme.lightTheme,

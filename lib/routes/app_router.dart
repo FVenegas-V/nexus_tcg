@@ -4,7 +4,13 @@ import 'package:provider/provider.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
-import '../features/home/screens/home_screen.dart';
+import '../features/navigation/screens/main_navigation_screen.dart';
+import '../features/communities/screens/community_detail_screen.dart';
+import '../features/posts/screens/create_post_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/profile/screens/edit_profile_screen.dart';
+import '../features/profile/screens/change_password_screen.dart';
+import '../features/profile/screens/settings_screen.dart';
 
 /// Configuración del router de la aplicación
 /// Maneja la navegación y protección de rutas basada en autenticación
@@ -49,7 +55,7 @@ class AppRouter {
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const MainNavigationScreen(),
       ),
       // Ruta temporal para recuperar contraseña
       GoRoute(
@@ -58,6 +64,46 @@ class AppRouter {
         builder: (context, state) => const Scaffold(
           body: Center(child: Text('Recuperar Contraseña - Próximamente')),
         ),
+      ),
+      // Ruta de detalle de comunidad
+      GoRoute(
+        path: '/community/:id',
+        name: 'community-detail',
+        builder: (context, state) {
+          final communityIdString = state.pathParameters['id'] ?? '0';
+          final communityId = int.tryParse(communityIdString) ?? 0;
+          return CommunityDetailScreen(communityId: communityId);
+        },
+      ),
+      // Ruta de creación de posts
+      GoRoute(
+        path: '/create-post',
+        name: 'create-post',
+        builder: (context, state) => const CreatePostScreen(),
+      ),
+      // Rutas de perfil de usuario
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfileScreen(),
+        routes: [
+          GoRoute(
+            path: '/edit',
+            name: 'profile-edit',
+            builder: (context, state) => const EditProfileScreen(),
+          ),
+          GoRoute(
+            path: '/change-password',
+            name: 'change-password',
+            builder: (context, state) => const ChangePasswordScreen(),
+          ),
+        ],
+      ),
+      // Ruta de configuración general
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
     // Página de error personalizada para rutas no encontradas

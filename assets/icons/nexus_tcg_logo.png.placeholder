@@ -1,0 +1,12 @@
+# Nexus TCG Logo Placeholder
+
+Este archivo es un placeholder para `nexus_tcg_logo.png`.
+
+**Para completar la configuración:**
+
+1. Guarda tu logo de Nexus TCG como `nexus_tcg_logo.png` en esta carpeta
+2. Asegúrate de que sea 1024x1024 pixels
+3. Incluye tanto la carta coral como el texto "NEXUS TCG"
+4. Ejecuta `flutter pub run flutter_launcher_icons`
+
+El logo se aplicará automáticamente a todas las plataformas.

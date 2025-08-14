@@ -7,6 +7,9 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     
+    # Endpoint adicional para compatibilidad con frontend (misma vista)
+    path('me/', views.ProfileView.as_view(), name='user_profile'),
+    
     # URLs de recuperación de contraseña
     path('password-reset/', views.PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset-confirm/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),

@@ -3,19 +3,25 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from users.serializers import (
     RegisterSerializer, 
     PasswordResetRequestSerializer, 
     PasswordResetConfirmSerializer,
     EmailVerificationResendSerializer,
     EmailVerifySerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    UserProfileSerializer,
+    PublicUserProfileSerializer,
+    UserSearchSerializer
 )
 from .models import PasswordResetToken, EmailVerificationToken
 
@@ -105,8 +111,63 @@ class ProfileView(APIView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'date_joined': user.date_joined,
+            'is_email_verified': user.email_verified,  # Campo para el frontend
             'is_active': user.is_active,
         }, status=status.HTTP_200_OK)
+    
+    def put(self, request):
+        """
+        Actualiza la información del perfil del usuario autenticado.
+        Permite actualizar: first_name, last_name, email
+        """
+        user = request.user
+        data = request.data
+        
+        # Validar que no se intente cambiar username o id
+        if 'username' in data or 'id' in data:
+            return Response({
+                'error': 'No se puede modificar username o id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validar email si se está actualizando
+        if 'email' in data:
+            email = data.get('email', '').strip()
+            if email:
+                # Verificar que el email no esté en uso por otro usuario
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    return Response({
+                        'error': 'Este email ya está en uso por otro usuario'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                user.email = email
+        
+        # Actualizar nombres si se proporcionan
+        if 'first_name' in data:
+            user.first_name = data.get('first_name', '').strip()
+        
+        if 'last_name' in data:
+            user.last_name = data.get('last_name', '').strip()
+        
+        try:
+            # Guardar los cambios
+            user.save()
+            
+            # Devolver datos actualizados
+            return Response({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'date_joined': user.date_joined,
+                'is_email_verified': user.email_verified,  # Campo para el frontend
+                'is_active': user.is_active,
+                'message': 'Perfil actualizado exitosamente'
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': f'Error al actualizar perfil: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PasswordResetRequestView(APIView):
@@ -552,3 +613,226 @@ class ChangePasswordView(APIView):
         except Exception as e:
             print(f"❌ Error enviando email: {e}")
             # En producción, podrías querer loggear esto o usar un sistema de colas
+
+
+# ===== VISTAS PARA PERFILES DE USUARIO =====
+
+class UserProfileDetailView(APIView):
+    """
+    Vista para ver y actualizar el perfil del usuario autenticado
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Obtiene el perfil completo del usuario autenticado"""
+        try:
+            profile = request.user.profile
+            serializer = UserProfileSerializer(profile)
+            return Response({
+                'user': {
+                    'id': request.user.id,
+                    'username': request.user.username,
+                    'first_name': request.user.first_name,
+                    'last_name': request.user.last_name,
+                    'email': request.user.email,
+                    'email_verified': request.user.email_verified,
+                    'created_at': request.user.created_at,
+                },
+                'profile': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'error': 'Error al obtener el perfil del usuario'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def put(self, request):
+        """Actualiza el perfil del usuario autenticado"""
+        try:
+            profile = request.user.profile
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    'message': 'Perfil actualizado exitosamente',
+                    'profile': serializer.data
+                }, status=status.HTTP_200_OK)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(
+                {'error': 'Error al actualizar el perfil'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class PublicUserProfileView(APIView):
+    """
+    Vista para ver el perfil público de cualquier usuario
+    """
+    permission_classes = [AllowAny]
+    
+    def get(self, request, user_id):
+        """Obtiene el perfil público de un usuario específico"""
+        try:
+            user = get_object_or_404(User, id=user_id)
+            profile = user.profile
+            
+            # Preparar datos básicos del usuario
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+            
+            # Serializar perfil público respetando privacidad
+            profile_serializer = PublicUserProfileSerializer(profile)
+            
+            # Obtener comunidades si el usuario permite mostrarlas
+            communities_data = []
+            if profile.show_communities and hasattr(user, 'memberships'):
+                # TODO: Implementar cuando esté disponible el modelo de membresías
+                # memberships = user.memberships.filter(is_active=True).select_related('community')
+                # communities_data = [
+                #     {
+                #         'id': membership.community.id,
+                #         'name': membership.community.name,
+                #         'role': membership.role,
+                #         'joined_at': membership.created_at
+                #     }
+                #     for membership in memberships
+                # ]
+                pass
+            
+            return Response({
+                'user': user_data,
+                'profile': profile_serializer.data,
+                'communities': communities_data if profile.show_communities else None
+            }, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Usuario no encontrado'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Error al obtener el perfil público'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def search_users(request):
+    """
+    API para buscar usuarios públicos
+    """
+    try:
+        # Parámetros de búsqueda
+        query = request.GET.get('q', '').strip()
+        game = request.GET.get('game', '').strip()
+        location = request.GET.get('location', '').strip()
+        play_style = request.GET.get('play_style', '').strip()
+        experience_level = request.GET.get('experience_level', '').strip()
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 20))
+        
+        # Limitar page_size para evitar sobrecarga
+        page_size = min(page_size, 50)
+        
+        # Construir queryset base
+        users = User.objects.select_related('profile').filter(
+            profile__isnull=False
+        )
+        
+        # Aplicar filtros de búsqueda
+        if query:
+            users = users.filter(
+                Q(username__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query)
+            )
+        
+        if game:
+            users = users.filter(profile__favorite_games__contains=[game])
+        
+        if location:
+            users = users.filter(
+                profile__location__icontains=location,
+                profile__show_location=True
+            )
+        
+        if play_style:
+            users = users.filter(profile__play_style=play_style)
+        
+        if experience_level:
+            users = users.filter(profile__experience_level=experience_level)
+        
+        # Paginación manual
+        total_count = users.count()
+        start = (page - 1) * page_size
+        end = start + page_size
+        users_page = users[start:end]
+        
+        # Serializar resultados
+        serializer = UserSearchSerializer(users_page, many=True)
+        
+        return Response({
+            'count': total_count,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': (total_count + page_size - 1) // page_size,
+            'results': serializer.data
+        }, status=status.HTTP_200_OK)
+        
+    except ValueError:
+        return Response(
+            {'error': 'Parámetros de paginación inválidos'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {'error': 'Error en la búsqueda de usuarios'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_profile_stats(request):
+    """
+    API para actualizar estadísticas del perfil manualmente
+    (útil para debugging o sincronización)
+    """
+    try:
+        profile = request.user.profile
+        
+        # Actualizar contadores
+        if hasattr(request.user, 'memberships'):
+            profile.communities_count = request.user.memberships.filter(is_active=True).count()
+        
+        # TODO: Implementar cuando estén disponibles los modelos
+        # if hasattr(request.user, 'posts'):
+        #     profile.posts_count = request.user.posts.count()
+        #     profile.likes_received = sum(post.likes.count() for post in request.user.posts.all())
+        
+        profile.save()
+        
+        return Response({
+            'message': 'Estadísticas actualizadas exitosamente',
+            'stats': {
+                'communities_count': profile.communities_count,
+                'posts_count': profile.posts_count,
+                'likes_received': profile.likes_received,
+                'reputation_score': profile.reputation_score,
+            }
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response(
+            {'error': 'Error al actualizar estadísticas'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

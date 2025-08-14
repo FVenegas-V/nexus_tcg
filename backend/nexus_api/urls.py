@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from users.views import (
     RegisterView, 
@@ -26,7 +26,11 @@ from users.views import (
     PasswordResetVerifyTokenView,
     EmailVerificationView,
     EmailVerificationResendView,
-    ChangePasswordView
+    ChangePasswordView,
+    UserProfileDetailView,
+    PublicUserProfileView,
+    search_users,
+    update_profile_stats
 )
 
 urlpatterns = [
@@ -45,4 +49,11 @@ urlpatterns = [
     # APIs de usuario
     path('api/users/me/', ProfileView.as_view(), name='profile'),
     path('api/users/me/password/', ChangePasswordView.as_view(), name='change_password'),
+    # APIs de perfiles de usuario
+    path('api/users/me/profile/', UserProfileDetailView.as_view(), name='user_profile_detail'),
+    path('api/users/<int:user_id>/profile/', PublicUserProfileView.as_view(), name='public_user_profile'),
+    path('api/users/search/', search_users, name='search_users'),
+    path('api/users/me/profile/update-stats/', update_profile_stats, name='update_profile_stats'),
+    # APIs de comunidades
+    path('', include('communities.urls')),
 ]

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
-from .models import PasswordResetToken, EmailVerificationToken
+from .models import PasswordResetToken, EmailVerificationToken, UserProfile
 import re
 
 User = get_user_model()
@@ -204,3 +204,160 @@ class ChangePasswordSerializer(serializers.Serializer):
             errors.append("La contraseña debe contener al menos un carácter especial (!@#$%^&*(),.?\":{}|<>)")
         
         return errors
+
+
+# ===== SERIALIZERS PARA PERFILES DE USUARIO =====
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer completo para el perfil de usuario (uso interno y actualización)
+    """
+    age = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = UserProfile
+        fields = [
+            'bio', 'location', 'birth_date', 'age',
+            'favorite_games', 'play_style', 'experience_level',
+            'avatar_url', 'banner_url', 'theme_preference',
+            'show_email', 'show_location', 'show_birth_date',
+            'show_communities', 'show_activity_stats',
+            'communities_count', 'posts_count', 'likes_received',
+            'reputation_score', 'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'communities_count', 'posts_count', 'likes_received',
+            'reputation_score', 'created_at', 'updated_at', 'age'
+        ]
+    
+    def get_age(self, obj):
+        """Calcula la edad del usuario"""
+        return obj.get_age()
+
+    def validate_favorite_games(self, value):
+        """Valida que la lista de juegos favoritos no sea demasiado larga"""
+        if len(value) > 10:
+            raise serializers.ValidationError("No puedes tener más de 10 juegos favoritos.")
+        return value
+
+    def validate_bio(self, value):
+        """Valida que la biografía no contenga contenido inapropiado"""
+        # Lista básica de palabras prohibidas (se puede expandir)
+        prohibited_words = ['spam', 'hack', 'cheat']
+        for word in prohibited_words:
+            if word.lower() in value.lower():
+                raise serializers.ValidationError(f"La biografía contiene contenido no permitido.")
+        return value
+
+
+class PublicUserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer para mostrar perfiles públicos respetando configuraciones de privacidad
+    """
+    username = serializers.CharField(source='user.username', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    email = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    birth_date = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
+    joined_at = serializers.DateTimeField(source='user.created_at', read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = [
+            'username', 'first_name', 'last_name', 'email',
+            'bio', 'location', 'birth_date', 'age', 'joined_at',
+            'favorite_games', 'play_style', 'experience_level',
+            'avatar_url', 'banner_url', 'stats'
+        ]
+    
+    def get_email(self, obj):
+        """Retorna email solo si el usuario permite mostrarlo"""
+        return obj.user.email if obj.show_email else None
+    
+    def get_location(self, obj):
+        """Retorna ubicación solo si el usuario permite mostrarla"""
+        return obj.location if obj.show_location else None
+    
+    def get_birth_date(self, obj):
+        """Retorna fecha de nacimiento solo si el usuario permite mostrarla"""
+        return obj.birth_date if obj.show_birth_date else None
+    
+    def get_age(self, obj):
+        """Retorna edad solo si el usuario permite mostrar fecha de nacimiento"""
+        return obj.get_age() if obj.show_birth_date else None
+    
+    def get_stats(self, obj):
+        """Retorna estadísticas solo si el usuario permite mostrarlas"""
+        if obj.show_activity_stats:
+            return {
+                'communities_count': obj.communities_count,
+                'posts_count': obj.posts_count,
+                'likes_received': obj.likes_received,
+                'reputation_score': obj.reputation_score,
+            }
+        return None
+
+
+class UserBasicSerializer(serializers.ModelSerializer):
+    """
+    Serializer básico para mostrar información mínima de usuario en listas
+    """
+    avatar_url = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    communities_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'avatar_url', 'location', 'communities_count']
+    
+    def get_avatar_url(self, obj):
+        """Obtiene el avatar del perfil si existe"""
+        if hasattr(obj, 'profile'):
+            return obj.profile.avatar_url
+        return None
+    
+    def get_location(self, obj):
+        """Obtiene la ubicación del perfil si es pública"""
+        if hasattr(obj, 'profile') and obj.profile.show_location:
+            return obj.profile.location
+        return None
+    
+    def get_communities_count(self, obj):
+        """Obtiene el número de comunidades si es público"""
+        if hasattr(obj, 'profile') and obj.profile.show_activity_stats:
+            return obj.profile.communities_count
+        return None
+
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    """
+    Serializer optimizado para búsquedas de usuarios
+    """
+    avatar_url = serializers.CharField(source='profile.avatar_url', read_only=True)
+    location = serializers.SerializerMethodField()
+    communities_count = serializers.SerializerMethodField()
+    play_style = serializers.CharField(source='profile.play_style', read_only=True)
+    experience_level = serializers.CharField(source='profile.experience_level', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'first_name', 'last_name',
+            'avatar_url', 'location', 'communities_count',
+            'play_style', 'experience_level'
+        ]
+    
+    def get_location(self, obj):
+        """Obtiene la ubicación si es pública"""
+        if hasattr(obj, 'profile') and obj.profile.show_location:
+            return obj.profile.location
+        return None
+    
+    def get_communities_count(self, obj):
+        """Obtiene el número de comunidades si es público"""
+        if hasattr(obj, 'profile') and obj.profile.show_activity_stats:
+            return obj.profile.communities_count
+        return None

@@ -96,4 +96,132 @@ class EmailVerificationToken(models.Model):
         self.save()
     
     def __str__(self):
-        return f"Password reset token for {self.user.email}"
+        return f"Email verification token for {self.user.email}"
+
+
+class UserProfile(models.Model):
+    """
+    Modelo de perfil público de usuario para Nexus TCG
+    Extiende el modelo User base con información adicional y configuraciones de privacidad
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    
+    # Información pública
+    bio = models.TextField(max_length=500, blank=True, help_text="Biografía del usuario (máximo 500 caracteres)")
+    location = models.CharField(max_length=100, blank=True, help_text="Ubicación del usuario")
+    birth_date = models.DateField(null=True, blank=True, help_text="Fecha de nacimiento")
+    
+    # Gaming preferences
+    favorite_games = models.JSONField(default=list, blank=True, help_text="Lista de juegos favoritos")
+    play_style = models.CharField(
+        max_length=50, 
+        blank=True,
+        choices=[
+            ('competitive', 'Competitivo'),
+            ('casual', 'Casual'),
+            ('collector', 'Coleccionista'),
+            ('trader', 'Intercambiador'),
+            ('content_creator', 'Creador de Contenido'),
+        ],
+        help_text="Estilo de juego preferido"
+    )
+    experience_level = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=[
+            ('beginner', 'Principiante'),
+            ('intermediate', 'Intermedio'),
+            ('advanced', 'Avanzado'),
+            ('expert', 'Experto'),
+        ],
+        help_text="Nivel de experiencia en TCGs"
+    )
+    
+    # Personalización visual
+    avatar_url = models.URLField(blank=True, null=True, help_text="URL del avatar del usuario")
+    banner_url = models.URLField(blank=True, null=True, help_text="URL del banner del perfil")
+    theme_preference = models.CharField(
+        max_length=20,
+        default='system',
+        choices=[
+            ('light', 'Claro'),
+            ('dark', 'Oscuro'),
+            ('system', 'Sistema'),
+        ],
+        help_text="Preferencia de tema visual"
+    )
+    
+    # Configuraciones de privacidad
+    show_email = models.BooleanField(default=False, help_text="Mostrar email públicamente")
+    show_location = models.BooleanField(default=True, help_text="Mostrar ubicación públicamente")
+    show_birth_date = models.BooleanField(default=False, help_text="Mostrar fecha de nacimiento públicamente")
+    show_communities = models.BooleanField(default=True, help_text="Mostrar comunidades públicamente")
+    show_activity_stats = models.BooleanField(default=True, help_text="Mostrar estadísticas de actividad públicamente")
+    
+    # Estadísticas (calculadas/cached)
+    communities_count = models.IntegerField(default=0, help_text="Número de comunidades en las que participa")
+    posts_count = models.IntegerField(default=0, help_text="Número total de publicaciones")
+    likes_received = models.IntegerField(default=0, help_text="Número total de likes recibidos")
+    reputation_score = models.IntegerField(default=0, help_text="Puntuación de reputación (para Fase 4)")
+    
+    # Metadatos
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
+    
+    def __str__(self):
+        return f"Perfil de {self.user.username}"
+    
+    def get_age(self):
+        """
+        Calcula la edad del usuario basada en su fecha de nacimiento
+        """
+        if not self.birth_date:
+            return None
+        from datetime import date
+        today = date.today()
+        return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+    
+    def update_communities_count(self):
+        """
+        Actualiza el contador de comunidades del usuario
+        """
+        if hasattr(self.user, 'memberships'):
+            self.communities_count = self.user.memberships.filter(is_active=True).count()
+            self.save(update_fields=['communities_count'])
+    
+    def get_public_data(self):
+        """
+        Retorna los datos públicos del perfil respetando las configuraciones de privacidad
+        """
+        data = {
+            'bio': self.bio,
+            'favorite_games': self.favorite_games,
+            'play_style': self.play_style,
+            'experience_level': self.experience_level,
+            'avatar_url': self.avatar_url,
+            'banner_url': self.banner_url,
+            'joined_at': self.user.created_at,
+        }
+        
+        # Agregar campos según configuraciones de privacidad
+        if self.show_location:
+            data['location'] = self.location
+            
+        if self.show_birth_date:
+            data['birth_date'] = self.birth_date
+            data['age'] = self.get_age()
+            
+        if self.show_activity_stats:
+            data['stats'] = {
+                'communities_count': self.communities_count,
+                'posts_count': self.posts_count,
+                'likes_received': self.likes_received,
+                'reputation_score': self.reputation_score,
+            }
+        
+        return data

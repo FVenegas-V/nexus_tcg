@@ -11,8 +11,6 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryRed,
         brightness: Brightness.light,
-        background: AppColors.backgroundColor,
-        surface: AppColors.cardColor,
         primary: AppColors.primaryRed,
         secondary: AppColors.secondaryOrange,
         onPrimary: Colors.white,

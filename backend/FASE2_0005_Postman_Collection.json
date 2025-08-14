@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "fase2-0005-api-collection",
+		"name": "FASE2-0005: Filtros por Tipo de Juego y Categorías",
+		"description": "Colección completa para probar todas las APIs implementadas en FASE2-0005\n\n🎯 **Funcionalidades incluidas:**\n- GameType APIs (CRUD y filtros)\n- CommunityTag APIs (búsqueda y sugerencias)\n- Filtros avanzados\n- Estadísticas en tiempo real\n\n📅 **Fecha:** 14 de Agosto, 2025\n🏷️ **Versión:** 1.0.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🎮 GameType APIs",
+			"item": [
+				{
+					"name": "📋 Lista todos los GameTypes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""]
+						},
+						"description": "Obtiene la lista completa de tipos de juego disponibles con paginación."
+					},
+					"response": []
+				},
+				{
+					"name": "⭐ GameTypes Destacados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/featured/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "featured", ""]
+						},
+						"description": "Obtiene solo los GameTypes marcados como destacados (is_featured=True)."
+					},
+					"response": []
+				},
+				{
+					"name": "🔍 GameTypes con Filtros",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/?featured=true&ordering=-community_count",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""],
+							"query": [
+								{
+									"key": "featured",
+									"value": "true",
+									"description": "Filtrar solo games destacados"
+								},
+								{
+									"key": "ordering",
+									"value": "-community_count",
+									"description": "Ordenar por comunidades (descendente)"
+								}
+							]
+						},
+						"description": "Ejemplo de filtrado: games destacados ordenados por número de comunidades."
+					},
+					"response": []
+				},
+				{
+					"name": "📄 Detalle de GameType específico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/1/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "1", ""]
+						},
+						"description": "Obtiene información detallada de un GameType específico (ID=1: Magic: The Gathering)."
+					},
+					"response": []
+				},
+				{
+					"name": "🏘️ Comunidades de un GameType",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/1/communities/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "1", "communities", ""]
+						},
+						"description": "Lista todas las comunidades públicas asociadas a un GameType específico."
+					},
+					"response": []
+				},
+				{
+					"name": "📊 Ordenamiento por Año de Lanzamiento",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/?ordering=release_year",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "release_year",
+									"description": "Ordenar por año de lanzamiento (ascendente)"
+								}
+							]
+						},
+						"description": "GameTypes ordenados por año de lanzamiento, del más antiguo al más reciente."
+					},
+					"response": []
+				}
+			],
+			"description": "APIs para gestión de tipos de juego (Magic, Pokemon, Yu-Gi-Oh!, etc.)"
+		},
+		{
+			"name": "🏷️ CommunityTag APIs",
+			"item": [
+				{
+					"name": "📋 Lista todos los Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", ""]
+						},
+						"description": "Obtiene la lista completa de tags disponibles con información de uso."
+					},
+					"response": []
+				},
+				{
+					"name": "🔥 Tags Populares",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/popular/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "popular", ""]
+						},
+						"description": "Top 10 tags más utilizados, ordenados por usage_count descendente."
+					},
+					"response": []
+				},
+				{
+					"name": "🔍 Búsqueda de Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/search/?q=comp",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "search", ""],
+							"query": [
+								{
+									"key": "q",
+									"value": "comp",
+									"description": "Término de búsqueda"
+								}
+							]
+						},
+						"description": "Busca tags que contengan 'comp' en el nombre o descripción."
+					},
+					"response": []
+				},
+				{
+					"name": "💡 Sugerencias de Tags (Autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/suggestions/?prefix=tr",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "suggestions", ""],
+							"query": [
+								{
+									"key": "prefix",
+									"value": "tr",
+									"description": "Prefijo para autocompletado"
+								}
+							]
+						},
+						"description": "Obtiene sugerencias de tags que empiecen con 'tr' (ej: trading)."
+					},
+					"response": []
+				},
+				{
+					"name": "📊 Tags con Uso Mínimo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/?min_usage=1&ordering=-usage_count",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", ""],
+							"query": [
+								{
+									"key": "min_usage",
+									"value": "1",
+									"description": "Tags con al menos 1 uso"
+								},
+								{
+									"key": "ordering",
+									"value": "-usage_count",
+									"description": "Ordenar por uso descendente"
+								}
+							]
+						},
+						"description": "Filtra tags que tienen al menos 1 uso, ordenados por popularidad."
+					},
+					"response": []
+				},
+				{
+					"name": "🔤 Búsqueda Vacía (Todos los tags)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/search/?q=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "search", ""],
+							"query": [
+								{
+									"key": "q",
+									"value": "",
+									"description": "Búsqueda vacía devuelve todos"
+								}
+							]
+						},
+						"description": "Búsqueda con término vacío devuelve todos los tags disponibles."
+					},
+					"response": []
+				}
+			],
+			"description": "APIs para gestión de tags/etiquetas de comunidades"
+		},
+		{
+			"name": "🧪 Casos de Prueba Específicos",
+			"item": [
+				{
+					"name": "❌ GameType No Existente (404)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/999/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", "999", ""]
+						},
+						"description": "Debe devolver 404 Not Found para un GameType inexistente."
+					},
+					"response": []
+				},
+				{
+					"name": "🔍 Búsqueda Sin Resultados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/search/?q=inexistente123",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "search", ""],
+							"query": [
+								{
+									"key": "q",
+									"value": "inexistente123",
+									"description": "Término que no debería existir"
+								}
+							]
+						},
+						"description": "Búsqueda que no debería devolver resultados."
+					},
+					"response": []
+				},
+				{
+					"name": "📊 Ordenamiento Múltiple",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/?ordering=is_featured,-community_count,name",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "is_featured,-community_count,name",
+									"description": "Ordenamiento múltiple: featured, luego por comunidades desc, luego nombre"
+								}
+							]
+						},
+						"description": "Prueba ordenamiento múltiple: por featured, comunidades descendente, y nombre."
+					},
+					"response": []
+				},
+				{
+					"name": "🔢 Paginación Personalizada",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/?page=1&page_size=3",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Página número 1"
+								},
+								{
+									"key": "page_size",
+									"value": "3",
+									"description": "3 elementos por página"
+								}
+							]
+						},
+						"description": "Prueba paginación personalizada con 3 elementos por página."
+					},
+					"response": []
+				}
+			],
+			"description": "Casos de prueba específicos para validar comportamientos edge cases"
+		},
+		{
+			"name": "🚀 Tests de Rendimiento",
+			"item": [
+				{
+					"name": "⚡ Carga Rápida - Todos los Games",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/games/?page_size=100",
+							"host": ["{{base_url}}"],
+							"path": ["api", "games", ""],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "100",
+									"description": "Carga masiva para test de rendimiento"
+								}
+							]
+						},
+						"description": "Test de rendimiento: cargar muchos games de una vez."
+					},
+					"response": []
+				},
+				{
+					"name": "🔍 Búsqueda Intensiva",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tags/search/?q=a",
+							"host": ["{{base_url}}"],
+							"path": ["api", "tags", "search", ""],
+							"query": [
+								{
+									"key": "q",
+									"value": "a",
+									"description": "Búsqueda con letra común"
+								}
+							]
+						},
+						"description": "Búsqueda con letra muy común para probar rendimiento de filtrado."
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de rendimiento y carga para validar la eficiencia de las APIs"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script para logs automáticos",
+					"console.log('🚀 Ejecutando:', pm.info.requestName);",
+					"console.log('🌐 URL:', pm.request.url);",
+					"console.log('⏰ Timestamp:', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Tests automáticos para todas las requests",
+					"pm.test('✅ Status code es 200 o 404', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+					"});",
+					"",
+					"pm.test('⏱️ Response time menor a 2000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});",
+					"",
+					"if (pm.response.code === 200) {",
+					"    pm.test('📋 Response tiene Content-Type JSON', function () {",
+					"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    });",
+					"    ",
+					"    pm.test('📊 Response body es JSON válido', function () {",
+					"        pm.response.to.have.jsonBody();",
+					"    });",
+					"}",
+					"",
+					"// Log de resultados",
+					"console.log('✅ Test completado:', pm.info.requestName);",
+					"console.log('📊 Status:', pm.response.code);",
+					"console.log('⏱️ Time:', pm.response.responseTime + 'ms');"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string",
+			"description": "URL base del servidor de desarrollo Django"
+		},
+		{
+			"key": "api_version",
+			"value": "v1",
+			"type": "string",
+			"description": "Versión de la API"
+		},
+		{
+			"key": "timestamp",
+			"value": "{{$timestamp}}",
+			"type": "string",
+			"description": "Timestamp actual para logs"
+		}
+	]
+}

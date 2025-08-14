@@ -1,0 +1,13 @@
+# Nexus TCG Logo Foreground Placeholder
+
+Este archivo es un placeholder para `nexus_tcg_logo_foreground.png`.
+
+**Para completar la configuración:**
+
+1. Guarda solo la carta coral (sin texto) como `nexus_tcg_logo_foreground.png`
+2. Asegúrate de que sea 1024x1024 pixels
+3. Solo incluye la carta coral con el diamante blanco
+4. Fondo transparente para iconos adaptativos de Android
+5. Ejecuta `flutter pub run flutter_launcher_icons`
+
+Este será usado para los iconos adaptativos de Android.
