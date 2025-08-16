@@ -25,6 +25,19 @@ from .tag import (
     TagStatsSerializer,
 )
 
+# Importar serializers de Community y Category
+from .community import (
+    CommunityListSerializer,
+    CommunityDetailSerializer,
+    CommunityStatsSerializer,
+    CommunityMembershipSerializer,
+    CommunityMembershipListSerializer,
+)
+
+from .category import (
+    CommunityCategorySerializer,
+)
+
 __all__ = [
     # Serializers de membresía
     'JoinCommunitySerializer',
@@ -43,4 +56,14 @@ __all__ = [
     'TagAutocompleteSerializer',
     'PopularTagsSerializer',
     'TagStatsSerializer',
+    
+    # Serializers de Community
+    'CommunityListSerializer',
+    'CommunityDetailSerializer',
+    'CommunityStatsSerializer',
+    'CommunityMembershipSerializer',
+    'CommunityMembershipListSerializer',
+    
+    # Serializers de Category
+    'CommunityCategorySerializer',
 ]

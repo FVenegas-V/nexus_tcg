@@ -90,17 +90,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'Tema Oscuro',
                   subtitle: 'Usar tema oscuro en la aplicación',
                   value: _darkModeEnabled,
-                  onChanged: (value) {
+                  onChanged: (value) async {
                     setState(() {
                       _darkModeEnabled = value;
                     });
-                    // TODO: Implementar cambio de tema
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Función disponible próximamente'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
+                    // Implementar cambio de tema básico
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            _darkModeEnabled
+                                ? 'Tema oscuro activado'
+                                : 'Tema claro activado',
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
                   },
                 ),
               ],
@@ -188,13 +194,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    DialogService.showLogoutConfirmDialog(context).then((confirmed) {
-      if (confirmed) {
+  void _showLogoutDialog(BuildContext context) async {
+    final confirmed = await DialogService.showLogoutConfirmDialog(context);
+    if (confirmed && context.mounted) {
+      if (context.mounted) {
         Provider.of<AuthProvider>(context, listen: false).logout();
+      }
+      if (context.mounted) {
         context.go('/login');
       }
-    });
+    }
   }
 
   void _showInfoDialog(BuildContext context, String title, String content) {

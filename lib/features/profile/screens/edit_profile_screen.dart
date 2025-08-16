@@ -147,6 +147,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (!didPop && _hasChanges) {
           final shouldPop = await _onWillPop();
           if (shouldPop && mounted) {
+            // ignore: use_build_context_synchronously
             Navigator.of(context).pop();
           }
         }
@@ -254,14 +255,14 @@ class _UserAvatarSection extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       AppColors.primaryRed,
-                      AppColors.primaryRed.withOpacity(0.7),
+                      AppColors.primaryRed.withValues(alpha: 0.7),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryRed.withOpacity(0.3),
+                      color: AppColors.primaryRed.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -291,7 +292,7 @@ class _UserAvatarSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

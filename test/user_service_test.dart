@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/features/profile/services/user_service.dart';
+import 'package:nexus_tcg/features/profile/services/user_service.dart';
 
 void main() {
   group('UserService Validation Tests', () {

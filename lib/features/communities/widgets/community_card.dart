@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/community.dart';
+import '../../../core/models/community.dart';
 
 /// Widget card para mostrar información de una comunidad
 /// Incluye imagen, nombre, descripción, miembros y botón de suscripción
@@ -177,7 +177,7 @@ class CommunityCard extends StatelessWidget {
                       ),
                       const Spacer(),
                       // Indicador de suscripción
-                      if (community.isSubscribed)
+                      if (community.isFeatured)
                         Icon(
                           Icons.check_circle,
                           size: 16,
@@ -227,24 +227,27 @@ class CommunityCard extends StatelessWidget {
 
   /// Construye el botón de suscripción
   Widget _buildSubscriptionButton(BuildContext context) {
+    // Determinar si el usuario está suscrito
+    final isSubscribed = community.isSubscribed;
+
     return FilledButton.tonal(
       onPressed: onSubscriptionToggle,
       style: FilledButton.styleFrom(
-        backgroundColor: community.isSubscribed
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: community.isSubscribed
-            ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: isSubscribed
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.primary,
+        foregroundColor: isSubscribed
+            ? Theme.of(context).colorScheme.onPrimaryContainer
+            : Theme.of(context).colorScheme.onPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(community.isSubscribed ? Icons.check : Icons.add, size: 16),
+          Icon(isSubscribed ? Icons.check : Icons.add, size: 16),
           const SizedBox(width: 4),
           Text(
-            community.isSubscribed ? 'Suscrito' : 'Unirse',
+            isSubscribed ? 'Suscrito' : 'Unirse',
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ],

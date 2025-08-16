@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../communities/models/community.dart';
-import '../../communities/providers/communities_provider.dart';
+import '../../../core/models/community.dart';
+import '../../communities/providers/communities_provider_new.dart';
 import '../widgets/image_picker_widget.dart';
 import '../widgets/community_selector.dart';
 
@@ -181,10 +181,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldPop = await _showDiscardDialog();
           if (shouldPop && mounted) {
+            // ignore: use_build_context_synchronously
             context.pop();
           }
         }
@@ -197,6 +198,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             onPressed: () async {
               final shouldPop = await _showDiscardDialog();
               if (shouldPop && mounted) {
+                // ignore: use_build_context_synchronously
                 context.pop();
               }
             },

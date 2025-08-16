@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../providers/communities_provider.dart';
+import '../providers/communities_provider_new.dart';
+import '../widgets/advanced_search_bottom_sheet.dart';
 
 /// Pantalla de Comunidades con datos mock realistas
 /// Lista de comunidades TCG
@@ -14,68 +15,54 @@ class CommunitiesScreenSimple extends StatefulWidget {
 }
 
 class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
-  bool _isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<CommunitiesProvider>(
       builder: (context, provider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: _isSearching
-                ? TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: 'Buscar comunidades...',
-                      hintStyle: TextStyle(color: Colors.white70),
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (value) {
-                      // Búsqueda en tiempo real
-                      provider.searchCommunities(value);
-                    },
-                    onSubmitted: (value) {
-                      provider.searchCommunities(value);
-                    },
-                  )
-                : const Text(
-                    'Comunidades',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+            title: const Text(
+              'Comunidades',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             centerTitle: true,
             elevation: 0,
             backgroundColor: const Color(0xFFE57373),
             actions: [
               IconButton(
-                icon: Icon(
-                  _isSearching ? Icons.close : Icons.search,
-                  color: Colors.white,
+                icon: Stack(
+                  children: [
+                    Icon(Icons.search, color: Colors.white),
+                    // Badge para mostrar si hay filtros activos
+                    if (provider.searchQuery.isNotEmpty ||
+                        provider.selectedGameType.isNotEmpty ||
+                        provider.selectedDifficulty.isNotEmpty)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.yellow[600],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: const Text(
+                            '•',
+                            style: TextStyle(color: Colors.white, fontSize: 8),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                onPressed: () {
-                  setState(() {
-                    if (_isSearching) {
-                      // Salir de búsqueda
-                      _isSearching = false;
-                      _searchController.clear();
-                      provider.searchCommunities(''); // Limpiar búsqueda
-                    } else {
-                      // Entrar en modo búsqueda
-                      _isSearching = true;
-                    }
-                  });
-                },
+                onPressed: () => _showAdvancedSearch(context, provider),
               ),
             ],
           ),
@@ -424,5 +411,15 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
       default:
         return Icons.groups;
     }
+  }
+
+  /// Muestra el bottom sheet de búsqueda avanzada
+  void _showAdvancedSearch(BuildContext context, CommunitiesProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AdvancedSearchBottomSheet(),
+    );
   }
 }

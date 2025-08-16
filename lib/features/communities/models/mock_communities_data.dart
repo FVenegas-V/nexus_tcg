@@ -11,6 +11,7 @@ class MockCommunitiesData {
       description:
           'Comunidad para jugadores competitivos de MTG. Discutimos estrategias de meta, análisis de mazos y preparación para torneos.',
       gameType: 'Magic: The Gathering',
+      gameTypeId: 1,
       memberCount: 2847,
       imageUrl: null,
       isSubscribed: true,
@@ -24,6 +25,7 @@ class MockCommunitiesData {
       description:
           'Para coleccionistas y jugadores de Pokémon TCG. Compartimos cartas raras, intercambios y noticias del meta actual.',
       gameType: 'Pokémon TCG',
+      gameTypeId: 2,
       memberCount: 4521,
       imageUrl: null,
       isSubscribed: false,
@@ -37,6 +39,7 @@ class MockCommunitiesData {
       description:
           'Comunidad chilena de duelistas. Organizamos torneos locales, discutimos nuevas cartas y estrategias meta.',
       gameType: 'Yu-Gi-Oh!',
+      gameTypeId: 3,
       memberCount: 1653,
       isSubscribed: true,
       createdAt: DateTime(2023, 9, 22),
@@ -49,6 +52,7 @@ class MockCommunitiesData {
       description:
           'Perfecto para comenzar en Digimon TCG. Explicamos reglas básicas, mazos starter y primeras estrategias.',
       gameType: 'Digimon TCG',
+      gameTypeId: 4,
       memberCount: 892,
       isSubscribed: false,
       createdAt: DateTime(2024, 1, 8),
@@ -61,6 +65,7 @@ class MockCommunitiesData {
       description:
           'Comunidad dedicada a DBS TCG. Análisis de cartas, combos devastadores y preparación para campeonatos.',
       gameType: 'Dragon Ball Super',
+      gameTypeId: 5,
       memberCount: 1247,
       isSubscribed: false,
       createdAt: DateTime(2023, 11, 3),
@@ -73,6 +78,7 @@ class MockCommunitiesData {
       description:
           'Comunidad latina del nuevo TCG de One Piece. Estrategias de piratas, discusión de cartas y eventos especiales.',
       gameType: 'One Piece TCG',
+      gameTypeId: 6,
       memberCount: 3156,
       isSubscribed: true,
       createdAt: DateTime(2024, 3, 17),
@@ -85,6 +91,7 @@ class MockCommunitiesData {
       description:
           'Especialistas en Draft de Magic. Señales de colores, pick orders y estrategias para dominar en Limited.',
       gameType: 'Magic: The Gathering',
+      gameTypeId: 1,
       memberCount: 1834,
       isSubscribed: false,
       createdAt: DateTime(2023, 7, 29),
@@ -93,97 +100,121 @@ class MockCommunitiesData {
     ),
     Community(
       id: 8,
-      name: 'Lorcana Collectors España',
+      name: 'Pokémon VGC Competitivo',
       description:
-          'Coleccionistas y jugadores de Disney Lorcana en España. Intercambios, cartas promocionales y eventos Disney.',
-      gameType: 'Disney Lorcana',
-      memberCount: 967,
-      isSubscribed: false,
-      createdAt: DateTime(2024, 2, 14),
-      tags: ['Lorcana', 'Disney', 'España', 'Coleccionismo'],
-      difficultyLevel: 'Principiante',
-    ),
-    Community(
-      id: 9,
-      name: 'Flesh and Blood Competitive',
-      description:
-          'Elite de jugadores de Flesh and Blood. Meta competitivo, análisis profundo de héroes y preparación para Pro Tour.',
-      gameType: 'Flesh and Blood',
-      memberCount: 743,
-      isSubscribed: false,
-      createdAt: DateTime(2023, 12, 11),
-      tags: ['FaB', 'Competitivo', 'Pro Tour', 'Héroes'],
+          'Video Game Championship de Pokémon. Análisis de equipos, predicciones meta y preparación para Worlds.',
+      gameType: 'Pokémon TCG',
+      gameTypeId: 2,
+      memberCount: 2167,
+      isSubscribed: true,
+      createdAt: DateTime(2023, 12, 5),
+      tags: ['VGC', 'Competitivo', 'Equipos', 'Worlds'],
       difficultyLevel: 'Avanzado',
     ),
     Community(
-      id: 10,
-      name: 'Cardfight Vanguard Casual',
+      id: 9,
+      name: 'TCG Casual Chileno',
       description:
-          'Para disfrutar Cardfight Vanguard de manera relajada. Mazos temáticos, lore de clanes y partidas amistosas.',
-      gameType: 'Cardfight!! Vanguard',
+          'Para jugadores casuales de todos los TCGs. Ambiente relajado, intercambios amistosos y diversión garantizada.',
+      gameType: 'Varios',
+      gameTypeId: 7,
+      memberCount: 567,
+      isSubscribed: false,
+      createdAt: DateTime(2024, 2, 14),
+      tags: ['Casual', 'Chile', 'Intercambios', 'Diversión'],
+      difficultyLevel: 'Principiante',
+    ),
+    Community(
+      id: 10,
+      name: 'Flesh and Blood Rising',
+      description:
+          'El TCG que está revolucionando el mercado. Mecánicas innovadoras, arte excepcional y jugabilidad única.',
+      gameType: 'Flesh and Blood',
+      gameTypeId: 8,
       memberCount: 1289,
       isSubscribed: true,
-      createdAt: DateTime(2023, 10, 7),
-      tags: ['Vanguard', 'Casual', 'Clanes', 'Lore'],
+      createdAt: DateTime(2024, 4, 7),
+      tags: ['FAB', 'Innovador', 'Arte', 'Único'],
       difficultyLevel: 'Intermedio',
     ),
   ];
 
   /// Obtiene comunidades filtradas por tipo de juego
-  static List<Community> getByGameType(String gameType) {
+  static List<Community> getCommunitiesByGameType(String gameType) {
     return allCommunities
-        .where((community) => community.gameType == gameType)
+        .where(
+          (community) =>
+              community.gameTypeName.toLowerCase() == gameType.toLowerCase(),
+        )
         .toList();
   }
 
-  /// Obtiene comunidades a las que el usuario está suscrito
-  static List<Community> getSubscribed() {
-    return allCommunities.where((community) => community.isSubscribed).toList();
-  }
-
-  /// Busca comunidades por nombre o descripción
-  static List<Community> search(String query) {
-    if (query.isEmpty) return allCommunities;
-
-    final lowercaseQuery = query.toLowerCase();
-    return allCommunities.where((community) {
-      return community.name.toLowerCase().contains(lowercaseQuery) ||
-          community.description.toLowerCase().contains(lowercaseQuery) ||
-          community.gameType.toLowerCase().contains(lowercaseQuery) ||
-          community.tags.any(
-            (tag) => tag.toLowerCase().contains(lowercaseQuery),
-          );
-    }).toList();
-  }
-
-  /// Obtiene una comunidad por ID
-  static Community? getById(int id) {
-    try {
-      return allCommunities.firstWhere((community) => community.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Simula cambio de estado de suscripción
-  static Community toggleSubscription(Community community) {
-    return community.copyWith(isSubscribed: !community.isSubscribed);
+  /// Obtiene comunidades con tags específicos
+  static List<Community> getCommunitiesByTag(String tag) {
+    return allCommunities
+        .where(
+          (community) => community.tagNames.any(
+            (communityTag) => communityTag.toLowerCase() == tag.toLowerCase(),
+          ),
+        )
+        .toList();
   }
 
   /// Obtiene tipos de juego únicos disponibles
   static List<String> get availableGameTypes {
     return allCommunities
-        .map((community) => community.gameType)
+        .map((community) => community.gameTypeName)
         .toSet()
         .toList()
       ..sort();
   }
 
-  /// Obtiene niveles de dificultad disponibles
+  /// Obtiene todos los tags únicos
+  static List<String> get availableTags {
+    final allTags = <String>[];
+    for (final community in allCommunities) {
+      allTags.addAll(community.tagNames);
+    }
+    return allTags.toSet().toList()..sort();
+  }
+
+  /// Obtiene comunidades por nivel de dificultad
+  static List<Community> getCommunitiesByDifficulty(String difficulty) {
+    return allCommunities
+        .where(
+          (community) =>
+              community.difficultyLevel.toLowerCase() ==
+              difficulty.toLowerCase(),
+        )
+        .toList();
+  }
+
+  /// Obtiene comunidades a las que el usuario está suscrito
+  static List<Community> get subscribedCommunities {
+    return allCommunities.where((community) => community.isSubscribed).toList();
+  }
+
+  /// Obtiene los niveles de dificultad disponibles
   static List<String> get availableDifficultyLevels {
     return allCommunities
         .map((community) => community.difficultyLevel)
         .toSet()
-        .toList();
+        .toList()
+      ..sort();
+  }
+
+  /// Simula la búsqueda de comunidades por nombre o descripción
+  static List<Community> searchCommunities(String query) {
+    if (query.isEmpty) return allCommunities;
+
+    final searchTerm = query.toLowerCase();
+    return allCommunities.where((community) {
+      return community.name.toLowerCase().contains(searchTerm) ||
+          community.description.toLowerCase().contains(searchTerm) ||
+          community.gameTypeName.toLowerCase().contains(searchTerm) ||
+          community.tagNames.any(
+            (tag) => tag.toLowerCase().contains(searchTerm),
+          );
+    }).toList();
   }
 }

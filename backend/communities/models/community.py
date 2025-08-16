@@ -106,13 +106,6 @@ class Community(models.Model):
         help_text="Número total de posts en la comunidad"
     )
     
-    # --- SEO y Búsqueda ---
-    tags = models.JSONField(
-        default=list,
-        blank=True,
-        help_text="Lista de tags para búsqueda y filtrado"
-    )
-    
     class Meta:
         verbose_name = "Comunidad"
         verbose_name_plural = "Comunidades"

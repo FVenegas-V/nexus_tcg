@@ -9,15 +9,18 @@ import '../features/communities/screens/community_detail_screen.dart';
 import '../features/posts/screens/create_post_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/edit_profile_screen.dart';
+import '../features/profile/screens/edit_extended_profile_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/settings_screen.dart';
+import '../features/testing/screens/phase2_test_screen.dart';
+import '../features/communities/screens/communities_screen_simple.dart';
 
 /// Configuración del router de la aplicación
 /// Maneja la navegación y protección de rutas basada en autenticación
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/login',
-    // Lógica de redirección basada en el estado de autenticación
+    // Lógica de redirección para proteger rutas basada en autenticación
     redirect: (context, state) {
       final authProvider = context.read<AuthProvider>();
       final isLoggedIn = authProvider.isAuthenticated;
@@ -65,6 +68,18 @@ class AppRouter {
           body: Center(child: Text('Recuperar Contraseña - Próximamente')),
         ),
       ),
+      // Ruta de prueba para Fase 2 APIs
+      GoRoute(
+        path: '/phase2-test',
+        name: 'phase2-test',
+        builder: (context, state) => const Phase2TestScreen(),
+      ),
+      // Ruta de prueba para Communities APIs
+      GoRoute(
+        path: '/communities-test',
+        name: 'communities-test',
+        builder: (context, state) => const CommunitiesScreenSimple(),
+      ),
       // Ruta de detalle de comunidad
       GoRoute(
         path: '/community/:id',
@@ -91,6 +106,11 @@ class AppRouter {
             path: '/edit',
             name: 'profile-edit',
             builder: (context, state) => const EditProfileScreen(),
+          ),
+          GoRoute(
+            path: '/edit-extended',
+            name: 'profile-edit-extended',
+            builder: (context, state) => const EditExtendedProfileScreen(),
           ),
           GoRoute(
             path: '/change-password',

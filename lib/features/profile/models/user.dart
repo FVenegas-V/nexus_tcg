@@ -54,7 +54,9 @@ class User {
       email: json['email'],
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
-      dateJoined: DateTime.parse(json['date_joined']),
+      dateJoined: json['date_joined'] != null
+          ? DateTime.parse(json['date_joined'])
+          : DateTime.now(), // Usar fecha actual si no se proporciona
       isEmailVerified: json['is_email_verified'] ?? false,
       avatar: json['avatar'],
     );

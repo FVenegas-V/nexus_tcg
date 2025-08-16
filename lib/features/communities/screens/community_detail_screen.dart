@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../models/community.dart';
-import '../providers/communities_provider.dart';
+import '../../../core/models/community.dart';
+import '../providers/communities_provider_new.dart';
 
 /// Pantalla de detalle de una comunidad específica
 /// Muestra información completa, posts y permite suscribirse
@@ -594,6 +594,7 @@ class CommunityDetailScreen extends StatelessWidget {
     CommunitiesProvider provider,
   ) {
     return FloatingActionButton.extended(
+      heroTag: "community_subscription_fab",
       onPressed: () {
         provider.toggleSubscription(community.id);
         ScaffoldMessenger.of(context).showSnackBar(

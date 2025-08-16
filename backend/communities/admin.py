@@ -2,7 +2,7 @@
 Configuración simple del panel de administración para depuración.
 """
 from django.contrib import admin
-from .models import CommunityCategory, Community, CommunityMembership
+from .models import CommunityCategory, Community, CommunityMembership, CommunityTag
 
 
 @admin.register(CommunityCategory)
@@ -27,3 +27,29 @@ class CommunityMembershipAdminSimple(admin.ModelAdmin):
     list_display = ['user', 'community', 'role', 'status']
     list_filter = ['role', 'status']
     search_fields = ['user__username', 'community__name']
+
+
+@admin.register(CommunityTag)
+class CommunityTagAdmin(admin.ModelAdmin):
+    """Admin para tags de comunidades (Fase 2)."""
+    list_display = ['name', 'display_name', 'description', 'usage_count', 'is_suggested', 'created_at']
+    list_filter = ['is_suggested', 'created_at']
+    search_fields = ['name', 'display_name', 'description']
+    ordering = ['-usage_count', 'name']
+    readonly_fields = ['created_at', 'usage_count']
+    
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('name', 'display_name', 'description')
+        }),
+        ('Configuración', {
+            'fields': ('is_suggested',)
+        }),
+        ('Estadísticas', {
+            'fields': ('usage_count',)
+        }),
+        ('Metadatos', {
+            'fields': ('created_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )

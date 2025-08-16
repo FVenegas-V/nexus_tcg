@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../communities/models/community.dart';
-import '../../communities/providers/communities_provider.dart';
+import '../../../core/models/community.dart';
+import '../../communities/providers/communities_provider_new.dart';
 
 /// Widget selector de comunidad para crear posts
 /// Permite seleccionar en qué comunidad publicar el post

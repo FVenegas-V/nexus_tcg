@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/dialog_service.dart';
+import '../../../core/services/user_profile_service.dart';
+import '../../../core/models/user_profile.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../models/user.dart';
@@ -18,11 +20,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final UserProfileService _userProfileService = UserProfileService();
+  UserProfile? _extendedProfile;
+  bool _isLoadingExtendedProfile = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProfile();
+      _loadExtendedProfile();
     });
   }
 
@@ -37,6 +44,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else if (!profileProvider.hasUser) {
       // Si no hay datos en ningún lado, cargar desde la API
       profileProvider.loadUserProfile();
+    }
+  }
+
+  Future<void> _loadExtendedProfile() async {
+    setState(() {
+      _isLoadingExtendedProfile = true;
+    });
+
+    try {
+      final profileData = await _userProfileService.getUserProfile();
+      if (profileData != null && mounted) {
+        setState(() {
+          _extendedProfile = UserProfile.fromJson(profileData);
+        });
+      }
+    } catch (e) {
+      print('Error loading extended profile: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingExtendedProfile = false;
+        });
+      }
     }
   }
 
@@ -76,7 +106,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const _EmptyView();
           }
 
-          return _ProfileContent(user: profileProvider.user!);
+          return _ProfileContent(
+            user: profileProvider.user!,
+            extendedProfile: _extendedProfile,
+            onRefresh: _loadExtendedProfile,
+          );
         },
       ),
     );
@@ -86,13 +120,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 /// Vista de contenido principal del perfil
 class _ProfileContent extends StatelessWidget {
   final User user;
+  final UserProfile? extendedProfile;
+  final VoidCallback? onRefresh;
 
-  const _ProfileContent({required this.user});
+  const _ProfileContent({
+    required this.user,
+    this.extendedProfile,
+    this.onRefresh,
+  });
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => context.read<ProfileProvider>().refresh(),
+      onRefresh: () async {
+        await context.read<ProfileProvider>().refresh();
+        if (onRefresh != null) {
+          onRefresh!();
+        }
+      },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
@@ -105,13 +150,13 @@ class _ProfileContent extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            // Información del usuario
-            _UserInfoCard(user: user),
+            // Información del usuario (incluye biografía si existe)
+            _UserInfoCard(user: user, extendedProfile: extendedProfile),
 
             const SizedBox(height: 24),
 
             // Opciones de perfil
-            _ProfileOptionsCard(),
+            _ProfileOptionsCard(onRefresh: onRefresh),
 
             const SizedBox(height: 24),
 
@@ -179,8 +224,9 @@ class _UserHeader extends StatelessWidget {
 /// Tarjeta con información del usuario
 class _UserInfoCard extends StatelessWidget {
   final User user;
+  final UserProfile? extendedProfile;
 
-  const _UserInfoCard({required this.user});
+  const _UserInfoCard({required this.user, this.extendedProfile});
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +247,26 @@ class _UserInfoCard extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
+
+            // Biografía si existe
+            if (extendedProfile?.bio?.isNotEmpty == true) ...[
+              _InfoRow(
+                icon: Icons.description_outlined,
+                label: 'Biografía',
+                value: extendedProfile!.bio!,
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // Ubicación si existe
+            if (extendedProfile?.location?.isNotEmpty == true) ...[
+              _InfoRow(
+                icon: Icons.location_on_outlined,
+                label: 'Ubicación',
+                value: extendedProfile!.location!,
+              ),
+              const SizedBox(height: 12),
+            ],
 
             _InfoRow(
               icon: Icons.email_outlined,
@@ -238,6 +304,38 @@ class _UserInfoCard extends StatelessWidget {
               label: 'Miembro desde',
               value: _formatDate(user.dateJoined),
             ),
+
+            // Información gaming si existe
+            if (extendedProfile?.playStyle?.isNotEmpty == true ||
+                extendedProfile?.experienceLevel?.isNotEmpty == true) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Información Gaming',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              if (extendedProfile?.playStyle?.isNotEmpty == true) ...[
+                _InfoRow(
+                  icon: Icons.sports_esports_outlined,
+                  label: 'Estilo de Juego',
+                  value: _formatPlayStyle(extendedProfile!.playStyle!),
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              if (extendedProfile?.experienceLevel?.isNotEmpty == true)
+                _InfoRow(
+                  icon: Icons.star_outline,
+                  label: 'Nivel de Experiencia',
+                  value: _formatExperienceLevel(
+                    extendedProfile!.experienceLevel!,
+                  ),
+                ),
+            ],
           ],
         ),
       ),
@@ -261,6 +359,32 @@ class _UserInfoCard extends StatelessWidget {
     ];
 
     return '${date.day} de ${months[date.month - 1]} de ${date.year}';
+  }
+
+  String _formatPlayStyle(String style) {
+    switch (style) {
+      case 'competitive':
+        return 'Competitivo';
+      case 'casual':
+        return 'Casual';
+      case 'collector':
+        return 'Coleccionista';
+      default:
+        return style;
+    }
+  }
+
+  String _formatExperienceLevel(String level) {
+    switch (level) {
+      case 'beginner':
+        return 'Principiante';
+      case 'intermediate':
+        return 'Intermedio';
+      case 'expert':
+        return 'Experto';
+      default:
+        return level;
+    }
   }
 }
 
@@ -312,6 +436,10 @@ class _InfoRow extends StatelessWidget {
 
 /// Tarjeta con opciones de perfil
 class _ProfileOptionsCard extends StatelessWidget {
+  final VoidCallback? onRefresh;
+
+  const _ProfileOptionsCard({this.onRefresh});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -329,10 +457,31 @@ class _ProfileOptionsCard extends StatelessWidget {
           const Divider(height: 1),
 
           _OptionTile(
+            icon: Icons.person_add_outlined,
+            title: 'Editar Perfil Extendido',
+            subtitle: 'Biografía, ubicación y preferencias gaming',
+            onTap: () async {
+              await context.push('/profile/edit-extended');
+              if (onRefresh != null) onRefresh!();
+            },
+          ),
+
+          const Divider(height: 1),
+
+          _OptionTile(
             icon: Icons.lock_outline,
             title: 'Cambiar Contraseña',
             subtitle: 'Actualizar tu contraseña de acceso',
             onTap: () => context.push('/profile/change-password'),
+          ),
+
+          const Divider(height: 1),
+
+          _OptionTile(
+            icon: Icons.science,
+            title: '🧪 Pruebas Fase 2',
+            subtitle: 'GameTypes y Tags APIs',
+            onTap: () => context.push('/phase2-test'),
           ),
         ],
       ),
@@ -361,12 +510,11 @@ class _AccountOptionsCard extends StatelessWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    DialogService.showLogoutConfirmDialog(context).then((confirmed) {
-      if (confirmed) {
-        _logout(context);
-      }
-    });
+  void _showLogoutDialog(BuildContext context) async {
+    final confirmed = await DialogService.showLogoutConfirmDialog(context);
+    if (confirmed && context.mounted) {
+      _logout(context);
+    }
   }
 
   void _logout(BuildContext context) {

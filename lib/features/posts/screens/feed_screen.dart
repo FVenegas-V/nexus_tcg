@@ -88,6 +88,7 @@ class _FeedScreenState extends State<FeedScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "feed_create_post_fab",
         onPressed: () {
           context.push('/create-post');
         },

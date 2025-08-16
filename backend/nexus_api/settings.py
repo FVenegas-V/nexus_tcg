@@ -27,7 +27,8 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-st2r4ea@07&luc@gdqejm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver,10.0.2.2').split(',')
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver,10.0.2.2,192.168.1.133').split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '10.0.2.2', '192.168.1.133']
 
 
 # Application definition
@@ -98,7 +99,7 @@ if ENVIRONMENT == 'production':
         }
     }
 else:
-    # Configuración para SQLite en desarrollo
+    # Configuración para SQLite en desarrollo (compatible con todos los campos)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/http_service.dart';
 import 'features/auth/providers/auth_provider.dart';
-import 'features/communities/providers/communities_provider.dart';
+import 'features/communities/providers/communities_provider_new.dart';
 import 'features/posts/providers/posts_provider.dart';
 import 'features/profile/providers/profile_provider.dart';
 import 'routes/app_router.dart';
 
 /// Punto de entrada de la aplicación Nexus TCG
 void main() {
+  // Inicializar servicios core
+  _initializeServices();
+
   runApp(const MyApp());
+}
+
+/// Inicializar servicios necesarios antes de arrancar la app
+void _initializeServices() {
+  // Inicializar HttpService para APIs
+  HttpService().initialize();
 }
 
 /// Widget raíz de la aplicación
@@ -115,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "main_counter_fab",
         onPressed: _incrementCounter,
         tooltip: 'Incrementar',
         child: const Icon(Icons.add),

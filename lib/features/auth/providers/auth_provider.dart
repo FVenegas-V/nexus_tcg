@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
+import '../../../core/services/http_service.dart';
 
 /// Estados posibles del proceso de autenticación
 enum AuthState {
@@ -83,6 +84,12 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         _user = result['user'];
+
+        // Configurar token en HttpService si está disponible
+        if (result['token'] != null) {
+          HttpService().setAuthToken(result['token']);
+        }
+
         _setState(AuthState.authenticated);
         return true;
       } else {
