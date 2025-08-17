@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/communities_provider_new.dart';
 import '../widgets/advanced_search_bottom_sheet.dart';
+import '../widgets/join_leave_button.dart';
 
 /// Pantalla de Comunidades con datos mock realistas
 /// Lista de comunidades TCG
@@ -78,12 +79,11 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
                 ),
               ),
               child: RefreshIndicator(
-                onRefresh: () => provider.loadCommunities(),
-                color: const Color(0xFFE57373), // Color coral para el indicador
+                onRefresh: () => provider.refreshCommunities(),
+                color: const Color(0xFFE57373),
                 child: ListView(
                   padding: const EdgeInsets.all(16),
-                  physics:
-                      const AlwaysScrollableScrollPhysics(), // Permite scroll siempre para pull-to-refresh
+                  physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     // Estados mejorados: loading, error, empty, content
                     if (provider.isLoading)
@@ -129,6 +129,13 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
     IconData icon,
     int communityId,
   ) {
+    // Obtener la comunidad completa para acceder a los tags
+    final provider = context.read<CommunitiesProvider>();
+    final community = provider.allCommunities.firstWhere(
+      (c) => c.id == communityId,
+      orElse: () => provider.allCommunities.first,
+    );
+
     return Hero(
       tag: 'community-card-$communityId', // Tag único para Hero animation
       child: Material(
@@ -199,37 +206,95 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+
+                      // Tags de la comunidad
+                      if (community.tags.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: community.tags.take(3).map((tag) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: color.withValues(alpha: 0.3),
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: Text(
+                                '#$tag',
+                                style: TextStyle(
+                                  color: color.withValues(alpha: 0.9),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ],
                   ),
                 ),
 
-                // Botón de unirse con estilo del mockup
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Te uniste a $name')),
+                // Botón de unirse mejorado con estado dinámico
+                Consumer<CommunitiesProvider>(
+                  builder: (context, provider, child) {
+                    // Usar datos reales de la comunidad
+                    final isJoined = community.isSubscribed;
+                    final isLoading = provider.isJoinLeaveLoading(community.id);
+
+                    return JoinLeaveButton(
+                      isJoined: isJoined,
+                      isLoading: isLoading,
+                      isCompact: true,
+                      onPressed: () async {
+                        // Capturar el estado ANTES de la operación
+                        final wasJoined = community.isSubscribed;
+
+                        // Hacer la operación real de join/leave
+                        await provider.toggleSubscription(community.id);
+
+                        // Mostrar mensaje de éxito si existe
+                        if (provider.successMessage != null) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.successMessage!),
+                                backgroundColor: wasJoined
+                                    ? Colors
+                                          .orange[600] // Salió de la comunidad
+                                    : Colors
+                                          .green[600], // Se unió a la comunidad
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                          provider.clearMessages();
+                        }
+
+                        // Mostrar mensaje de error si existe
+                        if (provider.errorMessage != null) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.errorMessage!),
+                                backgroundColor: Colors.red[600],
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                          provider.clearMessages();
+                        }
+                      },
                     );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(
-                        0xFFFFCDD2,
-                      ), // Color rosado suave como el mockup
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Unirse',
-                      style: TextStyle(
-                        color: Color(0xFFD32F2F), // Color rojo para el texto
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ), // Cerrar Row dentro de Container

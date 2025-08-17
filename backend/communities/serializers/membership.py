@@ -25,12 +25,12 @@ class JoinCommunitySerializer(serializers.Serializer):
             raise serializers.ValidationError("Ya eres miembro de esta comunidad.")
         
         # Verificar límite de miembros
-        if community.member_limit and community.member_count >= community.member_limit:
+        if community.max_members and community.member_count >= community.max_members:
             raise serializers.ValidationError("Esta comunidad ha alcanzado el límite de miembros.")
         
-        # Verificar que la comunidad esté activa
-        if not community.is_active:
-            raise serializers.ValidationError("Esta comunidad no está activa.")
+        # Verificar que la comunidad esté disponible públicamente
+        if not community.is_public:
+            raise serializers.ValidationError("Esta comunidad no es pública.")
         
         return attrs
     

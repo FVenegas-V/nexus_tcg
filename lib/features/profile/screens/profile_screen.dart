@@ -22,7 +22,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final UserProfileService _userProfileService = UserProfileService();
   UserProfile? _extendedProfile;
-  bool _isLoadingExtendedProfile = false;
 
   @override
   void initState() {
@@ -48,10 +47,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadExtendedProfile() async {
-    setState(() {
-      _isLoadingExtendedProfile = true;
-    });
-
     try {
       final profileData = await _userProfileService.getUserProfile();
       if (profileData != null && mounted) {
@@ -61,12 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       print('Error loading extended profile: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingExtendedProfile = false;
-        });
-      }
     }
   }
 

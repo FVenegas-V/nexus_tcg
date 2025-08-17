@@ -179,3 +179,22 @@ class Community(models.Model):
     def tag_count(self):
         """Retorna el número de tags."""
         return len(self.tags)
+    
+    def is_user_member(self, user):
+        """Verifica si un usuario es miembro de esta comunidad."""
+        print(f"🔍 is_user_member for {self.name} - user: {user}")
+        
+        if not user or not user.is_authenticated:
+            print(f"   - User not authenticated")
+            return False
+            
+        result = self.memberships.filter(user=user, status='active').exists()
+        print(f"   - Query result: {result}")
+        
+        # Debug: mostrar todas las membresías del usuario
+        all_memberships = self.memberships.filter(user=user)
+        print(f"   - All memberships for user: {all_memberships.count()}")
+        for membership in all_memberships:
+            print(f"     * Status: {membership.status}, Role: {membership.role}")
+        
+        return result

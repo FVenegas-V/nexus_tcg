@@ -37,6 +37,43 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
             return CommunityDetailSerializer
         return CommunityListSerializer
     
+    def get_serializer_context(self):
+        """Asegurar que el serializer reciba el contexto del request."""
+        context = super().get_serializer_context()
+        print(f"🔧 CONTEXT DEBUG: Passing context to serializer - request: {self.request}, user: {self.request.user}")
+        return context
+    
+    def list(self, request, *args, **kwargs):
+        """Override del método list para agregar logs de debug."""
+        print(f"🌐 CommunityViewSet list() called - User: {request.user}")
+        print(f"🌐 Serializer class: {self.get_serializer_class()}")
+        
+        # Obtener queryset y serializer
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            print(f"🎯 USING SERIALIZER: {type(serializer).__name__}")
+            print(f"🎯 SERIALIZER INSTANCE: {serializer}")
+            print(f"🎯 CONTEXT: {serializer.context}")
+            print(f"🎯 SERIALIZER FIELDS: {serializer.child.fields.keys() if hasattr(serializer, 'child') else 'No child'}")
+            serialized_data = serializer.data  # Esto debería trigger los métodos del serializer
+            print(f"🔥 SERIALIZER DATA GENERATED: {len(serialized_data)} items")
+            result = self.get_paginated_response(serialized_data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            print(f"🎯 USING SERIALIZER: {type(serializer).__name__}")
+            print(f"🎯 SERIALIZER INSTANCE: {serializer}")
+            print(f"🎯 CONTEXT: {serializer.context}")
+            print(f"🎯 SERIALIZER FIELDS: {serializer.child.fields.keys() if hasattr(serializer, 'child') else 'No child'}")
+            serialized_data = serializer.data  # Esto debería trigger los métodos del serializer
+            print(f"🔥 SERIALIZER DATA GENERATED: {len(serialized_data)} items")
+            result = Response(serialized_data)
+        
+        print(f"🌐 Response data preview: {str(result.data)[:200]}...")
+        return result
+    
     @action(detail=True, methods=['get'])
     def members(self, request, pk=None):
         """Obtener miembros de una comunidad."""
@@ -174,11 +211,18 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
         from ..permissions import CanJoinCommunity
         from django.db import transaction
         
+        print(f"🎯 JOIN REQUEST: user={request.user.username}, community_id={pk}")
+        
         community = self.get_object()
+        print(f"🏠 COMMUNITY: {community.name}, is_public={community.is_public}")
         
         # Verificar permisos manualmente
         permission = CanJoinCommunity()
-        if not permission.has_permission(request, self):
+        has_permission = permission.has_permission(request, self)
+        print(f"🔐 PERMISSION CHECK: {has_permission}")
+        
+        if not has_permission:
+            print(f"❌ PERMISSION DENIED for user {request.user.username}")
             return Response(
                 {'error': 'No tienes permisos para unirte a esta comunidad.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -198,11 +242,13 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
                     context={'request': request}
                 )
                 
+                print(f"✅ JOIN SUCCESS: {request.user.username} joined {community.name}")
                 return Response({
                     'message': f'Te has unido exitosamente a {community.name}',
                     'membership': response_serializer.data
                 }, status=status.HTTP_201_CREATED)
         
+        print(f"❌ SERIALIZER ERRORS: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(
@@ -220,11 +266,18 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
         from ..permissions import CanLeaveCommunity
         from django.db import transaction
         
+        print(f"🚪 LEAVE REQUEST: user={request.user.username}, community_id={pk}")
+        
         community = self.get_object()
+        print(f"🏠 COMMUNITY: {community.name}")
         
         # Verificar permisos manualmente
         permission = CanLeaveCommunity()
-        if not permission.has_permission(request, self):
+        has_permission = permission.has_permission(request, self)
+        print(f"🔐 LEAVE PERMISSION CHECK: {has_permission}")
+        
+        if not has_permission:
+            print(f"❌ LEAVE PERMISSION DENIED for user {request.user.username}")
             return Response(
                 {'error': 'No puedes salir de esta comunidad.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -235,7 +288,9 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
                 community=community,
                 user=request.user
             )
+            print(f"👤 MEMBERSHIP FOUND: role={membership.role}")
         except CommunityMembership.DoesNotExist:
+            print(f"❌ NO MEMBERSHIP FOUND for user {request.user.username}")
             return Response(
                 {'error': 'No eres miembro de esta comunidad.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -251,11 +306,13 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
                 membership_role = membership.role
                 membership.delete()
                 
+                print(f"✅ LEAVE SUCCESS: {request.user.username} left {community.name}")
                 return Response({
                     'message': f'Has salido exitosamente de {community.name}',
                     'former_role': membership_role
                 }, status=status.HTTP_200_OK)
         
+        print(f"❌ LEAVE SERIALIZER ERRORS: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(

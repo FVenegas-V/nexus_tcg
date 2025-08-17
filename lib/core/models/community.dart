@@ -58,7 +58,7 @@ class Community {
           ? json['game_type'].toString()
           : json['game_type'] as String,
       difficultyLevel: json['difficulty_level'] as String,
-      tags: [], // En lista simple no vienen tags
+      tags: List<String>.from(json['tags'] ?? []), // Incluir tags desde API
       isPublic: json['is_public'] as bool,
       isFeatured: json['is_featured'] as bool? ?? false,
       memberCount: json['member_count'] as int,

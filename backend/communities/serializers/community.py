@@ -11,14 +11,32 @@ class CommunityListSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     member_count = serializers.IntegerField(read_only=True)
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
     
     class Meta:
         model = Community
         fields = [
             'id', 'name', 'slug', 'description', 'category_name', 
-            'game_type', 'difficulty_level', 'member_count', 
-            'is_public', 'created_by_username', 'created_at'
+            'game_type', 'difficulty_level', 'tags', 'member_count', 
+            'is_public', 'created_by_username', 'created_at', 'is_subscribed'
         ]
+    
+    def get_is_subscribed(self, obj):
+        """Verificar si el usuario actual está suscrito a esta comunidad."""
+        print(f"� SERIALIZER START: get_is_subscribed called for community {obj.id} - {obj.name}")
+        
+        request = self.context.get('request')
+        print(f"🔥 SERIALIZER REQUEST: {request}")
+        
+        if not request or not request.user.is_authenticated:
+            print(f"❌ SERIALIZER: No authenticated user - request: {request}, user: {request.user if request else 'No request'}")
+            return False
+        
+        print(f"👤 SERIALIZER: Checking membership for user {request.user.username}")
+        is_member = obj.is_user_member(request.user)
+        print(f"✅ SERIALIZER: is_user_member returned {is_member}")
+        
+        return is_member
 
 
 class CommunityDetailSerializer(serializers.ModelSerializer):

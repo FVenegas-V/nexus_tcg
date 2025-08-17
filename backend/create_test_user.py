@@ -9,7 +9,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nexus_api.settings')
 django.setup()
 
-from django.contrib.auth.models import User
+from users.models import User
 
 def create_test_user():
     """Crear usuario de prueba test1"""

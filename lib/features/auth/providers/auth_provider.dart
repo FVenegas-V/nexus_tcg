@@ -17,6 +17,7 @@ class AuthProvider extends ChangeNotifier {
   AuthState _state = AuthState.initial;
   Map<String, dynamic>? _user;
   String? _errorMessage;
+  bool _isRealAuth = false; // Track if using real authentication
 
   // Getters para acceso al estado
   AuthState get state => _state;
@@ -24,6 +25,7 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _state == AuthState.authenticated;
   bool get isLoading => _state == AuthState.loading;
+  bool get isRealAuth => _isRealAuth; // Getter for real auth status
 
   /// Actualiza el estado y notifica a los listeners
   void _setState(AuthState newState) {
@@ -84,6 +86,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         _user = result['user'];
+        _isRealAuth = result['isReal'] ?? false; // Track auth type
 
         // Configurar token en HttpService si está disponible
         if (result['token'] != null) {
@@ -91,6 +94,14 @@ class AuthProvider extends ChangeNotifier {
         }
 
         _setState(AuthState.authenticated);
+
+        // Show warning if using mock auth
+        if (!_isRealAuth) {
+          debugPrint(
+            '⚠️ ADVERTENCIA: Usando autenticación mock. Las operaciones de comunidades pueden fallar.',
+          );
+        }
+
         return true;
       } else {
         _setError(result['message']);

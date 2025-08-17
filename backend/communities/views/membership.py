@@ -74,13 +74,6 @@ class CommunityMembershipViewSet(viewsets.ReadOnlyModelViewSet):
         """
         community = get_object_or_404(Community, pk=community_pk)
         
-        # Verificar que la comunidad esté activa
-        if not community.is_active:
-            return Response(
-                {'error': 'Esta comunidad no está activa.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
         serializer = JoinCommunitySerializer(
             data=request.data,
             context={'request': request, 'community': community}

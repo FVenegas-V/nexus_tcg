@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/models/community.dart';
+import '../providers/communities_provider_new.dart';
+import 'join_leave_button.dart';
 
 /// Widget card para mostrar información de una comunidad
 /// Incluye imagen, nombre, descripción, miembros y botón de suscripción

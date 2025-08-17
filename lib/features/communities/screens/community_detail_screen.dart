@@ -595,23 +595,47 @@ class CommunityDetailScreen extends StatelessWidget {
   ) {
     return FloatingActionButton.extended(
       heroTag: "community_subscription_fab",
-      onPressed: () {
-        provider.toggleSubscription(community.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              community.isSubscribed
-                  ? 'Te has desuscrito de ${community.name}'
-                  : 'Te has suscrito a ${community.name}',
+      onPressed: provider.isJoinLeaveLoading(community.id)
+          ? null
+          : () async {
+              await provider.toggleSubscription(community.id);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      community.isSubscribed
+                          ? 'Has salido de ${community.name}'
+                          : 'Te has unido a ${community.name}',
+                    ),
+                    backgroundColor: community.isSubscribed
+                        ? Colors.orange
+                        : Colors.green,
+                  ),
+                );
+              }
+            },
+      icon: provider.isJoinLeaveLoading(community.id)
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
+          : Icon(
+              community.isSubscribed ? Icons.check_circle : Icons.add_circle,
             ),
-          ),
-        );
-      },
-      icon: Icon(community.isSubscribed ? Icons.check : Icons.add),
-      label: Text(community.isSubscribed ? 'Suscrito' : 'Unirse'),
-      backgroundColor: community.isSubscribed
-          ? Theme.of(context).colorScheme.secondary
-          : Theme.of(context).colorScheme.primary,
+      label: Text(
+        provider.isJoinLeaveLoading(community.id)
+            ? 'Procesando...'
+            : (community.isSubscribed ? 'Unido' : 'Unirse'),
+      ),
+      backgroundColor: provider.isJoinLeaveLoading(community.id)
+          ? Theme.of(context).colorScheme.surfaceVariant
+          : (community.isSubscribed
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.primary),
     );
   }
 

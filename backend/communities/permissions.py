@@ -115,45 +115,62 @@ class CanJoinCommunity(permissions.BasePermission):
     """
     
     def has_permission(self, request, view):
+        print(f"🔐 CanJoinCommunity: checking permission for user {request.user.username}")
+        
         if not request.user.is_authenticated:
+            print("❌ CanJoinCommunity: user not authenticated")
             return False
         
         # Solo verificar para operaciones POST (join)
         if request.method != 'POST':
+            print("✅ CanJoinCommunity: not POST method, allowing")
             return True
         
-        community_id = view.kwargs.get('pk')
+        # Buscar community_id en diferentes lugares
+        community_id = view.kwargs.get('pk') or view.kwargs.get('community_pk')
+        print(f"🏠 CanJoinCommunity: community_id={community_id}")
+        
         if not community_id:
+            print("❌ CanJoinCommunity: no community_id found")
             return False
         
         try:
             community = Community.objects.get(pk=community_id)
+            print(f"🏠 CanJoinCommunity: found community {community.name}")
             
-            # Verificar si la comunidad está activa
-            if not community.is_active:
+            # Verificar si la comunidad está disponible públicamente
+            if not community.is_public:
+                print(f"❌ CanJoinCommunity: community {community.name} is not public")
                 return False
             
             # Verificar si ya es miembro
-            if CommunityMembership.objects.filter(
+            existing_membership = CommunityMembership.objects.filter(
                 community=community,
                 user=request.user
-            ).exists():
+            ).exists()
+            
+            if existing_membership:
+                print(f"❌ CanJoinCommunity: user {request.user.username} is already a member of {community.name}")
                 return False
             
             # Verificar límite de miembros (si está configurado)
-            if community.member_limit and community.member_count >= community.member_limit:
+            if community.max_members and community.member_count >= community.max_members:
+                print(f"❌ CanJoinCommunity: community {community.name} has reached member limit ({community.member_count}/{community.max_members})")
                 return False
             
-            # Si la comunidad es privada, necesita invitación o aprobación
+            # Si la comunidad requiere aprobación
             # (Esta lógica se puede expandir en el futuro)
-            if community.is_private:
-                # Por ahora, las comunidades privadas requieren aprobación manual
-                # En el futuro se puede implementar sistema de invitaciones
+            if community.requires_approval:
+                print(f"⚠️ CanJoinCommunity: community {community.name} requires approval")
+                # Por ahora, las comunidades que requieren aprobación deben
+                # ser manejadas por un endpoint separado
                 pass
             
+            print(f"✅ CanJoinCommunity: all checks passed for user {request.user.username} to join {community.name}")
             return True
             
         except Community.DoesNotExist:
+            print(f"❌ CanJoinCommunity: community {community_id} does not exist")
             return False
 
 
@@ -163,15 +180,23 @@ class CanLeaveCommunity(permissions.BasePermission):
     """
     
     def has_permission(self, request, view):
+        print(f"🚪 CanLeaveCommunity: checking permission for user {request.user.username}")
+        
         if not request.user.is_authenticated:
+            print("❌ CanLeaveCommunity: user not authenticated")
             return False
         
         # Solo verificar para operaciones DELETE (leave)
         if request.method != 'DELETE':
+            print("✅ CanLeaveCommunity: not DELETE method, allowing")
             return True
         
-        community_id = view.kwargs.get('pk')
+        # Buscar community_id en diferentes lugares
+        community_id = view.kwargs.get('pk') or view.kwargs.get('community_pk')
+        print(f"🏠 CanLeaveCommunity: community_id={community_id}")
+        
         if not community_id:
+            print("❌ CanLeaveCommunity: no community_id found")
             return False
         
         try:
@@ -180,6 +205,7 @@ class CanLeaveCommunity(permissions.BasePermission):
                 community_id=community_id,
                 user=request.user
             )
+            print(f"👤 CanLeaveCommunity: found membership with role {membership.role}")
             
             # Un admin no puede salir si es el único admin
             if membership.role == 'admin':
@@ -189,10 +215,15 @@ class CanLeaveCommunity(permissions.BasePermission):
                 ).count()
                 
                 if admin_count <= 1:
+                    print(f"❌ CanLeaveCommunity: user {request.user.username} is the only admin, cannot leave")
                     # No permitir si es el único admin
                     return False
+                else:
+                    print(f"✅ CanLeaveCommunity: admin can leave, there are {admin_count} admins")
             
+            print(f"✅ CanLeaveCommunity: user {request.user.username} can leave community {community_id}")
             return True
             
         except CommunityMembership.DoesNotExist:
+            print(f"❌ CanLeaveCommunity: user {request.user.username} is not a member of community {community_id}")
             return False

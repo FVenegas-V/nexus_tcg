@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/community.dart';
 import '../../../core/providers/communities_state.dart';
-import '../widgets/community_card.dart';
+import '../widgets/community_card_with_join_leave.dart';
 import '../widgets/community_filter_sheet.dart';
 import '../widgets/game_type_filter_chips.dart';
+import '../../auth/providers/auth_provider.dart';
 
 /// Pantalla de Comunidades - Lista todas las comunidades disponibles
 /// Incluye búsqueda, filtros y navegación a detalle - VERSIÓN COMPLETA
@@ -131,6 +132,46 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ),
           body: Column(
             children: [
+              // Advertencia de autenticación mock
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  if (authProvider.isAuthenticated &&
+                      !authProvider.isRealAuth) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        border: Border.all(color: Colors.orange),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Usando datos de prueba. Para funcionalidad completa, usa credenciales reales: test1/password123',
+                              style: TextStyle(
+                                color: Colors.orange.shade700,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+
               // Barra de búsqueda
               _buildSearchBar(),
 
@@ -345,13 +386,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           final Community community = state.communities[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: CommunityCard(
+            child: CommunityCardWithJoinLeave(
               community: community,
               onTap: () {
                 context.push('/community/${community.id}');
-              },
-              onSubscriptionToggle: () {
-                state.toggleCommunityMembership(community.id);
               },
             ),
           );

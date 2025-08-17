@@ -40,6 +40,22 @@ class CommunityListSerializer(serializers.ModelSerializer):
     is_full = serializers.ReadOnlyField()
     is_popular = serializers.ReadOnlyField()
     member_capacity_percentage = serializers.ReadOnlyField()
+    is_subscribed = serializers.SerializerMethodField()
+    
+    def get_is_subscribed(self, obj):
+        """Verifica si el usuario actual está suscrito a esta comunidad."""
+        request = self.context.get('request')
+        print(f"🔍 Serializer get_is_subscribed for {obj.name}")
+        print(f"   - Request: {request}")
+        
+        if request and request.user.is_authenticated:
+            print(f"   - User: {request.user.username}")
+            result = obj.is_user_member(request.user)
+            print(f"   - is_user_member result: {result}")
+            return result
+        else:
+            print(f"   - No authenticated user")
+            return False
     
     class Meta:
         model = Community
@@ -50,7 +66,7 @@ class CommunityListSerializer(serializers.ModelSerializer):
             'member_count', 'post_count', 'tags',
             'created_at', 'updated_at', 'created_by',
             # Campos calculados
-            'is_full', 'is_popular', 'member_capacity_percentage'
+            'is_full', 'is_popular', 'member_capacity_percentage', 'is_subscribed'
         ]
 
 
@@ -153,12 +169,12 @@ class JoinCommunitySerializer(serializers.Serializer):
             raise serializers.ValidationError("Ya eres miembro de esta comunidad.")
         
         # Verificar límite de miembros
-        if community.member_limit and community.member_count >= community.member_limit:
+        if community.max_members and community.member_count >= community.max_members:
             raise serializers.ValidationError("Esta comunidad ha alcanzado el límite de miembros.")
         
-        # Verificar que la comunidad esté activa
-        if not community.is_active:
-            raise serializers.ValidationError("Esta comunidad no está activa.")
+        # Verificar que la comunidad esté disponible públicamente
+        if not community.is_public:
+            raise serializers.ValidationError("Esta comunidad no es pública.")
         
         return attrs
     

@@ -34,7 +34,6 @@ class AuthService {
 
   /// Realiza el login del usuario con el backend
   /// Retorna un mapa con el resultado y los datos del usuario
-  /// Incluye fallback a datos mock si falla la API real
   static Future<Map<String, dynamic>> login({
     required String username,
     required String password,
@@ -63,15 +62,27 @@ class AuthService {
             'user': data['user'],
             'token': data['access'],
             'message': 'Login exitoso',
+            'isReal': true, // Marcador para identificar autenticación real
+          };
+        } else {
+          debugPrint('❌ Login fallido con código: ${response.statusCode}');
+          return {
+            'success': false,
+            'message': 'Credenciales inválidas',
+            'isReal': true,
           };
         }
       } catch (e) {
-        debugPrint('🚨 Error en API real, usando fallback: $e');
-        // Continuar con datos mock como fallback
+        debugPrint('🚨 Error en API real: $e');
+        return {
+          'success': false,
+          'message': 'Error de conexión con el servidor',
+          'isReal': true,
+        };
       }
     }
 
-    // Fallback a datos mock
+    // Fallback a datos mock solo para desarrollo
     return _mockLogin(username, password);
   }
 
@@ -110,10 +121,15 @@ class AuthService {
         },
         'token': accessToken,
         'message': 'Login exitoso (datos mock)',
+        'isReal': false, // Marcador para identificar autenticación mock
       };
     }
 
-    return {'success': false, 'message': 'Credenciales inválidas'};
+    return {
+      'success': false,
+      'message': 'Credenciales inválidas',
+      'isReal': false,
+    };
   }
 
   static Future<Map<String, dynamic>> register({
