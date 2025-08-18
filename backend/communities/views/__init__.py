@@ -8,6 +8,7 @@ from .tag import CommunityTagViewSet
 from .membership import CommunityMembershipViewSet
 from .community import CommunityViewSet
 from .category import CommunityCategoryViewSet
+from .post import PostViewSet
 
 __all__ = [
     'GameTypeViewSet',
@@ -15,4 +16,5 @@ __all__ = [
     'CommunityMembershipViewSet',
     'CommunityViewSet',
     'CommunityCategoryViewSet',
+    'PostViewSet',
 ]

@@ -1,11 +1,21 @@
 # 🎮 Nexus TCG
-### *Tu aplicación móvil para Trading Card Games*
+### *Tu aplicación móvil pa| **Fase 3** | 💬 Posts & Comentarios | 20% (1/5) | 🟡 **EN PROGRESO** |a Trading Card Games*
 
 ---
 
 ## 🌟 **Descripción del Proyecto**
 
-**Nexus TCG** es una aplicación móvil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
+**Nexus TCG** Nexus TCG es una aplicación móvil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
+
+
+### 🎯 **Próximas Implementaciones**
+
+#### 💬 **Fase 3: Posts y Comentarios** *(En Progreso - 20% Completado)*
+- ✅ **Modelos Django**: Post, Comment, Reaction implementados (fase3-0001)
+- ✅ **APIs REST Posts**: Sistema completo con reacciones (fase3-0002) - **COMPLETADO**
+- ⏳ **APIs REST Comments**: Threading y endpoints anidados (fase3-0003)
+- ⏳ **Sistema Reacciones**: Integrado en Posts APIs (fase3-0004)
+- ⏳ **Upload Imágenes**: Integración con storage cloud (fase3-0005)
 
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
@@ -21,8 +31,8 @@
 
 <div align="center">
 
-### 🎯 **Progreso General: 45.8% del MVP**
-*22 de 48 tickets completados*
+### 🎯 **Progreso General: 42.6% del MVP**
+*20 de 47 tickets completados*
 
 </div>
 
@@ -31,7 +41,7 @@
 | **Fase 0** | 🏗️ Fundación | 100% (5/5) | ✅ **COMPLETADA** |
 | **Fase 1** | 🔐 Autenticación | 100% MVP (5/5) | ✅ **COMPLETADA** |
 | **Fase 2** | 👥 Comunidades | 100% (5/5) | ✅ **COMPLETADA** |
-| **Fase 3** | 💬 Posts & Comentarios | 0% (0/6) | 🔴 Pendiente |
+| **Fase 3** | 💬 Posts & Comentarios | 20% (1/5) | � **EN PROGRESO** |
 | **Fase 4** | ⭐ Reputación | 0% (0/5) | 🔴 Pendiente |
 | **Fase 5** | 📱 Notificaciones | 0% (0/4) | 🔴 Pendiente |
 | **Fase 6** | 🔍 Búsqueda | 0% (0/4) | 🔴 Pendiente |
@@ -39,6 +49,16 @@
 | **Fase 8** | 🚀 Producción | 0% (0/5) | 🔴 Pendiente |
 
 ### 🎉 **Últimas Implementaciones Completadas**
+
+#### ✅ **Fase 3: Modelos de Posts y Comentarios INICIADA** *(20% Completada - 17 ago 2025)*
+- 🏗️ **Modelos Django**: 3 nuevos modelos (Post, Comment, Reaction) con threading
+- 🧵 **Sistema de Threading**: Comentarios anidados hasta 3 niveles de profundidad
+- 😀 **Sistema de Reacciones**: 6 tipos de emoji (like, love, laugh, wow, sad, angry)
+- 📊 **Contadores Automáticos**: Signals para sincronización de comment_count/reaction_count
+- 🖼️ **Soporte Multi-Imagen**: Posts con hasta 5 imágenes (compatible SQLite/PostgreSQL)
+- 🛡️ **Validaciones de Negocio**: Verificación de membresía activa, soft delete
+- 🧪 **Testing Completo**: 18 tests unitarios (100% aprobados)
+- 📋 **Admin Interface**: Gestión optimizada con displays jerárquicos
 
 #### ✅ **Fase 2: Backend de Comunidades COMPLETO** *(100% Completada - 14 ago 2025)*
 - 🏗️ **Modelos Django**: 5 modelos (Community, CommunityCategory, CommunityMembership, GameType, CommunityTag)
@@ -166,9 +186,9 @@ POST   /api/auth/password-reset/confirm/  # Confirmar nueva contraseña
 - 📝 Suscripción a comunidades de interés
 - 👤 Perfiles públicos de usuarios
 
-#### 💬 **Fase 3: Posts y Comentarios**
-- 📰 Sistema de posts con imágenes
-- 💬 Comentarios anidados
+#### ⭐ **Fase 4: Sistema de Reputación**
+- 🌟 Valoraciones entre usuarios (1-5 estrellas)
+- � Algoritmo de cálculo de reputación
 - ❤️ Sistema de reacciones (likes/emojis)
 
 #### ⭐ **Fase 4: Reputación**

@@ -11,6 +11,7 @@ from .views import (
     CommunityMembershipViewSet,
     CommunityViewSet,
     CommunityCategoryViewSet,
+    PostViewSet,
 )
 
 # Router principal
@@ -22,6 +23,9 @@ router.register(r'categories', CommunityCategoryViewSet)
 
 # Registrar MembershipViewSet con basename personalizado
 router.register(r'memberships', CommunityMembershipViewSet, basename='membership')
+
+# Registrar PostViewSet
+router.register(r'posts', PostViewSet, basename='post')
 
 app_name = 'communities'
 

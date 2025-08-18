@@ -8,8 +8,12 @@ class ApiConfig {
       // Para web/Chrome: usar 127.0.0.1 o localhost
       return 'http://127.0.0.1:8000';
     } else {
-      // Para emulador Android: usar 10.0.2.2 en lugar de 127.0.0.1
-      return 'http://10.0.2.2:8000';
+      // Para Android: detectar si es emulador o dispositivo real
+      // TODO: Implementar detección automática de emulador vs dispositivo real
+      // Por ahora, usar IP WiFi para dispositivos reales
+      // Cambiar esta IP por la IP WiFi de tu computadora
+      return 'http://192.168.1.87:8000'; // IP WiFi para dispositivo real
+      // return 'http://10.0.2.2:8000'; // IP para emulador Android
     }
   }
 

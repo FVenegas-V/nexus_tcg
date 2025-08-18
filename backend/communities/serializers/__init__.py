@@ -38,6 +38,15 @@ from .category import (
     CommunityCategorySerializer,
 )
 
+# Importar serializers de Posts
+from .post import (
+    PostListSerializer,
+    PostDetailSerializer,
+    PostCreateUpdateSerializer,
+    AuthorSerializer,
+    CommunityInPostSerializer,
+)
+
 __all__ = [
     # Serializers de membresía
     'JoinCommunitySerializer',
@@ -66,4 +75,11 @@ __all__ = [
     
     # Serializers de Category
     'CommunityCategorySerializer',
+    
+    # Serializers de Posts
+    'PostListSerializer',
+    'PostDetailSerializer',
+    'PostCreateUpdateSerializer',
+    'AuthorSerializer',
+    'CommunityInPostSerializer',
 ]

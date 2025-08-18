@@ -227,3 +227,103 @@ class CanLeaveCommunity(permissions.BasePermission):
         except CommunityMembership.DoesNotExist:
             print(f"❌ CanLeaveCommunity: user {request.user.username} is not a member of community {community_id}")
             return False
+
+
+class PostPermission(permissions.BasePermission):
+    """
+    Permisos para operaciones con Posts.
+    - Ver posts: Usuarios autenticados
+    - Crear posts: Miembros de la comunidad
+    - Editar/Eliminar: Solo el autor o moderadores/admins
+    """
+    
+    def has_permission(self, request, view):
+        # Requiere autenticación
+        if not request.user.is_authenticated:
+            return False
+        
+        # Para lectura, permitir a usuarios autenticados
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Para crear posts, verificar membresía en la comunidad
+        if request.method == 'POST':
+            community_id = request.data.get('community')
+            if community_id:
+                try:
+                    return CommunityMembership.objects.filter(
+                        community_id=community_id,
+                        user=request.user
+                    ).exists()
+                except (ValueError, TypeError):
+                    return False
+        
+        return True  # Para otras operaciones, verificar a nivel de objeto
+    
+    def has_object_permission(self, request, view, obj):
+        # Lectura permitida para usuarios autenticados
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # El autor puede editar/eliminar sus posts
+        if obj.author == request.user:
+            return True
+        
+        # Moderadores y admins pueden editar/eliminar cualquier post
+        try:
+            membership = CommunityMembership.objects.get(
+                community=obj.community,
+                user=request.user
+            )
+            return membership.role in ['moderator', 'admin']
+        except CommunityMembership.DoesNotExist:
+            return False
+
+
+class PostOwnershipPermission(permissions.BasePermission):
+    """
+    Permiso estricto que solo permite al autor del post modificarlo.
+    Útil para endpoints específicos donde no queremos permitir moderación.
+    """
+    
+    def has_object_permission(self, request, view, obj):
+        # Lectura permitida
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Solo el autor puede modificar
+        return obj.author == request.user
+
+
+class CanCreatePostInCommunity(permissions.BasePermission):
+    """
+    Permiso específico para verificar si un usuario puede crear posts
+    en una comunidad específica. Verifica membresía y estado de la comunidad.
+    """
+    
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        
+        # Obtener community_id del request
+        community_id = None
+        if hasattr(view, 'kwargs') and 'community_id' in view.kwargs:
+            community_id = view.kwargs['community_id']
+        elif request.method == 'POST' and 'community' in request.data:
+            community_id = request.data.get('community')
+        
+        if not community_id:
+            return False
+        
+        try:
+            # Verificar que la comunidad existe y está activa
+            community = Community.objects.get(pk=community_id, is_active=True)
+            
+            # Verificar membresía del usuario
+            return CommunityMembership.objects.filter(
+                community=community,
+                user=request.user
+            ).exists()
+            
+        except Community.DoesNotExist:
+            return False

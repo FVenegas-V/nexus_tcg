@@ -13,7 +13,13 @@ class HttpService {
 
   /// Inicializar el servicio HTTP
   void initialize() {
-    if (_isInitialized) return; // Evitar doble inicialización
+    if (_isInitialized) {
+      debugPrint('⚠️ HttpService ya está inicializado');
+      return; // Evitar doble inicialización
+    }
+
+    debugPrint('🚀 Inicializando HttpService...');
+    debugPrint('🌐 Base URL: ${ApiConfig.baseUrl}');
 
     _dio = Dio(
       BaseOptions(
@@ -24,6 +30,11 @@ class HttpService {
         headers: ApiConfig.defaultHeaders,
       ),
     );
+
+    debugPrint('⏱️ Timeouts configurados:');
+    debugPrint('  - Connect: ${ApiConfig.connectTimeout}');
+    debugPrint('  - Receive: ${ApiConfig.receiveTimeout}');
+    debugPrint('  - Send: ${ApiConfig.sendTimeout}');
 
     // Agregar interceptors solo en modo debug
     if (kDebugMode) {
@@ -94,13 +105,26 @@ class HttpService {
     Options? options,
   }) async {
     try {
-      return await _dio.post<T>(
+      debugPrint('📤 POST Request:');
+      debugPrint('  - Path: $path');
+      debugPrint('  - Full URL: ${_dio.options.baseUrl}$path');
+      debugPrint('  - Data: $data');
+      debugPrint('  - Query params: $queryParameters');
+
+      final response = await _dio.post<T>(
         path,
         data: data,
         queryParameters: queryParameters,
         options: options,
       );
+
+      debugPrint('📥 POST Response:');
+      debugPrint('  - Status: ${response.statusCode}');
+      debugPrint('  - Data: ${response.data}');
+
+      return response;
     } on DioException catch (e) {
+      debugPrint('🚨 POST Error: $e');
       throw _handleDioError(e);
     }
   }

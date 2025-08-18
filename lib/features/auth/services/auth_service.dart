@@ -41,11 +41,23 @@ class AuthService {
     if (_useRealApi) {
       try {
         debugPrint('🔐 Intentando login con API real: $username');
+        debugPrint('🌐 Base URL: ${ApiConfig.baseUrl}');
+        debugPrint('🔗 Endpoint: ${ApiConfig.loginEndpoint}');
+        debugPrint(
+          '🔗 URL completa: ${ApiConfig.baseUrl}${ApiConfig.loginEndpoint}',
+        );
+        debugPrint(
+          '📝 Datos a enviar: ${{'username': username, 'password': password}}',
+        );
 
         final response = await _httpService.post(
           ApiConfig.loginEndpoint,
           data: {'username': username, 'password': password},
         );
+
+        debugPrint('📊 Status Code recibido: ${response.statusCode}');
+        debugPrint('📋 Headers recibidos: ${response.headers}');
+        debugPrint('📄 Response data: ${response.data}');
 
         if (response.statusCode == 200) {
           final data = response.data as Map<String, dynamic>;

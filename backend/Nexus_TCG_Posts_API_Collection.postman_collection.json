@@ -1,0 +1,1029 @@
+{
+	"info": {
+		"_postman_id": "fase3-0002-posts-api",
+		"name": "Nexus TCG - Posts API (Fase 3-0002)",
+		"description": "Colección completa para probar todas las APIs del sistema de Posts implementado en la fase3-0002",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Autenticación",
+			"item": [
+				{
+					"name": "Login - Obtener Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('access_token', response.access);",
+									"    pm.environment.set('refresh_token', response.refresh);",
+									"    pm.test('Login exitoso', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    pm.test('Access token obtenido', function () {",
+									"        pm.expect(response.access).to.be.a('string');",
+									"    });",
+									"} else {",
+									"    pm.test('Error en login', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"gamer1\",\n    \"password\": \"gamer123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Posts - Lectura",
+			"item": [
+				{
+					"name": "Listar Todos los Posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Respuesta contiene posts', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"    pm.expect(response).to.have.property('count');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.results && response.results.length > 0) {",
+									"        pm.environment.set('first_post_id', response.results[0].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Feed Personalizado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Feed contiene posts', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/feed/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"feed",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mis Posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Respuesta válida', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/my_posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"my_posts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Posts por Comunidad",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Posts filtrados por comunidad', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/by_community/?community_id=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"by_community",
+								""
+							],
+							"query": [
+								{
+									"key": "community_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detalle de Post Específico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Detalle completo del post', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.expect(response).to.have.property('title');",
+									"    pm.expect(response).to.have.property('content');",
+									"    pm.expect(response).to.have.property('author');",
+									"    pm.expect(response).to.have.property('community');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{first_post_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{first_post_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Posts - Búsqueda y Filtros",
+			"item": [
+				{
+					"name": "Búsqueda por Término",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Resultados de búsqueda', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"    pm.expect(response).to.have.property('count');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/?search=Magic",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Magic"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filtro por Comunidad",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Posts filtrados', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/?community=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "community",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ordenamiento por Fecha",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Posts ordenados', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"    if (response.results.length > 1) {",
+									"        const first = new Date(response.results[0].created_at);",
+									"        const second = new Date(response.results[1].created_at);",
+									"        pm.expect(first.getTime()).to.be.at.least(second.getTime());",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/?ordering=-created_at",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "-created_at"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filtros Combinados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Filtros aplicados correctamente', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/?community=1&search=Magic&ordering=-created_at&page_size=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "community",
+									"value": "1"
+								},
+								{
+									"key": "search",
+									"value": "Magic"
+								},
+								{
+									"key": "ordering",
+									"value": "-created_at"
+								},
+								{
+									"key": "page_size",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Posts - Creación y Edición",
+			"item": [
+				{
+					"name": "Crear Nuevo Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201 - Post creado', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Post creado correctamente', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.expect(response).to.have.property('title');",
+									"    pm.expect(response).to.have.property('content');",
+									"    pm.environment.set('created_post_id', response.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"🧪 Post de Prueba desde Postman\",\n    \"content\": \"Este es un post creado desde Postman para probar la API de Posts. ¡Funciona perfectamente! 🎉\",\n    \"community\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 - Post actualizado', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Post actualizado correctamente', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.expect(response.title).to.include('EDITADO');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"🧪 Post de Prueba desde Postman - EDITADO\",\n    \"content\": \"Este post ha sido editado desde Postman para probar la funcionalidad de actualización. ¡La API funciona perfectamente! ✅\",\n    \"community\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{created_post_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{created_post_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Sistema de Reacciones",
+			"item": [
+				{
+					"name": "Agregar Reacción Like",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Reacción agregada', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('action');",
+									"    pm.expect(response).to.have.property('reaction_type');",
+									"    pm.expect(response.reaction_type).to.equal('like');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reaction_type\": \"like\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{first_post_id}}/toggle_reaction/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{first_post_id}}",
+								"toggle_reaction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar a Reacción Love",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Reacción cambiada', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('action');",
+									"    pm.expect(response).to.have.property('reaction_type');",
+									"    pm.expect(response.reaction_type).to.equal('love');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reaction_type\": \"love\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{first_post_id}}/toggle_reaction/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{first_post_id}}",
+								"toggle_reaction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Quitar Reacción",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Reacción removida', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('action');",
+									"    pm.expect(response.action).to.equal('removed');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reaction_type\": \"love\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{first_post_id}}/toggle_reaction/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{first_post_id}}",
+								"toggle_reaction",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Todas las Reacciones",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Lista de reacciones', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('grouped_reactions');",
+									"    pm.expect(response).to.have.property('total_reactions');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{first_post_id}}/reactions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{first_post_id}}",
+								"reactions",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Tests de Estrés",
+			"item": [
+				{
+					"name": "Crear Múltiples Posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Post creado con ID único', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.expect(response.id).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"🚀 Post de Estrés #{{$randomInt}}\",\n    \"content\": \"Este es el post número {{$randomInt}} creado para probar la capacidad del sistema. Timestamp: {{$timestamp}}. Random text: {{$randomLoremText}}\",\n    \"community\": {{$randomInt}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Búsqueda Intensiva",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Tiempo de respuesta < 2 segundos', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test('Resultados válidos', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('results');",
+									"    pm.expect(response).to.have.property('count');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/?search=test&community=1&ordering=-created_at&page_size=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "test"
+								},
+								{
+									"key": "community",
+									"value": "1"
+								},
+								{
+									"key": "ordering",
+									"value": "-created_at"
+								},
+								{
+									"key": "page_size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Configuración automática antes de cada request",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:8000');",
+					"}",
+					"",
+					"// Log para debugging",
+					"console.log('Request a:', pm.request.url.toString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Tests globales para todas las requests",
+					"pm.test('Response time is reasonable', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Content-Type is correct', function () {",
+					"    if (pm.response.code === 200 || pm.response.code === 201) {",
+					"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    }",
+					"});",
+					"",
+					"// Log de respuesta para debugging",
+					"console.log('Response status:', pm.response.code);",
+					"console.log('Response time:', pm.response.responseTime + 'ms');"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "first_post_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "created_post_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

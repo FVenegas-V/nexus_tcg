@@ -3,7 +3,7 @@ Filtros personalizados para las APIs de comunidades.
 """
 import django_filters
 from django.db.models import Q, F
-from .models import Community, CommunityCategory, GameType
+from .models import Community, CommunityCategory, GameType, Post
 
 
 class CommunityFilter(django_filters.FilterSet):
@@ -176,3 +176,125 @@ class CommunityFilter(django_filters.FilterSet):
             Q(tags__icontains=value) |
             Q(category__name__icontains=value)
         )
+
+
+class PostFilter(django_filters.FilterSet):
+    """
+    Filtros avanzados para Posts con búsqueda y filtrado por comunidad.
+    """
+    # === FILTROS BÁSICOS ===
+    community = django_filters.NumberFilter(
+        field_name='community__id',
+        help_text="Filtrar por ID de comunidad"
+    )
+    community_name = django_filters.CharFilter(
+        field_name='community__name',
+        lookup_expr='icontains',
+        help_text="Filtrar por nombre de comunidad (parcial)"
+    )
+    author = django_filters.NumberFilter(
+        field_name='author__id',
+        help_text="Filtrar por ID del autor"
+    )
+    author_username = django_filters.CharFilter(
+        field_name='author__username',
+        lookup_expr='icontains',
+        help_text="Filtrar por nombre de usuario del autor"
+    )
+    
+    # === FILTROS DE FECHA ===
+    created_after = django_filters.DateTimeFilter(
+        field_name='created_at',
+        lookup_expr='gte',
+        help_text="Posts creados después de esta fecha"
+    )
+    created_before = django_filters.DateTimeFilter(
+        field_name='created_at',
+        lookup_expr='lte',
+        help_text="Posts creados antes de esta fecha"
+    )
+    updated_after = django_filters.DateTimeFilter(
+        field_name='updated_at',
+        lookup_expr='gte',
+        help_text="Posts actualizados después de esta fecha"
+    )
+    
+    # === FILTROS DE CONTENIDO ===
+    has_images = django_filters.BooleanFilter(
+        method='filter_has_images',
+        help_text="Posts que tienen imágenes"
+    )
+    min_reactions = django_filters.NumberFilter(
+        field_name='total_reactions',
+        lookup_expr='gte',
+        help_text="Posts con al menos X reacciones"
+    )
+    
+    # === FILTROS DE COMUNIDAD ===
+    game_type = django_filters.CharFilter(
+        field_name='community__game_type',
+        help_text="Filtrar por tipo de juego de la comunidad"
+    )
+    difficulty_level = django_filters.CharFilter(
+        field_name='community__difficulty_level',
+        help_text="Filtrar por nivel de dificultad de la comunidad"
+    )
+    
+    # === BÚSQUEDA COMBINADA ===
+    search = django_filters.CharFilter(
+        method='filter_search',
+        help_text="Búsqueda en título, contenido y datos de comunidad"
+    )
+    
+    # === FILTROS DE MEMBRESÍA ===
+    my_communities = django_filters.BooleanFilter(
+        method='filter_my_communities',
+        help_text="Posts solo de comunidades donde soy miembro"
+    )
+    
+    class Meta:
+        model = Post
+        fields = [
+            'community', 'author', 'is_active',
+            'created_after', 'created_before', 'updated_after',
+            'has_images', 'min_reactions', 'game_type', 'difficulty_level'
+        ]
+    
+    def filter_has_images(self, queryset, name, value):
+        """Filtrar posts que tienen imágenes."""
+        if value:
+            return queryset.filter(images__isnull=False).distinct()
+        elif value is False:
+            return queryset.filter(images__isnull=True)
+        return queryset
+    
+    def filter_search(self, queryset, name, value):
+        """
+        Búsqueda combinada en título, contenido, autor y comunidad.
+        """
+        if not value:
+            return queryset
+        
+        return queryset.filter(
+            Q(title__icontains=value) |
+            Q(content__icontains=value) |
+            Q(author__username__icontains=value) |
+            Q(community__name__icontains=value) |
+            Q(community__description__icontains=value)
+        ).distinct()
+    
+    def filter_my_communities(self, queryset, name, value):
+        """
+        Filtrar posts solo de comunidades donde el usuario es miembro.
+        """
+        if not value or not self.request or not self.request.user.is_authenticated:
+            return queryset
+        
+        # Obtener IDs de comunidades donde el usuario es miembro
+        from .models import CommunityMembership
+        user_communities = CommunityMembership.objects.filter(
+            user=self.request.user,
+            status='active'
+        ).values_list('community_id', flat=True)
+        
+        return queryset.filter(community_id__in=user_communities)

@@ -1,20 +1,36 @@
-from django.contrib.auth import get_user_model
-from communities.models import Community, CommunityMembership
+import requests
+import json
 
-User = get_user_model()
-user = User.objects.get(username='test1')
-community = Community.objects.get(pk=1)
+print("🔥 TEST RÁPIDO DE API")
 
-print(f"Usuario: {user.username}")
-print(f"Comunidad: {community.name}")
+# Test básico de autenticación
+try:
+    response = requests.post(
+        'http://localhost:8000/api/auth/login/',
+        json={'username': 'gamer1', 'password': 'gamer123'},
+        timeout=10
+    )
+    print(f"Auth status: {response.status_code}")
+    
+    if response.status_code == 200:
+        data = response.json()
+        token = data.get('access')
+        print("✅ Autenticación exitosa")
+        
+        # Test de posts
+        headers = {'Authorization': f'Bearer {token}'}
+        posts_response = requests.get('http://localhost:8000/api/posts/', headers=headers, timeout=10)
+        print(f"Posts status: {posts_response.status_code}")
+        
+        if posts_response.status_code == 200:
+            posts_data = posts_response.json()
+            print(f"✅ Posts API funcionando - {posts_data.get('count', 0)} posts")
+        else:
+            print(f"❌ Error en Posts API: {posts_response.text[:100]}")
+    else:
+        print(f"❌ Error de autenticación: {response.text[:100]}")
+        
+except Exception as e:
+    print(f"❌ Error de conexión: {e}")
 
-# Verificar membresía
-membership = CommunityMembership.objects.filter(community=community, user=user).first()
-print(f"Membership: {membership}")
-if membership:
-    print(f"Status: {membership.status}")
-    print(f"Role: {membership.role}")
-
-# Verificar método
-result = community.is_user_member(user)
-print(f"is_user_member: {result}")
+print("🎯 Test completado")
