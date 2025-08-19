@@ -2,15 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/models/community.dart';
-import '../../communities/providers/communities_provider_new.dart';
+import '../../../core/models/post.dart';
+import '../../../core/models/post_image.dart';
+import '../providers/posts_provider.dart';
 import '../widgets/image_picker_widget.dart';
-import '../widgets/community_selector.dart';
 
 /// Pantalla para crear un nuevo post
-/// Permite agregar texto, imágenes y seleccionar comunidad
+/// Permite agregar texto e imágenes para una comunidad específica
 class CreatePostScreen extends StatefulWidget {
-  const CreatePostScreen({super.key});
+  final int preselectedCommunityId;
+
+  const CreatePostScreen({super.key, required this.preselectedCommunityId});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -22,7 +24,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _contentFocusNode = FocusNode();
 
   List<File> _selectedImages = [];
-  Community? _selectedCommunity;
   bool _isLoading = false;
 
   // Constantes de validación
@@ -65,19 +66,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     return null;
   }
 
-  /// Valida que se haya seleccionado una comunidad
-  String? _validateCommunity() {
-    if (_selectedCommunity == null) {
-      return 'Debes seleccionar una comunidad';
-    }
-    return null;
-  }
-
   /// Simula la publicación del post
   Future<void> _publishPost() async {
-    if (!_formKey.currentState!.validate() || _selectedCommunity == null) {
-      // Mostrar error de comunidad si no está seleccionada
-      setState(() {}); // Trigger rebuild to show community error
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -86,29 +77,82 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
 
     try {
-      // Simular delay de publicación
-      await Future.delayed(const Duration(seconds: 2));
+      // Crear el request para el post
+      final createRequest = CreatePostRequest(
+        title: '', // Por ahora sin título, solo contenido
+        content: _contentController.text.trim(),
+        communityId: widget.preselectedCommunityId,
+      );
 
-      // Aquí se integraría con el PostsProvider para crear el post
-      // Por ahora solo mostramos un mensaje de éxito
+      // Crear post usando PostsProvider
+      final postsProvider = context.read<PostsProvider>();
+      final createdPost = await postsProvider.createPost(createRequest);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Text('¡Post publicado exitosamente!'),
-              ],
+      if (createdPost != null) {
+        debugPrint('✅ Post creado exitosamente: ${createdPost.id}');
+
+        // Si hay imágenes, subirlas
+        if (_selectedImages.isNotEmpty) {
+          debugPrint('📸 Subiendo ${_selectedImages.length} imágenes...');
+
+          try {
+            final imageUploadRequest = ImageUploadRequest(
+              postId: createdPost.id,
+              imagePaths: _selectedImages.map((file) => file.path).toList(),
+            );
+
+            final uploadSuccess = await postsProvider.uploadImages(
+              imageUploadRequest,
+            );
+
+            if (uploadSuccess) {
+              debugPrint('✅ Todas las imágenes subidas exitosamente');
+            } else {
+              debugPrint('⚠️ Algunas imágenes no se pudieron subir');
+              // Mostrar mensaje al usuario pero no fallar
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Algunas imágenes no se pudieron subir'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              }
+            }
+          } catch (e) {
+            debugPrint('❌ Error subiendo imágenes: $e');
+            // Mostrar mensaje al usuario pero no fallar
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Error al subir las imágenes'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text('¡Post publicado exitosamente!'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+          );
 
-        // Navegar de vuelta al feed
-        context.pop();
+          // Navegar de vuelta al feed
+          context.pop();
+        }
+      } else {
+        throw Exception('No se pudo crear el post');
       }
     } catch (e) {
       if (mounted) {
@@ -132,13 +176,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void _onImagesChanged(List<File> images) {
     setState(() {
       _selectedImages = images;
-    });
-  }
-
-  /// Maneja el cambio en la comunidad seleccionada
-  void _onCommunityChanged(Community? community) {
-    setState(() {
-      _selectedCommunity = community;
     });
   }
 
@@ -224,8 +261,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         fontWeight: FontWeight.w600,
                         color:
                             (_contentController.text.trim().length >=
-                                    _minContentLength &&
-                                _selectedCommunity != null)
+                                _minContentLength)
                             ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -245,19 +281,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Selector de comunidad
-                      Consumer<CommunitiesProvider>(
-                        builder: (context, provider, child) {
-                          return CommunitySelector(
-                            selectedCommunity: _selectedCommunity,
-                            onCommunityChanged: _onCommunityChanged,
-                            errorText: _validateCommunity(),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-
                       // Campo de contenido
                       Text(
                         'Contenido',
@@ -375,28 +398,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   '${_selectedImages.length} imagen${_selectedImages.length != 1 ? 'es' : ''}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          // Comunidad del preview
-          if (_selectedCommunity != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(
-                  Icons.group,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _selectedCommunity!.name,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

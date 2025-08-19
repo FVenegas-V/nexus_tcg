@@ -8,12 +8,10 @@ class ApiConfig {
       // Para web/Chrome: usar 127.0.0.1 o localhost
       return 'http://127.0.0.1:8000';
     } else {
-      // Para Android: detectar si es emulador o dispositivo real
-      // TODO: Implementar detección automática de emulador vs dispositivo real
-      // Por ahora, usar IP WiFi para dispositivos reales
-      // Cambiar esta IP por la IP WiFi de tu computadora
-      return 'http://192.168.1.87:8000'; // IP WiFi para dispositivo real
-      // return 'http://10.0.2.2:8000'; // IP para emulador Android
+      // Para Android emulador: usar 10.0.2.2 (IP del host desde emulador)
+      return 'http://10.0.2.2:8000'; // IP para emulador Android
+      // Para dispositivo real en WiFi: usar IP WiFi de la computadora
+      // return 'http://192.168.1.87:8000'; // IP WiFi para dispositivo real
     }
   }
 
@@ -33,6 +31,12 @@ class ApiConfig {
   static const String communitiesEndpoint = '/api/communities/';
   static const String categoriesEndpoint = '/api/categories/';
   static const String membershipsEndpoint = '/api/memberships/';
+
+  // Endpoints de posts y contenido social (Fase 3)
+  static const String postsEndpoint = '/api/posts/';
+  static const String commentsEndpoint = '/api/comments/';
+  static const String reactionsEndpoint = '/api/reactions/';
+  static const String postImagesEndpoint = '/api/post-images/';
 
   // Configuración de timeouts
   static const Duration connectTimeout = Duration(seconds: 10);

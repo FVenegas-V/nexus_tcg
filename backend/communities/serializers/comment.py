@@ -182,10 +182,12 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     Serializer para crear nuevos comentarios con validaciones de threading.
     Maneja validaciones de permisos, profundidad máxima y acceso a comunidades.
     """
+    post_id = serializers.IntegerField(write_only=True)
+    parent_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     
     class Meta:
         model = Comment
-        fields = ['content', 'post', 'parent']
+        fields = ['content', 'post_id', 'parent_id']
     
     def validate_content(self, value):
         """Validar contenido del comentario."""
@@ -203,28 +205,31 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         
         return content
     
-    def validate_post(self, value):
+    def validate_post_id(self, value):
         """Validar que el post existe y está activo."""
-        if not value.is_active:
+        try:
+            from ..models import Post
+            post = Post.objects.get(pk=value, is_active=True)
+            return value
+        except Post.DoesNotExist:
             raise serializers.ValidationError(
-                "No se puede comentar en un post eliminado."
+                "El post especificado no existe o ha sido eliminado."
             )
-        
-        return value
     
-    def validate_parent(self, value):
+    def validate_parent_id(self, value):
         """Validar comentario padre para threading."""
         if not value:
             return value
         
-        # Verificar que el comentario padre esté activo
-        if not value.is_active:
+        try:
+            parent = Comment.objects.get(pk=value, is_active=True)
+        except Comment.DoesNotExist:
             raise serializers.ValidationError(
-                "No se puede responder a un comentario eliminado."
+                "El comentario padre especificado no existe o ha sido eliminado."
             )
         
         # Verificar máximo 3 niveles de profundidad
-        if value.thread_level >= 2:
+        if parent.thread_level >= 2:
             raise serializers.ValidationError(
                 "No se pueden crear respuestas con más de 3 niveles de profundidad."
             )
@@ -233,13 +238,31 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs):
         """Validaciones cruzadas."""
-        post = attrs.get('post')
-        parent = attrs.get('parent')
+        post_id = attrs.get('post_id')
+        parent_id = attrs.get('parent_id')
+        
+        # Obtener objetos para validaciones cruzadas
+        try:
+            from ..models import Post
+            post = Post.objects.get(pk=post_id, is_active=True)
+        except Post.DoesNotExist:
+            raise serializers.ValidationError({
+                'post_id': 'El post especificado no existe o ha sido eliminado.'
+            })
+        
+        parent = None
+        if parent_id:
+            try:
+                parent = Comment.objects.get(pk=parent_id, is_active=True)
+            except Comment.DoesNotExist:
+                raise serializers.ValidationError({
+                    'parent_id': 'El comentario padre especificado no existe o ha sido eliminado.'
+                })
         
         # Si hay parent, verificar que esté en el mismo post
-        if parent and parent.post != post:
+        if parent and parent.post_id != post_id:
             raise serializers.ValidationError({
-                'parent': 'El comentario padre debe estar en el mismo post.'
+                'parent_id': 'El comentario padre debe estar en el mismo post.'
             })
         
         # Verificar permisos de acceso a la comunidad
@@ -257,9 +280,24 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return attrs
     
     def create(self, validated_data):
-        """Crear comentario con autor del request."""
+        """Crear comentario convirtiendo IDs a objetos."""
+        # Obtener IDs
+        post_id = validated_data.pop('post_id')
+        parent_id = validated_data.pop('parent_id', None)
+        
+        # Convertir a objetos
+        from ..models import Post
+        post = Post.objects.get(pk=post_id)
+        validated_data['post'] = post
+        
+        if parent_id:
+            parent = Comment.objects.get(pk=parent_id)
+            validated_data['parent'] = parent
+        
+        # Agregar autor del request
         request = self.context.get('request')
         validated_data['author'] = request.user
+        
         return super().create(validated_data)
 
 

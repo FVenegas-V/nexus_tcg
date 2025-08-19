@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../providers/posts_provider.dart';
 import '../widgets/post_card.dart';
 import '../../../core/widgets/nexus_logo.dart';
+import '../../../core/widgets/loading_skeleton.dart';
+import '../../../core/widgets/empty_state_widget.dart';
 
 /// Pantalla principal del feed de posts con paginación infinita
 /// Implementa pull-to-refresh, scroll infinito y estados de carga
@@ -87,107 +89,28 @@ class _FeedScreenState extends State<FeedScreen> {
           return _buildFeedList(postsProvider);
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "feed_create_post_fab",
-        onPressed: () {
-          context.push('/create-post');
-        },
-        tooltip: 'Crear post',
-        child: const Icon(Icons.add),
-      ),
+      // Sin FAB - los posts se crean desde las comunidades específicas
     );
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Cargando posts...'),
-        ],
-      ),
-    );
+    return LoadingSkeletons.postsList();
   }
 
   Widget _buildErrorState(String errorMessage) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error al cargar el feed',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              errorMessage,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<PostsProvider>().loadInitialPosts();
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      ),
+    return EmptyStates.error(
+      message: errorMessage,
+      onRetry: () {
+        context.read<PostsProvider>().loadInitialPosts();
+      },
     );
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.post_add_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No hay posts aún',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Sé el primero en crear un post en tu comunidad favorita',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Navegar a crear post
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Crear post'),
-            ),
-          ],
-        ),
-      ),
+    return EmptyStates.noPosts(
+      onCreatePost: () {
+        context.push('/communities-test');
+      },
     );
   }
 
@@ -198,9 +121,7 @@ class _FeedScreenState extends State<FeedScreen> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount:
-            postsProvider.posts.length +
-            (postsProvider.isLoadingMore ? 1 : 0) +
-            (postsProvider.hasReachedEnd ? 1 : 0),
+            postsProvider.posts.length + (postsProvider.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           // Posts normales
           if (index < postsProvider.posts.length) {
@@ -212,8 +133,8 @@ class _FeedScreenState extends State<FeedScreen> {
               onComment: () => _onCommentTap(post.id),
               onShare: () => _onShareTap(post.id),
               onBookmark: () => postsProvider.toggleBookmark(post.id),
-              onAuthorTap: () => _onAuthorTap(post.author.id),
-              onCommunityTap: () => _onCommunityTap(post.community.id),
+              onAuthorTap: () => _onAuthorTap(post.authorId),
+              onCommunityTap: () => _onCommunityTap(post.communityId),
             );
           }
 
@@ -233,21 +154,6 @@ class _FeedScreenState extends State<FeedScreen> {
             );
           }
 
-          // Mensaje de final alcanzado
-          if (postsProvider.hasReachedEnd) {
-            return Padding(
-              padding: const EdgeInsets.all(32),
-              child: Center(
-                child: Text(
-                  '¡Has llegado al final del feed!',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            );
-          }
-
           return const SizedBox.shrink();
         },
       ),
@@ -255,8 +161,8 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void _onPostTap(int postId) {
-    // TODO: Navegar a detalle del post
-    debugPrint('Post tapped: $postId');
+    // Navegar al detalle del post
+    context.go('/post/$postId');
   }
 
   void _onCommentTap(int postId) {

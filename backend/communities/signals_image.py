@@ -61,6 +61,12 @@ def process_post_image(sender, instance, created, **kwargs):
         
         print(f"✅ Imagen procesada exitosamente: {instance.id}")
         
+        # Actualizar image_urls del post después del procesamiento exitoso
+        try:
+            update_post_image_urls(instance.post)
+        except Exception as e:
+            print(f"❌ Error actualizando image_urls del post {instance.post.id}: {e}")
+        
     except Exception as e:
         print(f"❌ Error procesando imagen {instance.id}: {e}")
         
@@ -78,6 +84,12 @@ def cleanup_post_image_files(sender, instance, **kwargs):
         instance: Instancia eliminada
         kwargs: Argumentos adicionales
     """
+    # Actualizar image_urls del post cuando se elimina una imagen
+    try:
+        update_post_image_urls(instance.post)
+    except Exception as e:
+        print(f"❌ Error actualizando image_urls del post {instance.post.id}: {e}")
+    
     try:
         # Recopilar todos los paths a eliminar
         paths_to_delete = {}
@@ -161,3 +173,37 @@ def bulk_reprocess_unprocessed():
             print(f"❌ Error reprocesando imagen {image.id}: {e}")
     
     print("✅ Reprocesamiento masivo completado")
+
+
+def update_post_image_urls(post):
+    """
+    Actualiza el campo image_urls del post basado en las PostImage asociadas.
+    
+    Args:
+        post: Instancia del modelo Post
+    """
+    try:
+        # Obtener todas las imágenes activas del post
+        post_images = PostImage.objects.filter(
+            post=post,
+            is_active=True,
+            processed=True
+        ).order_by('order')
+        
+        # Generar URLs para cada imagen (usar thumbnail como URL principal)
+        image_urls = []
+        for img in post_images:
+            if img.thumbnail_path:
+                # Construir URL del thumbnail
+                from django.conf import settings
+                media_url = f"{settings.MEDIA_URL}{img.thumbnail_path}"
+                image_urls.append(media_url)
+        
+        # Actualizar el post
+        post.image_urls = image_urls
+        post.save(update_fields=['image_urls_json'])
+        
+        print(f"✅ Actualizado image_urls para post {post.id}: {len(image_urls)} imágenes")
+        
+    except Exception as e:
+        print(f"❌ Error actualizando image_urls para post {post.id}: {e}")

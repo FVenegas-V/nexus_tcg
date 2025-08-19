@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/community.dart';
 import '../providers/communities_provider_new.dart';
+import '../../posts/providers/posts_provider.dart';
+import '../../posts/widgets/post_card.dart';
 
 /// Pantalla de detalle de una comunidad específica
 /// Muestra información completa, posts y permite suscribirse
@@ -56,11 +58,25 @@ class CommunityDetailScreen extends StatelessWidget {
             ],
           ),
 
-          // Botón flotante de suscripción
-          floatingActionButton: _buildSubscriptionFAB(
-            context,
-            community,
-            provider,
+          // Botones flotantes: suscripción y crear post
+          floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Botón para crear post (solo si está suscrito)
+              if (community.isSubscribed) ...[
+                FloatingActionButton(
+                  heroTag: "create_post_fab",
+                  onPressed: () {
+                    // Pasar el ID de la comunidad para crear post
+                    context.push('/create-post?communityId=${community.id}');
+                  },
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(height: 16),
+              ],
+              // Botón de suscripción
+              _buildSubscriptionFAB(context, community, provider),
+            ],
           ),
         );
       },
@@ -421,168 +437,115 @@ class CommunityDetailScreen extends StatelessWidget {
     );
   }
 
-  /// Construye la sección de posts (mock)
+  /// Construye la sección de posts reales de la comunidad
   Widget _buildPostsSection(BuildContext context, Community community) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Consumer<PostsProvider>(
+      builder: (context, postsProvider, child) {
+        // Filtrar posts de esta comunidad específica
+        final communityPosts = postsProvider.posts
+            .where((post) => post.communityId == community.id)
+            .take(3) // Mostrar solo los primeros 3
+            .toList();
+
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Posts recientes',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    'Posts recientes',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navegar a todos los posts de la comunidad
+                    },
+                    child: const Text('Ver todos'),
+                  ),
+                ],
               ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {
-                  // TODO: Navegar a todos los posts
-                },
-                child: const Text('Ver todos'),
-              ),
+              const SizedBox(height: 16),
+
+              // Posts reales o mensaje si no hay
+              if (communityPosts.isEmpty)
+                _buildNoPosts(context)
+              else
+                ...communityPosts
+                    .map(
+                      (post) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: PostCard(
+                          post: post,
+                          onTap: () => context.go('/post/${post.id}'),
+                          onLike: () => postsProvider.toggleLike(post.id),
+                          onComment: () => context.go('/post/${post.id}'),
+                          onShare: () => _showShareSnackbar(context),
+                          onBookmark: () =>
+                              postsProvider.toggleBookmark(post.id),
+                          onAuthorTap: () {
+                            /* TODO: Navegar a perfil */
+                          },
+                          onCommunityTap: () {
+                            /* Ya estamos en la comunidad */
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  /// Widget cuando no hay posts en la comunidad
+  Widget _buildNoPosts(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.post_add_outlined,
+            size: 48,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 16),
-          // Posts mock
-          ..._buildMockPosts(context),
+          Text(
+            'No hay posts aún',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sé el primero en compartir algo en esta comunidad',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
-  /// Construye posts mock para la vista previa
-  List<Widget> _buildMockPosts(BuildContext context) {
-    return [
-      _buildMockPost(
-        context,
-        author: 'CardMaster_99',
-        content:
-            '¿Alguien sabe si el nuevo set está ya disponible en las tiendas locales?',
-        timeAgo: '2h',
-        likes: 15,
-      ),
-      const SizedBox(height: 12),
-      _buildMockPost(
-        context,
-        author: 'ProPlayer_TCG',
-        content:
-            'Acabo de armar mi nuevo mazo competitivo. ¡Los resultados han sido increíbles!',
-        timeAgo: '5h',
-        likes: 28,
-      ),
-      const SizedBox(height: 12),
-      _buildMockPost(
-        context,
-        author: 'CollectorLife',
-        content:
-            'Intercambio cartas raras. Tengo duplicados de la edición especial.',
-        timeAgo: '1d',
-        likes: 7,
-      ),
-    ];
-  }
-
-  /// Construye un post mock individual
-  Widget _buildMockPost(
-    BuildContext context, {
-    required String author,
-    required String content,
-    required String timeAgo,
-    required int likes,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Text(
-                  author[0].toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      author,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      timeAgo,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(content, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                Icons.favorite_border,
-                size: 18,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                likes.toString(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Icon(
-                Icons.comment_outlined,
-                size: 18,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${(likes * 0.3).round()}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            ],
-          ),
-        ],
+  /// Muestra un snackbar para compartir
+  void _showShareSnackbar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('¡Post compartido!'),
+        duration: Duration(seconds: 2),
       ),
     );
   }

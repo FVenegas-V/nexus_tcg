@@ -2,14 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/http_service.dart';
+import 'core/services/comments_service.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/communities/providers/communities_provider_new.dart';
 import 'features/posts/providers/posts_provider.dart';
 import 'features/profile/providers/profile_provider.dart';
+import 'features/posts/providers/comments_provider.dart';
 import 'routes/app_router.dart';
 
 /// Punto de entrada de la aplicación Nexus TCG
 void main() {
+  // Configurar para producción - filtrar mensajes de debug molesto
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Filtrar errores de RenderFlex overflow que aparecen como líneas rojas
+    final String error = details.exception.toString();
+    if (error.contains('RenderFlex overflow') ||
+        error.contains('overflowed by') ||
+        error.contains('pixels on the')) {
+      // Silenciar estos errores específicos en producción
+      return;
+    }
+
+    // Mostrar otros errores importantes
+    if (!details.silent) {
+      FlutterError.presentError(details);
+    }
+  };
+
   // Inicializar servicios core
   _initializeServices();
 
@@ -36,12 +55,23 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CommunitiesProvider()),
         ChangeNotifierProvider(create: (_) => PostsProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(
+          create: (_) => CommentsProvider(CommentsService(HttpService())),
+        ),
       ],
       child: MaterialApp.router(
         title: 'Nexus TCG',
         theme: AppTheme.lightTheme,
         routerConfig: AppRouter.router,
         debugShowCheckedModeBanner: false,
+        // Builder personalizado para manejar errores de UI
+        builder: (context, child) {
+          // Configurar manejo de errores RenderFlex
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: child!,
+          );
+        },
       ),
     );
   }

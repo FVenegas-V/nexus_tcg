@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from ..models import Community, CommunityCategory, CommunityMembership
 from ..serializers import (
     CommunityListSerializer, CommunityDetailSerializer,
@@ -390,3 +391,34 @@ class CommunityViewSet(viewsets.ReadOnlyModelViewSet):
             },
             'stats': serializer.data
         }, status=status.HTTP_200_OK)
+
+    # ===== COMMENT ENDPOINTS =====
+    # TEMPORARILY DISABLED FOR DEBUGGING
+    #
+    # @action(
+    #     detail=True,
+    #     methods=['get'],
+    #     permission_classes=[IsAuthenticated],
+    #     url_path='comments'
+    # )
+    # def comments(self, request, pk=None):
+    #     """
+    #     Obtener todos los comentarios de una comunidad.
+    #     GET /api/communities/{id}/comments/
+    #     """
+    #     from ..serializers import CommentListSerializer
+    #     from ..models import Comment
+    #     
+    #     community = self.get_object()
+    #     
+    #     # Obtener comentarios de la comunidad
+    #     comments = Comment.objects.filter(
+    #         post__community=community,
+    #         is_deleted=False
+    #     ).select_related(
+    #         'author', 'post'
+    #     ).order_by('-created_at')
+    #     
+    #     serializer = CommentListSerializer(comments, many=True)
+    #     return Response(serializer.data)
+    pass

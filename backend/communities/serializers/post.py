@@ -237,11 +237,25 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             raise serializers.ValidationError("Debe estar autenticado para crear posts.")
         
-        # La comunidad se obtiene del contexto de la vista (community_id en la URL)
+        # Obtener la comunidad de los datos del formulario o del contexto
+        community = attrs.get('community')
         community_id = self.context.get('community_id')
-        if community_id:
+        
+        if community:
+            # Si viene de los datos del formulario (caso normal)
+            if not CommunityMembership.objects.filter(
+                user=request.user,
+                community=community,
+                status='active'
+            ).exists():
+                raise serializers.ValidationError(
+                    "Debe ser miembro activo de la comunidad para crear posts."
+                )
+        elif community_id:
+            # Si viene del contexto de la URL (caso legacy)
             try:
                 community = Community.objects.get(id=community_id)
+                attrs['community'] = community
                 # Verificar membresía activa
                 if not CommunityMembership.objects.filter(
                     user=request.user,
@@ -253,6 +267,8 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
                     )
             except Community.DoesNotExist:
                 raise serializers.ValidationError("La comunidad especificada no existe.")
+        else:
+            raise serializers.ValidationError("Debe especificar una comunidad para el post.")
         
         return attrs
     
@@ -261,14 +277,12 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         # Extraer imágenes de los datos validados
         images = validated_data.pop('images', [])
         
-        # Obtener usuario y comunidad del contexto
-        request = self.context.get('request')
-        community_id = self.context.get('community_id')
-        community = Community.objects.get(id=community_id)
+        # Extraer la comunidad de los datos validados (ya validada en validate())
+        community = validated_data.pop('community')
         
+        # El autor ya viene en validated_data desde perform_create()
         # Crear el post
         post = Post.objects.create(
-            author=request.user,
             community=community,
             **validated_data
         )

@@ -29,6 +29,19 @@ class PostViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'total_reactions']
     ordering = ['-created_at']
     
+    def get_permissions(self):
+        """
+        Sobrescribir permisos para acciones específicas.
+        """
+        if self.action == 'toggle_reaction':
+            # Solo requiere autenticación para reacciones
+            permission_classes = [IsAuthenticated]
+        else:
+            # Usar permisos por defecto para otras acciones
+            permission_classes = self.permission_classes
+        
+        return [permission() for permission in permission_classes]
+    
     def get_queryset(self):
         """
         Optimizar queryset con prefetch de relaciones relacionadas.
@@ -136,12 +149,26 @@ class PostViewSet(viewsets.ModelViewSet):
         post = self.get_object()
         reaction_type = request.data.get('reaction_type')
         
-        if reaction_type not in ['like', 'love', 'laugh', 'angry', 'sad']:
+        if reaction_type not in ['like', 'love', 'laugh', 'wow', 'sad', 'angry']:
             return Response(
                 {'error': 'Invalid reaction_type'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Verificar que el usuario sea miembro de la comunidad
+        # (Las reacciones no requieren ser el autor del post)
+        from ..models import CommunityMembership
+        try:
+            CommunityMembership.objects.get(
+                community=post.community,
+                user=request.user
+            )
+        except CommunityMembership.DoesNotExist:
+            return Response(
+                {'error': 'You must be a member of this community to react to posts'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         # Buscar reacción existente
         from django.contrib.contenttypes.models import ContentType
         post_content_type = ContentType.objects.get_for_model(Post)
@@ -183,7 +210,6 @@ class PostViewSet(viewsets.ModelViewSet):
             'post': serializer.data
         })
     
-    @action(detail=True, methods=['get'])
     @action(detail=True, methods=['get'])
     def reactions(self, request, pk=None):
         """

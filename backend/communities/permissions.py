@@ -389,6 +389,8 @@ class CommentPermission(permissions.BasePermission):
         post_id = None
         if 'post' in request.data:
             post_id = request.data.get('post')
+        elif 'post_id' in request.data:
+            post_id = request.data.get('post_id')
         elif hasattr(view, 'kwargs') and 'post_id' in view.kwargs:
             post_id = view.kwargs.get('post_id')
         

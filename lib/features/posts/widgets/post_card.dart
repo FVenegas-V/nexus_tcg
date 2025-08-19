@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/post.dart';
+import '../../../core/models/post.dart';
+import '../../../core/models/post_image.dart';
 
 /// Widget card para mostrar un post en el feed
-/// Incluye autor, contenido, comunidad, fecha y botones de interacción
+/// Compatible con el nuevo modelo Post del core
 class PostCard extends StatelessWidget {
   final Post post;
   final VoidCallback? onTap;
@@ -29,9 +30,11 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -44,8 +47,8 @@ class PostCard extends StatelessWidget {
               // Contenido del post
               _buildPostContent(context),
 
-              // Imágenes si las hay
-              if (post.imageUrls.isNotEmpty) ...[
+              // Imágenes si las hay (usar hasImages que viene del backend)
+              if (post.hasImages) ...[
                 const SizedBox(height: 12),
                 _buildPostImages(context),
               ],
@@ -70,18 +73,15 @@ class PostCard extends StatelessWidget {
           child: CircleAvatar(
             radius: 20,
             backgroundColor: Theme.of(context).colorScheme.primary,
-            backgroundImage: post.author.avatarUrl != null
-                ? NetworkImage(post.author.avatarUrl!)
-                : null,
-            child: post.author.avatarUrl == null
-                ? Text(
-                    post.author.username[0].toUpperCase(),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
+            child: Text(
+              post.authorUsername.isNotEmpty
+                  ? post.authorUsername[0].toUpperCase()
+                  : 'U',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -91,247 +91,380 @@ class PostCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Nombre del autor con verificación
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: onAuthorTap,
-                    child: Text(
-                      post.author.username,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+              // Autor
+              GestureDetector(
+                onTap: onAuthorTap,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        post.authorUsername,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
-                  if (post.author.isVerified) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.verified,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    // TODO: Verificación cuando esté disponible en el modelo
+                    // if (post.isVerified) ...[
+                    //   const SizedBox(width: 4),
+                    //   Icon(
+                    //     Icons.verified,
+                    //     size: 16,
+                    //     color: Theme.of(context).colorScheme.primary,
+                    //   ),
+                    // ],
                   ],
-                ],
+                ),
               ),
 
-              // Comunidad y fecha
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: onCommunityTap,
-                    child: Text(
-                      post.community.name,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+              // Comunidad
+              GestureDetector(
+                onTap: onCommunityTap,
+                child: Text(
+                  'en ${post.communityName}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  Text(
-                    ' • ${_formatTimestamp(post.createdAt)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
         ),
 
-        // Menú de opciones
-        IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () => _showPostOptions(context),
-          iconSize: 20,
+        // Tiempo transcurrido
+        Text(
+          _formatTime(post.createdAt),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildPostContent(BuildContext context) {
-    return Text(
-      post.content,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.4),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Título (si existe)
+        if (post.title.isNotEmpty) ...[
+          Text(
+            post.title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // Contenido
+        Text(post.content, style: Theme.of(context).textTheme.bodyMedium),
+      ],
     );
   }
 
   Widget _buildPostImages(BuildContext context) {
-    if (post.imageUrls.isEmpty) return const SizedBox.shrink();
+    // Si no hay imágenes según el backend, no mostrar nada
+    if (!post.hasImages) {
+      return const SizedBox.shrink();
+    }
 
-    // Por ahora solo mostramos placeholder para imágenes
-    // En implementación real aquí iría el widget de imágenes
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    // Si tenemos thumbnailUrl (desde el feed), usarlo con prioridad
+    if (post.thumbnailUrl != null) {
+      return ClipRRect(
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.image,
-              size: 48,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${post.imageUrls.length} imagen${post.imageUrls.length != 1 ? 'es' : ''}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+        child: Image.network(
+          post.thumbnailUrl!,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
               ),
-            ),
-          ],
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: 200,
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.broken_image,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Error cargando imagen',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
-      ),
+      );
+    }
+
+    // Fallback: usar las imágenes completas si están disponibles
+    if (post.images.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Si hay una sola imagen, mostrarla grande
+    if (post.images.length == 1) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          post.images.first.getUrlForResolution(ImageResolution.medium),
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: 200,
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              child: Center(
+                child: Icon(
+                  Icons.broken_image_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // Si hay múltiples imágenes, mostrar grid
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Mostrar las primeras 2-3 imágenes en grid
+        SizedBox(
+          height: 200,
+          child: Row(
+            children: [
+              // Primera imagen (más grande)
+              Expanded(
+                flex: 2,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    post.images.first.getUrlForResolution(
+                      ImageResolution.medium,
+                    ),
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+
+              if (post.images.length > 1) ...[
+                const SizedBox(width: 4),
+                // Segunda columna con imágenes más pequeñas
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            post.images[1].getUrlForResolution(
+                              ImageResolution.thumbnail,
+                            ),
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+
+                      if (post.images.length > 2) ...[
+                        const SizedBox(height: 4),
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  post.images[2].getUrlForResolution(
+                                    ImageResolution.thumbnail,
+                                  ),
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+
+                              // Overlay con número de imágenes adicionales
+                              if (post.images.length > 3)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.black54,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '+${post.images.length - 3}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 8),
+        Text(
+          '${post.images.length} imagen${post.images.length != 1 ? 'es' : ''}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildPostFooter(BuildContext context) {
     return Row(
       children: [
-        // Botón de like
-        _buildInteractionButton(
-          context: context,
-          icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
-          label: _formatCount(post.likesCount),
-          isActive: post.isLiked,
-          onPressed: onLike,
+        // Botón de reacción (like por ahora)
+        _InteractionButton(
+          icon: _hasUserReacted() ? Icons.favorite : Icons.favorite_border,
+          label: _formatCount(post.reactionsCount),
+          isActive: _hasUserReacted(),
+          onTap: onLike,
         ),
 
-        const SizedBox(width: 24),
+        const SizedBox(width: 16),
 
         // Botón de comentarios
-        _buildInteractionButton(
-          context: context,
+        _InteractionButton(
           icon: Icons.chat_bubble_outline,
           label: _formatCount(post.commentsCount),
-          isActive: false,
-          onPressed: onComment,
-        ),
-
-        const SizedBox(width: 24),
-
-        // Botón de compartir
-        _buildInteractionButton(
-          context: context,
-          icon: Icons.share_outlined,
-          label: 'Compartir',
-          isActive: false,
-          onPressed: onShare,
+          onTap: onComment,
         ),
 
         const Spacer(),
 
-        // Botón de bookmark
+        // Botón de compartir
         IconButton(
-          icon: Icon(
-            post.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-            color: post.isBookmarked
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          onPressed: onBookmark,
+          onPressed: onShare,
+          icon: const Icon(Icons.share_outlined),
+          iconSize: 20,
+        ),
+
+        // Botón de bookmark (deshabilitado por ahora)
+        IconButton(
+          onPressed: null, // TODO: Implementar cuando esté en el backend
+          icon: const Icon(Icons.bookmark_border),
           iconSize: 20,
         ),
       ],
     );
   }
 
-  Widget _buildInteractionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback? onPressed,
-  }) {
-    final color = isActive
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.onSurfaceVariant;
+  // Métodos de utilidad
 
-    return GestureDetector(
-      onTap: onPressed,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
+  bool _hasUserReacted() {
+    return post.userReaction != null;
   }
 
-  String _formatTimestamp(DateTime dateTime) {
+  String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inMinutes < 1) {
-      return 'ahora';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}h';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d';
-    } else {
+    if (difference.inDays > 7) {
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m';
+    } else {
+      return 'ahora';
     }
   }
 
   String _formatCount(int count) {
-    if (count < 1000) {
-      return count.toString();
-    } else if (count < 1000000) {
-      return '${(count / 1000).toStringAsFixed(1)}k';
-    } else {
-      return '${(count / 1000000).toStringAsFixed(1)}m';
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
     }
+    return count.toString();
   }
+}
 
-  void _showPostOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
+/// Widget para botones de interacción (like, comment, etc.)
+class _InteractionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback? onTap;
+
+  const _InteractionButton({
+    required this.icon,
+    required this.label,
+    this.isActive = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.bookmark_border),
-              title: Text(
-                post.isBookmarked ? 'Quitar de guardados' : 'Guardar post',
+            Icon(icon, size: 20, color: color),
+            if (label.isNotEmpty) ...[
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                ),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                onBookmark?.call();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.share),
-              title: const Text('Compartir'),
-              onTap: () {
-                Navigator.pop(context);
-                onShare?.call();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.report_outlined),
-              title: const Text('Reportar'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implementar reportar
-              },
-            ),
+            ],
           ],
         ),
       ),

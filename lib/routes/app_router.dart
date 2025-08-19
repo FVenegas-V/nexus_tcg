@@ -7,6 +7,7 @@ import '../features/auth/screens/register_screen.dart';
 import '../features/navigation/screens/main_navigation_screen.dart';
 import '../features/communities/screens/community_detail_screen.dart';
 import '../features/posts/screens/create_post_screen.dart';
+import '../features/posts/screens/post_detail_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/edit_profile_screen.dart';
 import '../features/profile/screens/edit_extended_profile_screen.dart';
@@ -94,7 +95,34 @@ class AppRouter {
       GoRoute(
         path: '/create-post',
         name: 'create-post',
-        builder: (context, state) => const CreatePostScreen(),
+        builder: (context, state) {
+          final communityIdString = state.uri.queryParameters['communityId'];
+          final communityId = communityIdString != null
+              ? int.tryParse(communityIdString)
+              : null;
+
+          // Si no hay ID de comunidad válido, redirigir al home
+          if (communityId == null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go('/');
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          return CreatePostScreen(preselectedCommunityId: communityId);
+        },
+      ),
+      // Ruta de detalle de posts
+      GoRoute(
+        path: '/post/:id',
+        name: 'post-detail',
+        builder: (context, state) {
+          final postIdString = state.pathParameters['id'] ?? '0';
+          final postId = int.tryParse(postIdString) ?? 0;
+          return PostDetailScreen(postId: postId);
+        },
       ),
       // Rutas de perfil de usuario
       GoRoute(
