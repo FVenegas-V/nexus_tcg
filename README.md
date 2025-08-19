@@ -6,16 +6,6 @@
 
 **Nexus TCG** Nexus TCG es una aplicación móvil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
-
-### 🎯 **Próximas Implementaciones**
-
-#### 💬 **Fase 3: Posts y Comentarios** *(100% Completado - 5/5 tickets)*
-- ✅ **Modelos Django**: Post, Comment, Reaction implementados (fase3-0001)
-- ✅ **APIs REST Posts**: Sistema completo con reacciones (fase3-0002) - **COMPLETADO**
-- ✅ **APIs REST Comments**: Threading y endpoints anidados (fase3-0003) - **COMPLETADO**
-- ✅ **Sistema Reacciones**: Integrado en Posts APIs (fase3-0004) - **COMPLETADO**
-- ✅ **Upload Imágenes**: Sistema completo con múltiples resoluciones (fase3-0005) - **COMPLETADO**
-
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
 - � **Sistema social** - Posts, comentarios, reacciones y discusiones
