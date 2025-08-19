@@ -10,12 +10,14 @@ from .membership import (
     MembershipListSerializer,
 )
 
-# Importar serializers de GameType y Tags
-from .game_type import (
-    GameTypeListSerializer,
-    GameTypeDetailSerializer,
-    GameTypeStatsSerializer,
-    FeaturedGameTypesSerializer,
+# Importar serializers de reacciones
+from .reaction import (
+    ReactionSerializer,
+    ReactionCreateSerializer,
+    ReactionBreakdownSerializer,
+    ReactionDetailSerializer,
+    ReactionResponseSerializer,
+    MyReactionsSerializer,
 )
 
 from .tag import (
@@ -45,6 +47,24 @@ from .post import (
     PostCreateUpdateSerializer,
     AuthorSerializer,
     CommunityInPostSerializer,
+)
+
+# Importar serializers de PostImage
+from .post_image import (
+    PostImageSerializer,
+    PostImageListSerializer,
+    PostImageUploadSerializer,
+)
+
+# Importar serializers de Comments
+from .comment import (
+    CommentListSerializer,
+    CommentDetailSerializer,
+    CommentCreateSerializer,
+    CommentUpdateSerializer,
+    CommentThreadSerializer,
+    CommentAuthorSerializer,
+    PostInCommentSerializer,
 )
 
 __all__ = [
@@ -82,4 +102,18 @@ __all__ = [
     'PostCreateUpdateSerializer',
     'AuthorSerializer',
     'CommunityInPostSerializer',
+    
+    # Serializers de PostImage
+    'PostImageSerializer',
+    'PostImageListSerializer',
+    'PostImageUploadSerializer',
+    
+    # Serializers de Comments
+    'CommentListSerializer',
+    'CommentDetailSerializer',
+    'CommentCreateSerializer',
+    'CommentUpdateSerializer',
+    'CommentThreadSerializer',
+    'CommentAuthorSerializer',
+    'PostInCommentSerializer',
 ]

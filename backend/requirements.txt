@@ -6,3 +6,5 @@ django-filter==24.2
 python-decouple==3.8
 dj-database-url==2.1.0
 psycopg2-binary==2.9.7
+Pillow==10.4.0
+python-magic-bin==0.4.14

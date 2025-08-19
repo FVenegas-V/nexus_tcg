@@ -8,3 +8,4 @@ class CommunitiesConfig(AppConfig):
     def ready(self):
         """Importar signals cuando la app esté lista."""
         import communities.signals
+        import communities.signals_image  # Nuevo: signals para procesamiento de imágenes

@@ -1,6 +1,15 @@
 # Índice de Tickets - Nexus TCG
 
-## Estado General de## 🏢 **Fase 2: Comunidades Base** - 📊 **4/5 completados (80%)**
+## Estado General del Proyecto
+
+**Fecha**: 18 de agosto de 2025  
+**Fase Actual**: Fase 3 - Posts y Comentarios 🚀 CASI COMPLETADA  
+**Progreso Total**: 50% del MVP completado (24/48 tickets core)  
+**Próximo Hito**: Completar documentación final Fase 3 para sistema social completo  
+
+---
+
+## 🏢 **Fase 2: Comunidades Base** - 📊 **4/5 completados (80%)**
 
 - [x] ✅ [fase2-0001](fase2-0001.md) - Modelos y admin de comunidades - **✅ Completado**
 - [x] ✅ [fase2-0002](fase2-0002.md) - API de listado y búsqueda de comunidades - **✅ Completado**
@@ -8,14 +17,7 @@
 - [x] ✅ [fase2-0004](fase2-0004.md) - Sistema completo de perfiles de usuario - **✅ Completado (15 enero 2025)**
 - ⏳ [fase2-0005](fase2-0005.md) - Filtros por tipo de juego y categorías - **Pendiente por Implementar**
 
-**Estado**: 4/5 tickets completados (80%)o
-
-**Fecha**: 14 de agosto de 2025  
-**Fase Actual**: Fase 2 - Backend Comunidades 🚀 CASI COMPLETO  
-**Progreso Total**: 41.7% del MVP completado (20/48 tickets core)  
-**Próximo Hito**: Completar filtros y categorización (fase2-0005) para backend completo  
-
----
+**Estado**: 4/5 tickets completados (80%)
 
 ## Fase 0: Fundación ✅ (100% Completada)
 
@@ -77,19 +79,19 @@
 
 ---
 
-## Fase 3: Posts y Comentarios 🆕 (En Progreso)
+## Fase 3: Posts y Comentarios 🚀 (En Progreso)
 
 - [ ] [fase3-0001: Modelos de Posts y Comentarios](./fase3-0001.md) 🆕 *(Creado 17 agosto 2025)*
 - [x] ✅ [fase3-0002: APIs REST para Posts](./fase3-0002.md) - **✅ Completado (18 agosto 2025)**
-- [ ] [fase3-0003: APIs REST para Comentarios](./fase3-0003.md) 🆕 *(Creado 17 agosto 2025)*
-- [ ] [fase3-0004: Sistema de Reacciones y Likes](./fase3-0004.md) 🆕 *(Creado 17 agosto 2025)*
-- [ ] [fase3-0005: Upload y Gestión de Imágenes](./fase3-0005.md) 🆕 *(Creado 17 agosto 2025)*
+- [x] ✅ [fase3-0003: APIs REST para Comentarios](./fase3-0003.md) - **✅ Completado (18 agosto 2025)**
+- [x] ✅ [fase3-0004: Sistema de Reacciones y Likes](./fase3-0004.md) - **✅ Completado (18 agosto 2025)**
+- [x] ✅ [fase3-0005: Upload y Gestión de Imágenes](./fase3-0005.md) - **✅ Completado (18 agosto 2025)**
 
-**Estado**: 1/5 tickets completados (20%)
+**Estado**: 4/5 tickets completados (80%)
 **Objetivo**: Sistema completo de publicaciones sociales con comentarios, reacciones e imágenes
-**Último Completado**: FASE3-0002 - APIs REST para Posts con sistema de reacciones integrado
-**Funcionalidades Disponibles**: ✅ Sistema completo de Posts + APIs REST + Reacciones
-**Próximo**: FASE3-0003 - Implementar APIs de comentarios con threading
+**Último Completado**: FASE3-0005 - Sistema completo de upload y gestión de imágenes con múltiples resoluciones
+**Funcionalidades Disponibles**: ✅ Posts + APIs REST + Comentarios + Reacciones + Sistema de Imágenes completo
+**Próximo**: FASE3-0001 - Solo queda pendiente la documentación de modelos
 
 ---
 

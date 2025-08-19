@@ -12,6 +12,9 @@ from .views import (
     CommunityViewSet,
     CommunityCategoryViewSet,
     PostViewSet,
+    PostImageViewSet,
+    CommentViewSet,
+    ReactionViewSet,
 )
 
 # Router principal
@@ -26,6 +29,15 @@ router.register(r'memberships', CommunityMembershipViewSet, basename='membership
 
 # Registrar PostViewSet
 router.register(r'posts', PostViewSet, basename='post')
+
+# Registrar PostImageViewSet
+router.register(r'post-images', PostImageViewSet, basename='postimage')
+
+# Registrar CommentViewSet
+router.register(r'comments', CommentViewSet, basename='comment')
+
+# Registrar ReactionViewSet
+router.register(r'reactions', ReactionViewSet, basename='reaction')
 
 app_name = 'communities'
 

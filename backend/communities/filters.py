@@ -3,7 +3,7 @@ Filtros personalizados para las APIs de comunidades.
 """
 import django_filters
 from django.db.models import Q, F
-from .models import Community, CommunityCategory, GameType, Post
+from .models import Community, CommunityCategory, GameType, Post, Comment
 
 
 class CommunityFilter(django_filters.FilterSet):
@@ -298,3 +298,151 @@ class PostFilter(django_filters.FilterSet):
         ).values_list('community_id', flat=True)
         
         return queryset.filter(community_id__in=user_communities)
+
+
+class CommentFilter(django_filters.FilterSet):
+    """
+    Filtros avanzados para comentarios con soporte para threading.
+    """
+    
+    # === FILTROS BÁSICOS ===
+    post = django_filters.NumberFilter(
+        field_name='post',
+        help_text="Filtrar por ID del post"
+    )
+    author = django_filters.NumberFilter(
+        field_name='author',
+        help_text="Filtrar por ID del autor"
+    )
+    author_username = django_filters.CharFilter(
+        field_name='author__username',
+        lookup_expr='icontains',
+        help_text="Filtrar por nombre de usuario del autor"
+    )
+    
+    # === FILTROS DE THREADING ===
+    thread_level = django_filters.NumberFilter(
+        field_name='thread_level',
+        help_text="Filtrar por nivel de threading (0, 1, 2)"
+    )
+    max_thread_level = django_filters.NumberFilter(
+        field_name='thread_level',
+        lookup_expr='lte',
+        help_text="Filtrar por nivel máximo de threading"
+    )
+    parent = django_filters.NumberFilter(
+        field_name='parent',
+        help_text="Filtrar por ID del comentario padre"
+    )
+    is_reply = django_filters.BooleanFilter(
+        field_name='parent',
+        lookup_expr='isnull',
+        exclude=True,
+        help_text="Filtrar solo respuestas (true) o comentarios principales (false)"
+    )
+    
+    # === FILTROS DE COMUNIDAD ===
+    community = django_filters.NumberFilter(
+        field_name='post__community',
+        help_text="Filtrar por ID de comunidad"
+    )
+    community_slug = django_filters.CharFilter(
+        field_name='post__community__slug',
+        lookup_expr='exact',
+        help_text="Filtrar por slug de comunidad"
+    )
+    game_type = django_filters.NumberFilter(
+        field_name='post__community__game_type',
+        help_text="Filtrar por tipo de juego"
+    )
+    
+    # === FILTROS TEMPORALES ===
+    created_after = django_filters.DateTimeFilter(
+        field_name='created_at',
+        lookup_expr='gte',
+        help_text="Comentarios creados después de esta fecha"
+    )
+    created_before = django_filters.DateTimeFilter(
+        field_name='created_at',
+        lookup_expr='lte',
+        help_text="Comentarios creados antes de esta fecha"
+    )
+    last_days = django_filters.NumberFilter(
+        method='filter_last_days',
+        help_text="Comentarios de los últimos N días"
+    )
+    
+    # === FILTROS DE ACTIVIDAD ===
+    with_replies = django_filters.BooleanFilter(
+        method='filter_with_replies',
+        help_text="Filtrar comentarios que tienen respuestas"
+    )
+    min_reactions = django_filters.NumberFilter(
+        field_name='reaction_count',
+        lookup_expr='gte',
+        help_text="Mínimo número de reacciones"
+    )
+    
+    # === FILTROS ESPECIALES ===
+    search = django_filters.CharFilter(
+        method='filter_search',
+        help_text="Búsqueda en contenido y autor"
+    )
+    my_threads = django_filters.BooleanFilter(
+        method='filter_my_threads',
+        help_text="Solo threads donde el usuario ha participado"
+    )
+    
+    class Meta:
+        model = Comment
+        fields = []
+    
+    def filter_last_days(self, queryset, name, value):
+        """Filtrar comentarios de los últimos N días."""
+        if not value or value <= 0:
+            return queryset
+        
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        since_date = timezone.now() - timedelta(days=value)
+        return queryset.filter(created_at__gte=since_date)
+    
+    def filter_with_replies(self, queryset, name, value):
+        """Filtrar comentarios que tienen o no tienen respuestas."""
+        if value is None:
+            return queryset
+        
+        if value:
+            return queryset.filter(replies_count__gt=0)
+        else:
+            return queryset.filter(replies_count=0)
+    
+    def filter_search(self, queryset, name, value):
+        """Búsqueda global en contenido y información del autor."""
+        if not value:
+            return queryset
+        
+        return queryset.filter(
+            Q(content__icontains=value) |
+            Q(author__username__icontains=value) |
+            Q(author__first_name__icontains=value) |
+            Q(author__last_name__icontains=value)
+        ).distinct()
+    
+    def filter_my_threads(self, queryset, name, value):
+        """
+        Filtrar solo threads donde el usuario autenticado ha participado.
+        """
+        if not value or not self.request or not self.request.user.is_authenticated:
+            return queryset
+        
+        user = self.request.user
+        
+        # Obtener IDs de posts donde el usuario ha comentado
+        user_comment_posts = Comment.objects.filter(
+            author=user,
+            is_active=True
+        ).values_list('post_id', flat=True).distinct()
+        
+        return queryset.filter(post_id__in=user_comment_posts)

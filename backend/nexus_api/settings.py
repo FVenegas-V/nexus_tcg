@@ -150,6 +150,31 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files configuration for file uploads
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Image processing settings for multiple resolutions
+IMAGE_SIZES = {
+    'thumbnail': (150, 150),
+    'medium': (800, 600),
+    'large': (1200, 900),
+}
+
+# Image quality settings (0-100, higher = better quality)
+IMAGE_QUALITY = 85
+
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB in bytes
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB in bytes
+
+# Allowed image formats for upload
+ALLOWED_IMAGE_FORMATS = ['JPEG', 'PNG', 'WEBP']
+
+# Maximum number of images per post
+MAX_IMAGES_PER_POST = 5
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

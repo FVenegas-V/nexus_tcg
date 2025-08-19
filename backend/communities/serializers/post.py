@@ -48,6 +48,7 @@ class PostListSerializer(serializers.ModelSerializer):
     excerpt = serializers.CharField(read_only=True)
     image_count = serializers.IntegerField(read_only=True)
     has_images = serializers.BooleanField(read_only=True)
+    thumbnail_url = serializers.SerializerMethodField()
     user_reaction = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
@@ -57,8 +58,30 @@ class PostListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'excerpt', 'author', 'community',
             'created_at', 'updated_at', 'comment_count', 'reaction_count',
-            'image_count', 'has_images', 'user_reaction', 'can_edit', 'can_delete'
+            'image_count', 'has_images', 'thumbnail_url', 'user_reaction', 'can_edit', 'can_delete'
         ]
+    
+    def get_thumbnail_url(self, obj):
+        """Obtener URL del primer thumbnail disponible."""
+        from ..models import PostImage
+        
+        first_image = PostImage.objects.filter(
+            post=obj, 
+            is_active=True, 
+            processed=True
+        ).order_by('order').first()
+        
+        if first_image and first_image.thumbnail_path:
+            from django.conf import settings
+            media_url = f"{settings.MEDIA_URL}{first_image.thumbnail_path}"
+            
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(media_url)
+            
+            return media_url
+        
+        return None
     
     def get_user_reaction(self, obj):
         """Obtener la reacción del usuario actual para este post."""
@@ -90,7 +113,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
     
     author = AuthorSerializer(read_only=True)
     community = CommunityInPostSerializer(read_only=True)
-    image_urls = serializers.ListField(read_only=True)
+    images = serializers.SerializerMethodField()
+    image_urls = serializers.ListField(read_only=True)  # Mantenemos por compatibilidad
     user_reaction = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
@@ -99,10 +123,26 @@ class PostDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'image_urls', 'author', 'community',
+            'id', 'title', 'content', 'images', 'image_urls', 'author', 'community',
             'created_at', 'updated_at', 'comment_count', 'reaction_count',
             'user_reaction', 'can_edit', 'can_delete', 'reaction_breakdown'
         ]
+    
+    def get_images(self, obj):
+        """Obtener todas las imágenes del post con sus múltiples resoluciones."""
+        from ..models import PostImage
+        from .post_image import PostImageListSerializer
+        
+        images = PostImage.objects.filter(
+            post=obj, 
+            is_active=True
+        ).order_by('order')
+        
+        return PostImageListSerializer(
+            images, 
+            many=True, 
+            context=self.context
+        ).data
     
     def get_user_reaction(self, obj):
         """Obtener la reacción del usuario actual para este post."""

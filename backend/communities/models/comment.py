@@ -173,9 +173,9 @@ class Comment(models.Model):
             time_limit = timezone.now() - timezone.timedelta(minutes=15)
             return self.created_at > time_limit
         
-        # Moderadores y admins de la comunidad pueden editar
-        return (self.post.community.is_moderator(user) or 
-                self.post.community.is_admin(user))
+        # Por ahora, solo el autor puede editar
+        # TODO: Implementar roles de moderador/admin en Community
+        return False
     
     def can_delete(self, user):
         """Verifica si un usuario puede eliminar este comentario."""
@@ -186,9 +186,9 @@ class Comment(models.Model):
         if self.author == user:
             return True
         
-        # Moderadores y admins de la comunidad pueden eliminar
-        return (self.post.community.is_moderator(user) or 
-                self.post.community.is_admin(user))
+        # Por ahora, solo el autor puede eliminar
+        # TODO: Implementar roles de moderador/admin en Community
+        return False
     
     def can_reply(self, user):
         """Verifica si un usuario puede responder a este comentario."""
@@ -199,8 +199,12 @@ class Comment(models.Model):
         if self.thread_level >= 2:
             return False
         
-        # Debe tener acceso al post
-        return self.post.is_active
+        # Debe tener acceso al post y a la comunidad
+        if not self.post.is_active:
+            return False
+        
+        # Verificar acceso a la comunidad
+        return self.post.community.can_user_access(user)
     
     def soft_delete(self):
         """Eliminación lógica del comentario."""

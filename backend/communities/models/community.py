@@ -182,19 +182,18 @@ class Community(models.Model):
     
     def is_user_member(self, user):
         """Verifica si un usuario es miembro de esta comunidad."""
-        print(f"🔍 is_user_member for {self.name} - user: {user}")
-        
         if not user or not user.is_authenticated:
-            print(f"   - User not authenticated")
             return False
             
-        result = self.memberships.filter(user=user, status='active').exists()
-        print(f"   - Query result: {result}")
+        return self.memberships.filter(user=user, status='active').exists()
+    
+    def can_user_access(self, user):
+        """Verifica si un usuario puede acceder a esta comunidad."""
+        if not user or not user.is_authenticated:
+            return False
         
-        # Debug: mostrar todas las membresías del usuario
-        all_memberships = self.memberships.filter(user=user)
-        print(f"   - All memberships for user: {all_memberships.count()}")
-        for membership in all_memberships:
-            print(f"     * Status: {membership.status}, Role: {membership.role}")
+        # Por ahora, si es público y el usuario es miembro
+        if self.is_public and self.is_user_member(user):
+            return True
         
-        return result
+        return False

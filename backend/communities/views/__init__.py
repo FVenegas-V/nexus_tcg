@@ -9,6 +9,9 @@ from .membership import CommunityMembershipViewSet
 from .community import CommunityViewSet
 from .category import CommunityCategoryViewSet
 from .post import PostViewSet
+from .post_image import PostImageViewSet
+from .comment import CommentViewSet
+from .reaction import ReactionViewSet
 
 __all__ = [
     'GameTypeViewSet',
@@ -17,4 +20,7 @@ __all__ = [
     'CommunityViewSet',
     'CommunityCategoryViewSet',
     'PostViewSet',
+    'PostImageViewSet',
+    'CommentViewSet',
+    'ReactionViewSet',
 ]
