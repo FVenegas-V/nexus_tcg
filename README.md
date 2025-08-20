@@ -202,57 +202,6 @@ flutter run
 # Flutter: Emulador o dispositivo físico
 ```
 
-### 🏭 **Instalación en Producción**
-
-#### 📋 **1. CLONAR:**
-```bash
-git clone https://github.com/FVenegas-V/nexus_tcg.git
-cd nexus_tcg
-```
-
-#### 🐍 **2. PREPARAR:** Entorno aislado
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# .\venv\Scripts\activate  # Windows
-```
-
-#### 📦 **3. INSTALAR:** Dependencias
-```bash
-pip install -r backend/requirements.txt
-pip install gunicorn psycopg2-binary
-```
-
-#### 🗄️ **4. CONFIGURAR:** Base de datos
-```bash
-# PostgreSQL
-sudo -u postgres createdb nexus_tcg_prod
-sudo -u postgres createuser nexus_user
-```
-
-#### ⚙️ **5. VARIABLES:** Entorno de producción
-```bash
-# Crear backend/.env
-ENVIRONMENT=production
-SECRET_KEY=tu_secret_key_seguro
-DEBUG=False
-DB_NAME=nexus_tcg_prod
-DB_USER=nexus_user
-DB_PASSWORD=tu_password
-```
-
-#### 🚀 **6. LANZAR:**
-```bash
-cd backend
-python manage.py migrate
-python manage.py collectstatic
-gunicorn nexus_api.wsgi:application
-```
-
-#### ✨ **¡Listo!** Abre [http://127.0.0.1:8000](http://127.0.0.1:8000) y prepárate para el wow
-
----
-
 ### 📚 **Documentación Completa**
 - 📖 **[Guía de Desarrollo](docs/desarrollo/configuracion-entorno.md)**
 - 🔌 **[APIs Backend](docs/apis/autenticacion.md)**
@@ -272,4 +221,3 @@ gunicorn nexus_api.wsgi:application
 ![Follow](https://img.shields.io/github/followers/FVenegas-V?style=social)
 
 </div>
-
