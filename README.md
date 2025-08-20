@@ -204,7 +204,7 @@ flutter run
 
 ### 🏭 **Instalación en Producción**
 
-#### 📋 **1. CLONAR:** Clona el futuro
+#### 📋 **1. CLONAR:** 
 ```bash
 git clone https://github.com/FVenegas-V/nexus_tcg.git
 cd nexus_tcg
@@ -241,7 +241,7 @@ DB_USER=nexus_user
 DB_PASSWORD=tu_password
 ```
 
-#### 🚀 **6. LANZAR:** ¡El futuro está aquí!
+#### 🚀 **6. LANZAR:**
 ```bash
 cd backend
 python manage.py migrate
