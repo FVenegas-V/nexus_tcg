@@ -7,22 +7,11 @@
 **Nexus TCG** Nexus TCG es una aplicación móvil completa para jugadores de Trading Card Games que conecta comunidades, facilita el intercambio de cartas y permite crear experiencias compartidas en el mundo de los juegos de cartas coleccionables.
 
 
-### 🎯 **Próximas Implementaciones**
-
-#### 💬 **Fase 3: Posts y Comentarios** *(100% Completado - 5/5 tickets)*
-- ✅ **Modelos Django**: Post, Comment, Reaction implementados (fase3-0001)
-- ✅ **APIs REST Posts**: Sistema completo con reacciones (fase3-0002) - **COMPLETADO**
-- ✅ **APIs REST Comments**: Threading y endpoints anidados (fase3-0003) - **COMPLETADO**
-- ✅ **Sistema Reacciones**: Integrado en Posts APIs (fase3-0004) - **COMPLETADO**
-- ✅ **Upload Imágenes**: Sistema completo con múltiples resoluciones (fase3-0005) - **COMPLETADO**
-
 ### ✨ **Características Principales**
 - 🎯 **Comunidades por juego** - Organiza por tipos de TCG (Magic, Pokémon, Yu-Gi-Oh, etc.)
 - � **Sistema social** - Posts, comentarios, reacciones y discusiones
 - ⭐ **Reputación de usuarios** - Sistema de valoraciones entre jugadores
-- 🚀 **GitHub Actions**: Deploy staging automático y validacioness Completadas**
 
-- 🔍 **Búsqueda avanzada** - Encuentra jugadores, cartas y eventos
 
 ---
 
@@ -132,7 +121,6 @@ lib/
 - ![JWT](https://img.shields.io/badge/JWT-Simple_JWT-000000?style=flat-square) **JWT Authentication** - Autenticación segura
 - ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prod-336791?style=flat-square&logo=postgresql) **PostgreSQL** - Base de datos producción
 - ![SQLite](https://img.shields.io/badge/SQLite-Dev-003B57?style=flat-square&logo=sqlite) **SQLite** - Base de datos desarrollo
-- ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker) **Docker** - Contenedorización y desarrollo
 
 ---
 
@@ -149,64 +137,11 @@ lib/
 ### 🧪 **Calidad y Testing**
 - ✅ **100% Test Coverage** en módulos core
 - 🔄 **CI/CD Pipeline** con GitHub Actions
-- 🐳 **Docker** para entornos reproducibles
 - 📊 **Security Checks** automáticos
 - 📚 **Documentación** completa y organizada
 
 ---
 
-## 🔌 **APIs Implementadas**
-
-### 🔐 **Autenticación**
-```
-POST   /api/auth/register/              # Registro de usuarios
-POST   /api/auth/login/                 # Login (username/email + password)
-POST   /api/auth/refresh/               # Renovar tokens JWT
-GET    /api/users/me/                   # Perfil del usuario autenticado
-PUT    /api/users/me/                   # Actualizar perfil de usuario
-PUT    /api/users/me/password/          # Cambio de contraseña
-```
-
-### 📧 **Verificación y Recuperación**
-```
-POST   /api/auth/resend-verification/   # Reenviar email de verificación
-GET    /api/auth/verify-email/{token}/  # Verificar email con token
-POST   /api/auth/password-reset/        # Solicitar recuperación
-GET    /api/auth/password-reset/verify/{token}/  # Verificar token
-POST   /api/auth/password-reset/confirm/  # Confirmar nueva contraseña
-```
-
-### 👥 **Comunidades**
-```
-GET    /api/communities/               # Listar comunidades con filtros
-POST   /api/communities/               # Crear nueva comunidad
-GET    /api/communities/{id}/          # Detalle de comunidad específica
-PUT    /api/communities/{id}/          # Actualizar comunidad (admin)
-POST   /api/communities/{id}/join/     # Unirse a comunidad
-POST   /api/communities/{id}/leave/    # Abandonar comunidad
-GET    /api/communities/my-communities/ # Mis comunidades
-```
-
-### 💬 **Posts y Comentarios**
-```
-GET    /api/posts/                     # Listar posts con filtros
-POST   /api/communities/{id}/posts/    # Crear post en comunidad
-GET    /api/posts/{id}/                # Detalle de post específico
-PUT    /api/posts/{id}/                # Actualizar post (autor)
-DELETE /api/posts/{id}/                # Eliminar post (soft delete)
-GET    /api/posts/feed/                # Feed personalizado
-POST   /api/posts/{id}/toggle_reaction/ # ✅ Toggle reacción emoji (FUNCIONAL)
-GET    /api/posts/{id}/reactions/      # ✅ Obtener breakdown de reacciones
-
-POST   /api/posts/{id}/comments/       # Crear comentario
-GET    /api/posts/{id}/comments/       # Listar comentarios con threading
-GET    /api/comments/{id}/             # Detalle de comentario
-PUT    /api/comments/{id}/             # Actualizar comentario (autor)
-DELETE /api/comments/{id}/             # Eliminar comentario (soft delete)
-POST   /api/comments/{id}/reply/       # Responder a comentario (threading)
-GET    /api/comments/{id}/thread/      # Ver hilo completo
-GET    /api/comments/my-comments/      # Mis comentarios
-```
 
 ### 📱 **Frontend Flutter Completado**
 ```
@@ -232,11 +167,6 @@ GET    /api/comments/my-comments/      # Mis comentarios
 - 📝 Suscripción a comunidades de interés
 - 👤 Perfiles públicos de usuarios
 
-#### ⭐ **Fase 4: Sistema de Reputación**
-- 🌟 Valoraciones entre usuarios (1-5 estrellas)
-- � Algoritmo de cálculo de reputación
-- ❤️ Sistema de reacciones (likes/emojis)
-
 #### ⭐ **Fase 4: Reputación**
 - 🌟 Sistema de valoraciones entre usuarios
 - 📊 Algoritmo de reputación
@@ -246,10 +176,12 @@ GET    /api/comments/my-comments/      # Mis comentarios
 
 ### 📋 **Prerrequisitos**
 - Python 3.11+
-- Docker & Docker Compose
+- PostgreSQL (producción)
 - Git
 
-### ⚡ **Instalación Rápida**
+## 🚀 **Instalación**
+
+### ⚡ **Instalación Rápida (Desarrollo)**
 
 ```bash
 # 1. Clonar repositorio
@@ -270,18 +202,62 @@ flutter run
 # Flutter: Emulador o dispositivo físico
 ```
 
+### 🏭 **Instalación en Producción**
+
+#### 📋 **1. CLONAR:**
+```bash
+git clone https://github.com/FVenegas-V/nexus_tcg.git
+cd nexus_tcg
+```
+
+#### 🐍 **2. PREPARAR:** Entorno aislado
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# .\venv\Scripts\activate  # Windows
+```
+
+#### 📦 **3. INSTALAR:** Dependencias
+```bash
+pip install -r backend/requirements.txt
+pip install gunicorn psycopg2-binary
+```
+
+#### 🗄️ **4. CONFIGURAR:** Base de datos
+```bash
+# PostgreSQL
+sudo -u postgres createdb nexus_tcg_prod
+sudo -u postgres createuser nexus_user
+```
+
+#### ⚙️ **5. VARIABLES:** Entorno de producción
+```bash
+# Crear backend/.env
+ENVIRONMENT=production
+SECRET_KEY=tu_secret_key_seguro
+DEBUG=False
+DB_NAME=nexus_tcg_prod
+DB_USER=nexus_user
+DB_PASSWORD=tu_password
+```
+
+#### 🚀 **6. LANZAR:**
+```bash
+cd backend
+python manage.py migrate
+python manage.py collectstatic
+gunicorn nexus_api.wsgi:application
+```
+
+#### ✨ **¡Listo!** Abre [http://127.0.0.1:8000](http://127.0.0.1:8000) y prepárate para el wow
+
+---
+
 ### 📚 **Documentación Completa**
 - 📖 **[Guía de Desarrollo](docs/desarrollo/configuracion-entorno.md)**
 - 🔌 **[APIs Backend](docs/apis/autenticacion.md)**
 - � **[Frontend Flutter](docs/desarrollo/)**
-- �🐳 **[Docker Setup](docs/despliegue/configuracion-docker.md)**
 - 🧪 **[Testing](docs/desarrollo/guia-testing.md)**
-
-### 🎯 **Próximos Pasos**
-- 🚀 **Completar Fase 2** - Gestión avanzada de roles y filtros (fase2-0004, fase2-0005)
-- 🔗 **Integración Flutter + Backend** - Conectar frontend con APIs reales
-- 🔜 **Sistema de Posts** backend (Fase 3)
-- 🔜 **Sistema de Reputación** completo (Fase 4)
 
 
 ---
