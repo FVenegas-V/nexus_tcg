@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
+
+# Importar views desde el archivo views.py específicamente
 from users.views import (
     RegisterView, 
     LoginView, 
@@ -56,6 +58,8 @@ urlpatterns = [
     path('api/users/<int:user_id>/profile/', PublicUserProfileView.as_view(), name='public_user_profile'),
     path('api/users/search/', search_users, name='search_users'),
     path('api/users/me/profile/update-stats/', update_profile_stats, name='update_profile_stats'),
+    # APIs de perfiles públicos (Fase 4)
+    path('api/users/', include('users.urls')),
     # APIs de comunidades
     path('', include('communities.urls')),
 ]

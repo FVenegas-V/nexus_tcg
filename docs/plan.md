@@ -320,21 +320,51 @@ Este documento define la hoja de ruta detallada para implementar Nexus TCG, orga
 ---
 
 ### Fase 4: Reputación y Valoraciones (Semana 9-10)
-**Objetivo**: Sistema de confianza entre usuarios
+**Objetivo**: Sistema de confianza entre usuarios con perfiles públicos  
+**Estado**: 🔴 PENDIENTE (0/6 tickets) - Próxima Fase
 
 #### Funcionalidades Core
-- [ ] Valoración entre usuarios (1-5 estrellas)
-- [ ] Cálculo algorítmico de reputación
-- [ ] Historial de valoraciones recibidas
-- [ ] Prevención de auto-valoración y valoración duplicada
-- [ ] Dashboard de reputación en perfil
+- [ ] **fase4-0001**: Perfiles públicos de usuarios - Vista y navegación de perfiles de otros usuarios
+- [ ] **fase4-0002**: Valoración entre usuarios (1-5 estrellas) 
+- [ ] **fase4-0003**: Cálculo algorítmico de reputación
+- [ ] **fase4-0004**: Historial de valoraciones recibidas
+- [ ] **fase4-0005**: Dashboard de reputación en perfil
+- [ ] **fase4-0006**: Prevención de auto-valoración y validaciones
 
-#### APIs Implementadas
-- `POST /api/users/{id}/rate/`
-- `GET /api/users/{id}/ratings/`
+#### Tickets de Implementación
+
+##### 🎯 **fase4-0001**: Perfiles Públicos de Usuarios
+**Prioridad**: Alta | **Estado**: Abierto  
+**Descripción**: Implementar la funcionalidad para que los usuarios puedan ver y navegar los perfiles públicos de otros usuarios, mostrando información básica, estadísticas de actividad y reputación.
+
+**Criterios de Aceptación**:
+- [ ] Endpoint `GET /api/users/{id}/profile/` funcional
+- [ ] Información pública del usuario visible (nombre, avatar, bio, fecha registro)
+- [ ] Estadísticas de actividad (posts, comentarios, comunidades)
+- [ ] Score de reputación actual y conteo de valoraciones
+- [ ] Posts recientes del usuario (últimos 5)
+- [ ] Comunidades a las que pertenece (públicas)
+- [ ] Botón para valorar usuario (preparación para fase4-0002)
+- [ ] Navegación desde nombres de usuario en posts/comentarios
+- [ ] Privacidad: solo información pública visible
+
+**APIs a Implementar**:
+- `GET /api/users/{id}/profile/` - Perfil público completo
+- `GET /api/users/{id}/activity/` - Actividad reciente del usuario
+- `GET /api/users/{id}/communities/` - Comunidades del usuario
+- `GET /api/users/{id}/posts/` - Posts públicos del usuario
+
+#### APIs Implementadas (Pendientes)
+- `GET /api/users/{id}/profile/` - Perfil público de usuario
+- `GET /api/users/{id}/activity/` - Actividad del usuario  
+- `POST /api/users/{id}/rate/` - Valorar usuario
+- `GET /api/users/{id}/ratings/` - Ver valoraciones
 - Algoritmo de cálculo de reputación en background
 
 #### Criterios de Validación
+- Usuarios pueden ver perfiles públicos de otros usuarios
+- Información mostrada es relevante y útil para evaluar confiabilidad
+- Navegación fluida desde posts/comentarios a perfiles
 - Usuarios pueden valorarse mutuamente tras interacciones
 - Reputación se calcula y actualiza automáticamente
 - Sistema previene gaming/abuso de valoraciones
@@ -562,13 +592,19 @@ def calculate_reputation(user_ratings):
 Semana 1-2:   Fase 0 - Fundación ✅ COMPLETADA (100%)
 Semana 3-4:   Fase 1 - Autenticación ✅ COMPLETADA (MVP Ready)
 Semana 5-6:   Fase 2 - Comunidades ✅ COMPLETADA (100% - Backend APIs Ready)
-Semana 7-8:   Fase 3 - Posts/Comentarios 🎉 CASI COMPLETADA (80% - Solo documentación pendiente)
+Semana 7-8:   Fase 3 - Posts/Comentarios ✅ COMPLETADA (100% - Sistema Social Completo)
               ✅ fase3-0001: Modelos Post/Comment/Reaction (Completado 17 agosto 2025)
               ✅ fase3-0002: APIs REST Posts (Completado 18 agosto 2025)
               ✅ fase3-0003: APIs REST Comments (Completado 18 agosto 2025)
               ✅ fase3-0004: Sistema Reacciones (Completado 18 agosto 2025)
               ✅ fase3-0005: Upload Imágenes (Completado 18 agosto 2025)
-Semana 9-10:  Fase 4 - Reputación (Pendiente - Backend APIs)
+Semana 9-10:  Fase 4 - Reputación y Perfiles 🚀 INICIANDO (25 agosto 2025)
+              🔄 fase4-0001: Perfiles Públicos de Usuarios (En desarrollo)
+              ⏳ fase4-0002: Valoración entre usuarios (Pendiente)
+              ⏳ fase4-0003: Cálculo algorítmico de reputación (Pendiente)
+              ⏳ fase4-0004: Historial de valoraciones (Pendiente)
+              ⏳ fase4-0005: Dashboard de reputación (Pendiente)
+              ⏳ fase4-0006: Validaciones y prevención de abuso (Pendiente)
 Semana 11-12: Fase 5 - Notificaciones (Pendiente - Backend APIs)
 Semana 13-14: Fase 6 - Búsqueda (Pendiente - Backend APIs)
 Semana 15-18: Fase 7 - Frontend Flutter 🚧 CASI COMPLETO (86% completado)
@@ -584,5 +620,5 @@ Semana 21+:   Post-MVP - Logging, Rate Limiting, Analytics
 ```
 
 **Total estimado**: 20 semanas (5 meses) para MVP completo en producción  
-**Progreso actual**: Backend social COMPLETO (Fases 1-3), Frontend Flutter completo (86%)
+**Progreso actual**: Backend social COMPLETO (Fases 1-3), Fase 4 preparada con tickets completos, Frontend Flutter (86%)
 

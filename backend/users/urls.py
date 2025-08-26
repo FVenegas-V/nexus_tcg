@@ -1,5 +1,21 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+from .views import (
+    RatingLimitsAPIView, 
+    user_suspension_status, 
+    anti_gaming_dashboard,
+    run_anti_gaming_analysis,
+    user_suspicious_activity,
+    RatingFlagViewSet
+)
+
+# Router para ViewSets
+router = DefaultRouter()
+router.register(r'profiles', views.UserProfileViewSet, basename='user-profiles')
+router.register(r'ratings', views.UserRatingViewSet, basename='user-ratings')
+router.register(r'reputation', views.UserReputationViewSet, basename='user-reputation')
+router.register(r'flags', views.RatingFlagViewSet, basename='rating-flags')
 
 urlpatterns = [
     # URLs de autenticación
@@ -21,4 +37,17 @@ urlpatterns = [
     
     # URLs de gestión de cuenta
     path('me/password/', views.ChangePasswordView.as_view(), name='change_password'),
+    
+    # APIs de Rate Limiting (Fase 4-0006)
+    path('rating-limits/', views.RatingLimitsAPIView.as_view(), name='rating_limits'),
+    path('suspension-status/', views.user_suspension_status, name='user_suspension_status'),
+    path('<int:user_id>/suspension-status/', views.user_suspension_status, name='user_suspension_status_admin'),
+    
+    # APIs de Anti-Gaming (Fase 4-0006)
+    path('anti-gaming/dashboard/', views.anti_gaming_dashboard, name='anti_gaming_dashboard'),
+    path('anti-gaming/analyze/', views.run_anti_gaming_analysis, name='run_anti_gaming_analysis'),
+    path('<int:user_id>/suspicious-activity/', views.user_suspicious_activity, name='user_suspicious_activity'),
+    
+    # ViewSets - Perfiles públicos (Fase 4)
+    path('', include(router.urls)),
 ]
