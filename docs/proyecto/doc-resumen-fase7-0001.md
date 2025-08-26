@@ -87,17 +87,6 @@ lib/
 
 ---
 
-## 🔧 Problemas Técnicos Resueltos
-
-### **1. Configuración de Python/Django**
-**Problema:** Python no estaba instalado en el sistema  
-**Solución:** 
-```powershell
-winget install Python.Python.3.12
-# Configuración de entorno virtual
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
 ```
 
 ### **2. URLs de API Incorrectas**

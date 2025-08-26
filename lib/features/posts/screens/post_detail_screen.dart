@@ -78,8 +78,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       final postsProvider = context.read<PostsProvider>();
       await postsProvider.toggleReaction(_post!.id, reactionType);
 
-      // Recargar el post para actualizar las reacciones
-      await _refreshPost();
+      // No necesitamos setState porque el Consumer se actualiza automáticamente
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -324,8 +323,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
               const Divider(height: 1),
 
-              // Widget de reacciones completo
-              ReactionsWidget(post: _post!, onReaction: _handleReaction),
+              // Widget de reacciones completo con Consumer para actualizaciones
+              Consumer<PostsProvider>(
+                builder: (context, postsProvider, child) {
+                  // Obtener el post más actualizado del provider
+                  final currentPost =
+                      postsProvider.postsCache[_post!.id] ?? _post!;
+                  return ReactionsWidget(
+                    post: currentPost,
+                    onReaction: _handleReaction,
+                  );
+                },
+              ),
 
               const Divider(height: 1),
 

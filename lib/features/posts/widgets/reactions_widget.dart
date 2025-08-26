@@ -74,31 +74,32 @@ class ReactionsWidget extends StatelessWidget {
   }
 
   Widget _buildReactionButtons(BuildContext context) {
-    return Row(
+    return Column(
       children: [
         // Contador total de reacciones
-        Expanded(
-          child: Row(
-            children: [
-              Icon(
-                Icons.favorite_border,
-                size: 16,
+        Row(
+          children: [
+            Icon(
+              Icons.favorite_border,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '${post.reactionsCount} reacciones',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 4),
-              Text(
-                '${post.reactionsCount} reacciones',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+
+        const SizedBox(height: 12),
 
         // Botones de reacciones con Wrap para evitar overflow
         Wrap(
-          spacing: 4,
+          spacing: 8,
+          runSpacing: 8,
           children: ReactionType.values.map((reactionType) {
             final isSelected = post.userReaction == reactionType.value;
             final reactionColor = _getReactionColor(reactionType);

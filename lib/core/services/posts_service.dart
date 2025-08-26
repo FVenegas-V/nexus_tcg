@@ -266,7 +266,55 @@ class PostsService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('✅ Reacción actualizada exitosamente');
-        return ReactionsBreakdown.fromJson(response.data);
+
+        // El backend devuelve { action, reaction_type, post }
+        // Necesitamos extraer el breakdown del post
+        final responseData = response.data;
+        final postData = responseData['post'];
+
+        debugPrint('📊 Acción: ${responseData['action']}');
+        debugPrint('😊 Tipo reacción: ${responseData['reaction_type']}');
+        debugPrint(
+          '📝 Post actualizado con reacciones: ${postData['reaction_count']}',
+        );
+        debugPrint('👤 Reacción del usuario: ${postData['user_reaction']}');
+
+        // Extraer breakdown desde reaction_breakdown del backend
+        final reactionBreakdownData = postData['reaction_breakdown'];
+        final breakdownCounts = reactionBreakdownData?['breakdown'] ?? {};
+
+        debugPrint('🔍 Breakdown completo del backend:');
+        for (final entry in breakdownCounts.entries) {
+          final typeData = entry.value;
+          debugPrint('  ${entry.key}: ${typeData['count']} usuarios');
+        }
+
+        // Crear mapa de conteos
+        Map<ReactionType, int> counts = {};
+        for (final type in ReactionType.values) {
+          final typeData = breakdownCounts[type.value];
+          if (typeData != null && typeData['count'] != null) {
+            counts[type] = typeData['count'] as int;
+          }
+        }
+
+        debugPrint('🔢 Conteos finales: $counts');
+        debugPrint(
+          '👤 Reacción final del usuario: ${postData['user_reaction']}',
+        );
+
+        // Crear breakdown desde los datos del post
+        return ReactionsBreakdown(
+          totalCount: postData['reaction_count'] ?? 0,
+          counts: counts,
+          usernames: {}, // No necesitamos usernames para el toggle
+          userReaction: postData['user_reaction'] != null
+              ? ReactionType.values.firstWhere(
+                  (type) => type.value == postData['user_reaction'],
+                  orElse: () => ReactionType.like,
+                )
+              : null,
+        );
       } else {
         throw Exception('Error al actualizar reacción: ${response.statusCode}');
       }

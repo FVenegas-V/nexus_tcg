@@ -273,17 +273,70 @@ class PostsState extends ChangeNotifier {
       _postReactions[postId] = breakdown;
 
       // Actualizar el post en cache si existe
+      debugPrint(
+        '🔍 Cache state - Post $postId existe en cache: ${_postsCache.containsKey(postId)}',
+      );
+      debugPrint(
+        '🔍 Cache state - Total posts en cache: ${_postsCache.length}',
+      );
+      debugPrint('🔍 Cache state - IDs en cache: ${_postsCache.keys.toList()}');
+
       if (_postsCache.containsKey(postId)) {
         final post = _postsCache[postId]!;
+
+        debugPrint(
+          '🔍 DEBUG: breakdown.userReaction = ${breakdown.userReaction?.value}',
+        );
+        debugPrint('🔍 DEBUG: post.userReaction ANTES = ${post.userReaction}');
+        debugPrint('🔍 Actualizando post $postId con datos del servidor:');
+        debugPrint('  - Conteo total: ${breakdown.totalCount}');
+        debugPrint(
+          '  - Reacción del usuario en breakdown: ${breakdown.userReaction?.value}',
+        );
+        debugPrint('  - Post anterior userReaction: ${post.userReaction}');
+
         final updatedPost = post.copyWith(
           reactionsCount: breakdown.totalCount,
-          userReaction: breakdown.userReaction?.value,
+          userReaction: breakdown.userReaction?.value, // Permitir null
           reactionsBreakdown: breakdown.counts.map(
             (key, value) => MapEntry(key.value, value),
           ),
         );
-        _postsCache[postId] = updatedPost;
-        _updatePostInLists(updatedPost);
+
+        // Si no hay reacción del usuario, establecer explícitamente null
+        final finalPost = breakdown.userReaction == null
+            ? Post(
+                id: updatedPost.id,
+                title: updatedPost.title,
+                content: updatedPost.content,
+                communityId: updatedPost.communityId,
+                communityName: updatedPost.communityName,
+                authorId: updatedPost.authorId,
+                authorUsername: updatedPost.authorUsername,
+                createdAt: updatedPost.createdAt,
+                updatedAt: updatedPost.updatedAt,
+                deletedAt: updatedPost.deletedAt,
+                isDeleted: updatedPost.isDeleted,
+                commentsCount: updatedPost.commentsCount,
+                reactionsCount: updatedPost.reactionsCount,
+                images: updatedPost.images,
+                thumbnailUrl: updatedPost.thumbnailUrl,
+                hasImages: updatedPost.hasImages,
+                userReaction: null, // Explícitamente null
+                reactionsBreakdown: updatedPost.reactionsBreakdown,
+              )
+            : updatedPost;
+
+        debugPrint(
+          '🔍 DEBUG: updatedPost.userReaction DESPUÉS = ${finalPost.userReaction}',
+        );
+
+        _postsCache[postId] = finalPost;
+        _updatePostInLists(finalPost);
+      } else {
+        debugPrint(
+          '❌ DEBUG: Post $postId NO encontrado en cache para actualizar',
+        );
       }
 
       _setError(null);
