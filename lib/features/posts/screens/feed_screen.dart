@@ -133,7 +133,8 @@ class _FeedScreenState extends State<FeedScreen> {
               onComment: () => _onCommentTap(post.id),
               onShare: () => _onShareTap(post.id),
               onBookmark: () => postsProvider.toggleBookmark(post.id),
-              onAuthorTap: () => _onAuthorTap(post.authorId),
+              onAuthorTap: () =>
+                  _onAuthorTap(post.authorId, post.authorUsername),
               onCommunityTap: () => _onCommunityTap(post.communityId),
             );
           }
@@ -183,9 +184,9 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 
-  void _onAuthorTap(int authorId) {
-    // TODO: Navegar a perfil del autor
-    debugPrint('Author tapped: $authorId');
+  void _onAuthorTap(int authorId, String authorUsername) {
+    // Navegar a perfil público del autor
+    context.go('/reputation/user/$authorId?username=$authorUsername');
   }
 
   void _onCommunityTap(int communityId) {

@@ -103,7 +103,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {
+                              print('🔄 Intentando navegar a forgot-password');
                               context.go('/forgot-password');
+                              print('✅ Navegación ejecutada');
                             },
                             child: Text(
                               '¿Olvidaste la contraseña?',

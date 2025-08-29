@@ -52,20 +52,25 @@ class HttpService {
       );
     }
 
-    _isInitialized = true;
-
     // Interceptor para manejo de errores de autenticación
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onError: (error, handler) {
+        onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
             debugPrint('🚨 Error 401: Token expirado o inválido');
-            // Aquí podrías disparar un evento para hacer logout automático
+            debugPrint(
+              '🚨 HttpService Error: No autorizado: Credenciales inválidas',
+            );
+
+            // En lugar de intentar renovar aquí, simplemente manejamos el error
+            // La renovación se maneja en el AuthService
           }
           handler.next(error);
         },
       ),
     );
+
+    _isInitialized = true;
   }
 
   /// Configurar token de autenticación

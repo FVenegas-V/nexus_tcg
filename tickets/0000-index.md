@@ -112,14 +112,21 @@
 
 ---
 
-## Fase 5: Notificaciones Push 🔴 (Pendiente)
+## Fase 5: Sistema de Notificaciones MVP � (Estrategia Polling)
 
-- [ ] fase5-0001: Integración con Firebase Cloud Messaging 🔴
-- [ ] fase5-0002: Sistema de notificaciones internas 🔴
-- [ ] fase5-0003: Background jobs para envío de notificaciones 🔴
-- [ ] fase5-0004: Configuración de preferencias de notificaciones 🔴
+**Decisión Técnica**: ✅ Polling Inteligente adoptado en lugar de Firebase Push para MVP rápido
 
-**Estado**: 0/4 tickets completados
+- [ ] [fase5-0001: Sistema de Notificaciones Backend - Modelos y APIs](./fase5-0001.md) ⚪ *(Abierto)*
+- [ ] [fase5-0002: Polling Inteligente Flutter - Servicio de Notificaciones](./fase5-0002.md) ⚪ *(Abierto)*
+- [ ] [fase5-0003: UI de Notificaciones Flutter - Badges y Lista](./fase5-0003.md) ⚪ *(Abierto)*
+- [ ] [fase5-0004: Notificaciones Email Fallback - Sistema de Respaldo](./fase5-0004.md) ⚪ *(Abierto)*
+- [ ] [fase5-0005: Configuración de Preferencias de Notificaciones](./fase5-0005.md) ⚪ *(Abierto)*
+
+**Estado**: 0/5 tickets iniciados (0% - Planificado)  
+**Objetivo**: Sistema MVP de notificaciones con polling cada 30s + email fallback  
+**Ventajas de Polling**: 3-5 días vs 2-3 semanas (Firebase), sin dependencias externas  
+**Funcionalidades**: Nuevos posts, comentarios, valoraciones, badges UI, emails inteligentes  
+**Performance**: Consultas optimizadas, solo cuando app activa, rate limiting automático
 
 ---
 
@@ -155,11 +162,11 @@
 | Fase 2 | 5 | 4 | 0 | 1 | 80% |
 | Fase 3 | 5 | 5 | 0 | 0 | 100% |
 | Fase 4 | 6 | 6 | 0 | 0 | 100% |
-| Fase 5 | 4 | 0 | 0 | 4 | 0% |
+| Fase 5 | 5 | 0 | 0 | 5 | 0% |
 | Fase 6 | 4 | 0 | 0 | 4 | 0% |
 | Fase 7 | 7 | 6 | 0 | 1 | 86% |
 | Fase 8 | 5 | 0 | 0 | 5 | 0% |
-| **TOTAL** | **48** | **31** | **0** | **17** | **64.6%** |
+| **TOTAL** | **49** | **31** | **0** | **18** | **63.3%** |
 
 ---
 

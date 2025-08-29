@@ -9,6 +9,10 @@ import '../../../features/auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../models/user.dart';
 import '../widgets/user_avatar.dart';
+// Importaciones para el sistema de reputación
+import '../../reputation/providers/reputation_provider.dart';
+import '../../reputation/widgets/rating_stars.dart';
+import '../../reputation/models/reputation_stats.dart';
 
 /// Pantalla principal del perfil de usuario
 /// Muestra la información del usuario y opciones de configuración
@@ -69,6 +73,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColors.primaryRed,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.star),
+            onPressed: () {
+              context.push('/reputation/dashboard');
+            },
+            tooltip: 'Dashboard de Reputación',
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -205,6 +216,11 @@ class _UserHeader extends StatelessWidget {
               context,
             ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
           ),
+
+        const SizedBox(height: 16),
+
+        // Reputación del usuario
+        _ReputationSection(userId: user.id),
       ],
     );
   }
@@ -463,15 +479,6 @@ class _ProfileOptionsCard extends StatelessWidget {
             subtitle: 'Actualizar tu contraseña de acceso',
             onTap: () => context.push('/profile/change-password'),
           ),
-
-          const Divider(height: 1),
-
-          _OptionTile(
-            icon: Icons.science,
-            title: '🧪 Pruebas Fase 2',
-            subtitle: 'GameTypes y Tags APIs',
-            onTap: () => context.push('/phase2-test'),
-          ),
         ],
       ),
     );
@@ -637,5 +644,119 @@ class _EmptyView extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Widget para mostrar la reputación del usuario en su perfil
+class _ReputationSection extends StatelessWidget {
+  final int userId;
+
+  const _ReputationSection({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ReputationProvider>(
+      builder: (context, reputationProvider, child) {
+        final stats = reputationProvider.getCachedReputationStats(userId);
+
+        if (stats == null) {
+          // Cargar stats si no están en caché
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            reputationProvider.getReputationStats(userId);
+          });
+          return _buildLoadingReputationSection(context);
+        }
+
+        return _buildReputationSection(context, stats);
+      },
+    );
+  }
+
+  Widget _buildLoadingReputationSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Cargando reputación...',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReputationSection(BuildContext context, dynamic stats) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Estrellas de reputación
+          RatingStars(
+            rating: stats.averageRating?.toDouble() ?? 0.0,
+            starSize: 18,
+            showRatingValue: false,
+            isInteractive: false,
+          ),
+          const SizedBox(width: 8),
+          // Información de reputación
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                stats.ratingsCount > 0
+                    ? '${stats.averageRating.toStringAsFixed(1)} ⭐'
+                    : 'Sin valoraciones aún',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (stats.ratingsCount > 0)
+                Text(
+                  'Nivel: ${_formatReputationLevel(stats.level)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer.withOpacity(
+                      0.8,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Formatea el nivel de reputación usando displayName del enum
+  String _formatReputationLevel(dynamic level) {
+    if (level is ReputationLevel) {
+      return level.displayName;
+    }
+    return level.toString();
   }
 }

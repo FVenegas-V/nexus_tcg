@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/navigation/screens/main_navigation_screen.dart';
 import '../features/communities/screens/community_detail_screen.dart';
 import '../features/posts/screens/create_post_screen.dart';
@@ -15,6 +16,10 @@ import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/settings_screen.dart';
 import '../features/testing/screens/phase2_test_screen.dart';
 import '../features/communities/screens/communities_screen_simple.dart';
+import '../features/reputation/screens/leaderboard_screen.dart';
+import '../features/reputation/screens/reputation_dashboard_screen.dart';
+import '../features/reputation/screens/public_profile_screen.dart';
+import '../features/reputation/screens/rating_dialog_screen.dart';
 
 /// Configuración del router de la aplicación
 /// Maneja la navegación y protección de rutas basada en autenticación
@@ -27,7 +32,8 @@ class AppRouter {
       final isLoggedIn = authProvider.isAuthenticated;
       final isOnAuthPage =
           state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
+          state.matchedLocation == '/register' ||
+          state.matchedLocation == '/forgot-password';
 
       // Si no está logueado y no está en página de auth, ir a login
       if (!isLoggedIn && !isOnAuthPage) {
@@ -61,13 +67,11 @@ class AppRouter {
         name: 'home',
         builder: (context, state) => const MainNavigationScreen(),
       ),
-      // Ruta temporal para recuperar contraseña
+      // Ruta para recuperar contraseña
       GoRoute(
         path: '/forgot-password',
         name: 'forgot-password',
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Recuperar Contraseña - Próximamente')),
-        ),
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       // Ruta de prueba para Fase 2 APIs
       GoRoute(
@@ -152,6 +156,40 @@ class AppRouter {
         path: '/settings',
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+      // Rutas del sistema de reputación
+      GoRoute(
+        path: '/leaderboard',
+        name: 'leaderboard',
+        builder: (context, state) => const LeaderboardScreen(),
+      ),
+      GoRoute(
+        path: '/reputation/dashboard',
+        name: 'reputation-dashboard',
+        builder: (context, state) => const ReputationDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/reputation/user/:userId',
+        name: 'public-profile',
+        builder: (context, state) {
+          final userIdString = state.pathParameters['userId'] ?? '0';
+          final userId = int.tryParse(userIdString) ?? 0;
+          final username = state.uri.queryParameters['username'] ?? 'Usuario';
+          return PublicProfileScreen(userId: userId, username: username);
+        },
+      ),
+      GoRoute(
+        path: '/reputation/rate/:userId',
+        name: 'rate-user',
+        builder: (context, state) {
+          final userIdString = state.pathParameters['userId'] ?? '0';
+          final userId = int.tryParse(userIdString) ?? 0;
+          final username = state.uri.queryParameters['username'] ?? 'Usuario';
+          return RatingDialogScreen(
+            targetUserId: userId,
+            targetUserName: username,
+          );
+        },
       ),
     ],
     // Página de error personalizada para rutas no encontradas

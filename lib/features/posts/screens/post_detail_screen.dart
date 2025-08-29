@@ -106,12 +106,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _handleAuthorTap() {
     if (_post == null) return;
 
-    // TODO: Implementar navegación al perfil
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Perfil de ${_post!.authorUsername} próximamente'),
-        duration: const Duration(seconds: 2),
-      ),
+    // Navegar a perfil público del autor
+    context.go(
+      '/reputation/user/${_post!.authorId}?username=${_post!.authorUsername}',
     );
   }
 

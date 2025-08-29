@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
 import '../../../core/services/http_service.dart';
+// import '../../reputation/services/reputation_service.dart'; // No necesario ya que ReputationService usa HttpService directamente
 
 /// Estados posibles del proceso de autenticación
 enum AuthState {
@@ -58,6 +59,15 @@ class AuthProvider extends ChangeNotifier {
 
         if (result['success']) {
           _user = result['user'];
+
+          // Configurar token en los servicios
+          final token = await AuthService.getAccessToken();
+          if (token != null) {
+            HttpService().setAuthToken(token);
+            // ReputationService maneja automáticamente la autenticación a través de HttpService
+            // ReputationService.instance.updateAuthToken(token);
+          }
+
           _setState(AuthState.authenticated);
         } else {
           await AuthService.clearTokens();
@@ -91,6 +101,10 @@ class AuthProvider extends ChangeNotifier {
         // Configurar token en HttpService si está disponible
         if (result['token'] != null) {
           HttpService().setAuthToken(result['token']);
+
+          // ReputationService usa automáticamente el token a través de HttpService
+          // final reputationService = ReputationService.instance;
+          // reputationService.updateAuthToken(result['token']);
         }
 
         _setState(AuthState.authenticated);
@@ -148,6 +162,12 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await AuthService.clearTokens();
+
+      // Limpiar tokens de todos los servicios
+      HttpService().clearAuthToken();
+      // ReputationService usa automáticamente el token a través de HttpService
+      // ReputationService.instance.updateAuthToken(null);
+
       _user = null;
       _setState(AuthState.unauthenticated);
     } catch (e) {
@@ -167,6 +187,26 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error refreshing user: $e');
+    }
+  }
+
+  /// Solicita recuperación de contraseña por email
+  Future<bool> requestPasswordReset({required String email}) async {
+    _setState(AuthState.loading);
+
+    try {
+      final result = await AuthService.requestPasswordReset(email: email);
+
+      if (result['success']) {
+        _setState(AuthState.unauthenticated);
+        return true;
+      } else {
+        _setError(result['message'] ?? 'Error al enviar email de recuperación');
+        return false;
+      }
+    } catch (e) {
+      _setError('Error de conexión');
+      return false;
     }
   }
 }

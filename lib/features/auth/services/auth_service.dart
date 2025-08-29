@@ -248,6 +248,78 @@ class AuthService {
     return accessToken != null;
   }
 
+  /// Solicita recuperación de contraseña por email
+  static Future<Map<String, dynamic>> requestPasswordReset({
+    required String email,
+  }) async {
+    if (_useRealApi) {
+      try {
+        debugPrint('🔄 Solicitando recuperación de contraseña para: $email');
+
+        final response = await http.post(
+          Uri.parse('${ApiConfig.baseUrl}/api/auth/password-reset-request/'),
+          headers: _getHeaders(),
+          body: jsonEncode({'email': email}),
+        );
+
+        debugPrint('📡 Status Code: ${response.statusCode}');
+        debugPrint('📡 Response Body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          return {
+            'success': true,
+            'message':
+                data['message'] ?? 'Email de recuperación enviado exitosamente',
+          };
+        } else {
+          final data = jsonDecode(response.body);
+          return {'success': false, 'message': _extractErrorMessage(data)};
+        }
+      } catch (e) {
+        debugPrint('❌ Error en requestPasswordReset: $e');
+        return {'success': false, 'message': 'Error de conexión al servidor'};
+      }
+    } else {
+      // Mock response para desarrollo
+      await Future.delayed(const Duration(seconds: 1));
+      return {
+        'success': true,
+        'message': 'Email de recuperación enviado (modo mock)',
+      };
+    }
+  }
+
+  /// Refresca el token de acceso usando el refresh token
+  static Future<Map<String, dynamic>> refreshAccessToken() async {
+    try {
+      final refreshToken = await getRefreshToken();
+      if (refreshToken == null) {
+        return {'success': false, 'message': 'No hay refresh token disponible'};
+      }
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/token/refresh/'),
+        headers: _getHeaders(),
+        body: jsonEncode({'refresh': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newAccessToken = data['access'];
+
+        await _storage.write(key: 'access_token', value: newAccessToken);
+
+        return {'success': true, 'access_token': newAccessToken};
+      } else {
+        return {'success': false, 'message': 'Error al refrescar token'};
+      }
+    } catch (e) {
+      debugPrint('❌ Error en refreshAccessToken: $e');
+      return {'success': false, 'message': 'Error de conexión'};
+    }
+  }
+
   static String _extractErrorMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
       if (data.containsKey('message')) {

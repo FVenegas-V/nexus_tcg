@@ -8,8 +8,12 @@ from django.contrib.auth import authenticate, get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views import View
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
 from django.utils import timezone
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -198,29 +202,24 @@ class PasswordResetRequestView(APIView):
     
     def send_password_reset_email(self, user, reset_token):
         """
-        Envía el email de recuperación de contraseña
+        Envía el email de recuperación de contraseña usando template HTML profesional
         """
         subject = 'Nexus TCG - Recuperación de Contraseña'
         
-        # URL para resetear la contraseña (esto sería manejado por el frontend)
-        reset_url = f"http://localhost:3000/reset-password?token={reset_token.token}"
+        # URL para resetear la contraseña (vista web de Django)
+        reset_url = f"http://127.0.0.1:8000/api/auth/password-reset/{reset_token.token}/"
         
-        # Contenido del email en HTML
-        html_message = f"""
-        <html>
-        <body>
-            <h2>Recuperación de Contraseña - Nexus TCG</h2>
-            <p>Hola {user.username},</p>
-            <p>Has solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-            <p><a href="{reset_url}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Recuperar Contraseña</a></p>
-            <p>Este enlace expirará en 1 hora.</p>
-            <p>Si no solicitaste este cambio, puedes ignorar este email.</p>
-            <p>Saludos,<br>El equipo de Nexus TCG</p>
-        </body>
-        </html>
-        """
+        # Contexto para el template
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+            'app_name': 'Nexus TCG'
+        }
         
-        # Contenido del email en texto plano
+        # Renderizar el template HTML
+        html_message = render_to_string('emails/password_reset.html', context)
+        
+        # Contenido del email en texto plano (fallback)
         plain_message = f"""
         Recuperación de Contraseña - Nexus TCG
         
@@ -323,6 +322,84 @@ class PasswordResetVerifyTokenView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
+class PasswordResetWebView(View):
+    """
+    Vista web para el reset de contraseña desde el navegador
+    """
+    template_name = 'reset_password.html'
+    
+    def get(self, request, token):
+        """Mostrar el formulario de reset de contraseña"""
+        try:
+            reset_token = PasswordResetToken.objects.get(token=token)
+            
+            if reset_token.is_valid():
+                context = {
+                    'token': token,
+                    'user_email': reset_token.user.email,
+                    'valid': True
+                }
+                return render(request, self.template_name, context)
+            else:
+                context = {
+                    'valid': False,
+                    'error': 'El token ha expirado o ya fue usado.'
+                }
+                return render(request, self.template_name, context)
+                
+        except PasswordResetToken.DoesNotExist:
+            context = {
+                'valid': False,
+                'error': 'Token inválido.'
+            }
+            return render(request, self.template_name, context)
+    
+    def post(self, request, token):
+        """Procesar el formulario de reset de contraseña"""
+        try:
+            reset_token = PasswordResetToken.objects.get(token=token)
+            
+            if not reset_token.is_valid():
+                messages.error(request, 'El token ha expirado o ya fue usado.')
+                return redirect('password_reset_web', token=token)
+            
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            # Validaciones
+            if not new_password or not confirm_password:
+                messages.error(request, 'Todos los campos son requeridos.')
+                return redirect('password_reset_web', token=token)
+            
+            if new_password != confirm_password:
+                messages.error(request, 'Las contraseñas no coinciden.')
+                return redirect('password_reset_web', token=token)
+            
+            if len(new_password) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                return redirect('password_reset_web', token=token)
+            
+            # Cambiar la contraseña
+            user = reset_token.user
+            user.set_password(new_password)
+            user.save()
+            
+            # Marcar el token como usado
+            reset_token.is_used = True
+            reset_token.save()
+            
+            # Mensaje de éxito
+            context = {
+                'success': True,
+                'message': 'Tu contraseña ha sido cambiada exitosamente. Ya puedes iniciar sesión en la aplicación con tu nueva contraseña.'
+            }
+            return render(request, self.template_name, context)
+            
+        except PasswordResetToken.DoesNotExist:
+            messages.error(request, 'Token inválido.')
+            return redirect('password_reset_web', token=token)
+
+
 class EmailVerificationView(APIView):
     """
     Vista para verificar email usando el token enviado
@@ -400,79 +477,43 @@ class EmailVerificationResendView(APIView):
         }, status=status.HTTP_200_OK)
     
     def _send_verification_email(self, user, verification_token):
-        """Enviar email de verificación"""
+        """Enviar email de verificación usando template profesional"""
         # URL de verificación
         verification_url = f"{settings.FRONTEND_URL}/verify-email/{verification_token.token}/"
         
         # Asunto del email
         subject = "Nexus TCG - Verifica tu cuenta"
         
-        # Mensaje HTML (similar al de password recovery)
-        html_message = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Verifica tu cuenta - Nexus TCG</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; }}
-                .content {{ padding: 30px; background-color: #f8f9fa; }}
-                .button {{ display: inline-block; padding: 12px 24px; background-color: #3498db; 
-                          color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
-                .footer {{ padding: 20px; text-align: center; color: #666; font-size: 12px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Nexus TCG</h1>
-                    <p>Verifica tu cuenta</p>
-                </div>
-                <div class="content">
-                    <h2>¡Hola {user.username}!</h2>
-                    
-                    <p>Gracias por registrarte en Nexus TCG. Para completar tu registro y activar tu cuenta, necesitas verificar tu dirección de email.</p>
-                    
-                    <p>Haz clic en el siguiente botón para verificar tu cuenta:</p>
-                    
-                    <a href="{verification_url}" class="button">Verificar mi cuenta</a>
-                    
-                    <p>O copia y pega este enlace en tu navegador:</p>
-                    <p style="word-break: break-all; background-color: #ecf0f1; padding: 10px; border-radius: 3px;">
-                        {verification_url}
-                    </p>
-                    
-                    <p><strong>Este enlace expirará en 24 horas.</strong></p>
-                    
-                    <p>Si no te registraste en Nexus TCG, puedes ignorar este email.</p>
-                </div>
-                <div class="footer">
-                    <p>Nexus TCG - Conectando jugadores de Trading Card Games</p>
-                    <p>Este email fue enviado automáticamente, por favor no respondas.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+        # Contexto para el template
+        context = {
+            'user': user,
+            'verification_url': verification_url,
+            'verification_token': verification_token,
+        }
+        
+        # Renderizar template HTML
+        html_message = render_to_string('emails/email_verification.html', context)
         
         # Mensaje de texto plano (fallback)
         plain_message = f"""
         Verificación de Cuenta - Nexus TCG
         
-        Hola {user.username},
+        Hola {user.first_name or user.username},
         
-        Gracias por registrarte en Nexus TCG. Para completar tu registro, verifica tu email haciendo clic en el siguiente enlace:
+        ¡Gracias por unirte a Nexus TCG! Estamos emocionados de tenerte en nuestra comunidad de jugadores de Trading Card Games.
+        
+        Para completar tu registro y comenzar a explorar comunidades, crear posts y conectar con otros jugadores, necesitamos verificar tu dirección de email:
         
         {verification_url}
         
-        Este enlace expirará en 24 horas.
+        Este enlace expira en 1 hora por seguridad.
         
-        Si no te registraste en Nexus TCG, puedes ignorar este email.
+        Si no creaste esta cuenta, puedes ignorar este email de forma segura.
         
-        Saludos,
+        ¡Esperamos verte pronto en Nexus TCG!
+        
         El equipo de Nexus TCG
+        Conectando jugadores de TCG
         """
         
         try:
@@ -1306,7 +1347,7 @@ class UserReputationViewSet(viewsets.ViewSet):
             user = get_object_or_404(User, pk=pk)
             
             from .reputation import get_reputation_breakdown
-            breakdown = get_reputation_breakdown(user)
+            breakdown = get_reputation_breakdown(user, include_ratings=True)
             
             # Estadísticas básicas
             stats = {
@@ -1316,21 +1357,19 @@ class UserReputationViewSet(viewsets.ViewSet):
                 },
                 'reputation': {
                     'score': breakdown['final_score'],
-                    'rating_count': breakdown['total_ratings'],
+                    'rating_count': breakdown['rating_count'],  # Usar rating_count, no total_ratings
                     'percentile': self._calculate_percentile(user),
-                    'last_updated': user.updated_at,
+                    'last_updated': user.updated_at.isoformat() if hasattr(user, 'updated_at') else None,
                 },
-                'breakdown': {
-                    'algorithm_factors': breakdown['algorithm_factors'],
-                    'recent_ratings_count': min(len(breakdown['ratings_data']), 10)
-                }
+                'breakdown': breakdown['breakdown']
             }
             
             # Si es el propio usuario o admin, mostrar más detalles
             if request.user == user or request.user.is_staff:
-                stats['detailed_breakdown'] = {
-                    'ratings_data': breakdown['ratings_data'][:20]  # Últimas 20
-                }
+                if 'ratings_detail' in breakdown['breakdown']:
+                    stats['detailed_breakdown'] = {
+                        'ratings_data': breakdown['breakdown']['ratings_detail'][:20]  # Últimas 20
+                    }
             
             return Response(stats)
             

@@ -28,6 +28,7 @@ from users.views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
     PasswordResetVerifyTokenView,
+    PasswordResetWebView,
     EmailVerificationView,
     EmailVerificationResendView,
     ChangePasswordView,
@@ -44,9 +45,11 @@ urlpatterns = [
     path('api/auth/login/', LoginView.as_view(), name='login'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # APIs de recuperación de contraseña
-    path('api/auth/password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('api/auth/password-reset-request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('api/auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('api/auth/password-reset/verify/<uuid:token>/', PasswordResetVerifyTokenView.as_view(), name='password_reset_verify'),
+    # Vista web para reset de contraseña (desde navegador)
+    path('api/auth/password-reset/<uuid:token>/', PasswordResetWebView.as_view(), name='password_reset_web'),
     # APIs de verificación de email
     path('api/auth/verify-email/<uuid:token>/', EmailVerificationView.as_view(), name='email_verification'),
     path('api/auth/resend-verification/', EmailVerificationResendView.as_view(), name='email_verification_resend'),

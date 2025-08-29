@@ -8,6 +8,9 @@ import 'features/communities/providers/communities_provider_new.dart';
 import 'features/posts/providers/posts_provider.dart';
 import 'features/profile/providers/profile_provider.dart';
 import 'features/posts/providers/comments_provider.dart';
+import 'features/reputation/providers/reputation_provider.dart';
+import 'features/reputation/providers/ratings_provider.dart';
+import 'features/reputation/services/ratings_service.dart';
 import 'routes/app_router.dart';
 
 /// Punto de entrada de la aplicación Nexus TCG
@@ -39,6 +42,9 @@ void main() {
 void _initializeServices() {
   // Inicializar HttpService para APIs
   HttpService().initialize();
+
+  // Inicializar RatingsService para el sistema de valoraciones
+  RatingsService.instance.initialize();
 }
 
 /// Widget raíz de la aplicación
@@ -58,6 +64,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => CommentsProvider(CommentsService(HttpService())),
         ),
+        ChangeNotifierProvider(create: (_) => ReputationProvider()),
+        ChangeNotifierProvider(create: (_) => RatingsProvider()),
       ],
       child: MaterialApp.router(
         title: 'Nexus TCG',

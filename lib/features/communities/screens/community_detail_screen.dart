@@ -488,7 +488,10 @@ class CommunityDetailScreen extends StatelessWidget {
                           onBookmark: () =>
                               postsProvider.toggleBookmark(post.id),
                           onAuthorTap: () {
-                            /* TODO: Navegar a perfil */
+                            // Navegar a perfil público del autor
+                            context.go(
+                              '/reputation/user/${post.authorId}?username=${post.authorUsername}',
+                            );
                           },
                           onCommunityTap: () {
                             /* Ya estamos en la comunidad */

@@ -27,9 +27,12 @@ urlpatterns = [
     path('me/', views.ProfileView.as_view(), name='user_profile'),
     
     # URLs de recuperación de contraseña
-    path('password-reset/', views.PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset-request/', views.PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset-confirm/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password-reset-verify/<uuid:token>/', views.PasswordResetVerifyTokenView.as_view(), name='password_reset_verify'),
+    
+    # Vista web para reset de contraseña (desde navegador)
+    path('password-reset/<uuid:token>/', views.PasswordResetWebView.as_view(), name='password_reset_web'),
     
     # URLs de verificación de email
     path('verify-email/<uuid:token>/', views.EmailVerificationView.as_view(), name='email_verification'),
