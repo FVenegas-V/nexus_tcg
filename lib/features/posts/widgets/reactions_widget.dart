@@ -21,18 +21,24 @@ class ReactionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('🔍 ReactionsWidget - Post ${post.id}:');
+    print('  - reactionsCount: ${post.reactionsCount}');
+    print('  - reactionsBreakdown.isEmpty: ${post.reactionsBreakdown.isEmpty}');
+    print('  - reactionsBreakdown: ${post.reactionsBreakdown}');
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Breakdown de reacciones
-          if (post.reactionsBreakdown.isNotEmpty) ...[
+          // Breakdown de reacciones solo si hay reacciones
+          if (post.reactionsBreakdown.isNotEmpty &&
+              post.reactionsCount > 0) ...[
             _buildReactionsBreakdown(context),
             const SizedBox(height: 16),
           ],
 
-          // Botones de reacciones
+          // Botones de reacciones (que incluyen el contador total)
           _buildReactionButtons(context),
         ],
       ),
@@ -47,6 +53,7 @@ class ReactionsWidget extends StatelessWidget {
         final reactionType = ReactionType.fromString(entry.key);
         final count = entry.value;
 
+        // Solo ocultar si count es 0, pero mostrar las que tienen reacciones
         if (count == 0) return const SizedBox.shrink();
 
         return Container(

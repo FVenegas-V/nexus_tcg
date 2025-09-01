@@ -6,6 +6,8 @@ import '../widgets/post_card.dart';
 import '../../../core/widgets/nexus_logo.dart';
 import '../../../core/widgets/loading_skeleton.dart';
 import '../../../core/widgets/empty_state_widget.dart';
+import '../../../core/providers/tab_navigation_provider.dart';
+import '../../communities/providers/communities_provider_new.dart';
 
 /// Pantalla principal del feed de posts con paginación infinita
 /// Implementa pull-to-refresh, scroll infinito y estados de carga
@@ -45,32 +47,36 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            // Logo de Nexus TCG
-            const NexusCardIcon(size: 32),
-            const SizedBox(width: 12),
-            const Text(
-              'NEXUS TCG',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        centerTitle: true,
+        title: const NexusLogo(size: 80),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF8B1E1E), // Color superior
+                Color(0xFFF08A8A), // Color inferior
+              ],
             ),
-          ],
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search_outlined),
+            icon: const Icon(Icons.search_outlined, color: Colors.white),
             onPressed: () {
               // TODO: Implementar búsqueda
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
             onPressed: () {
               // TODO: Implementar notificaciones
             },
           ),
         ],
         elevation: 0,
+        foregroundColor: Colors.white,
       ),
       body: Consumer<PostsProvider>(
         builder: (context, postsProvider, child) {
@@ -107,9 +113,25 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   Widget _buildEmptyState() {
-    return EmptyStates.noPosts(
-      onCreatePost: () {
-        context.push('/communities-test');
+    return Consumer<CommunitiesProvider>(
+      builder: (context, communitiesProvider, child) {
+        // Si el usuario no tiene comunidades suscritas, mostrar mensaje de bienvenida
+        if (communitiesProvider.subscribedCommunities.isEmpty) {
+          return EmptyStates.welcomeNewUser(
+            onJoinCommunity: () {
+              // Navegar al tab de comunidades en lugar de abrir una página separada
+              context.read<TabNavigationProvider>().goToCommunities();
+            },
+          );
+        }
+
+        // Si tiene comunidades pero no hay posts, mostrar mensaje original
+        return EmptyStates.noPosts(
+          onCreatePost: () {
+            // Navegar al tab de comunidades para crear posts
+            context.read<TabNavigationProvider>().goToCommunities();
+          },
+        );
       },
     );
   }

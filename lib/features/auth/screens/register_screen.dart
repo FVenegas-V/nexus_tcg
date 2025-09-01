@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/nexus_logo.dart';
 import '../providers/auth_provider.dart';
 import '../services/validation_service.dart';
-import '../widgets/gradient_header.dart';
 import '../widgets/auth_card.dart';
 import '../widgets/custom_button.dart';
 
@@ -52,12 +52,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.check_circle,
-          color: Theme.of(context).colorScheme.primary,
-          size: 48,
-        ),
+      builder: (BuildContext context) => AlertDialog(
+        icon: const Icon(Icons.check_circle, color: Colors.green, size: 64),
         title: const Text('¡Registro Exitoso!'),
         content: const Text(
           'Se ha enviado un email de verificación a tu correo. '
@@ -79,172 +75,222 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const GradientHeader(),
-            Consumer<AuthProvider>(
-              builder: (context, authProvider, child) {
-                return AuthCard(
-                  title: 'Registro',
-                  subtitle: 'Crea una nueva cuenta',
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          controller: _usernameController,
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            hintText: 'Username',
-                          ),
-                          validator: ValidationService.validateUsername,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'Email',
-                          ),
-                          validator: ValidationService.validateEmail,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          textInputAction: TextInputAction.next,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Password',
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: ValidationService.validatePassword,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirmPassword,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _handleRegister(),
-                          decoration: InputDecoration(
-                            labelText: 'Confirmar Password',
-                            hintText: 'Confirmar Password',
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: (value) =>
-                              ValidationService.validatePasswordConfirm(
-                                value,
-                                _passwordController.text,
-                              ),
-                        ),
-                        const SizedBox(height: 24),
-                        if (authProvider.errorMessage != null) ...[
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.errorContainer,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                            child: Row(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF8B1E1E), // Color superior
+              Color(0xFFF08A8A), // Color inferior
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight:
+                    MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    // Espacio superior
+                    const SizedBox(height: 40),
+                    const Center(child: NexusLogo(size: 200)),
+                    const SizedBox(height: 40),
+                    // Tarjeta de registro sin logo (ya está arriba)
+                    Consumer<AuthProvider>(
+                      builder: (context, authProvider, child) {
+                        return AuthCard(
+                          title: 'Registro',
+                          subtitle: 'Crea una nueva cuenta',
+                          showLogo: false,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  color: Theme.of(context).colorScheme.error,
-                                  size: 20,
+                                TextFormField(
+                                  controller: _usernameController,
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Username',
+                                    hintText: 'Username',
+                                  ),
+                                  validator: (value) =>
+                                      ValidationService.validateRequired(
+                                        value,
+                                        'Username',
+                                      ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    authProvider.errorMessage!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'Email',
+                                  ),
+                                  validator: (value) =>
+                                      ValidationService.validateEmail(value),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    hintText: 'Password',
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  validator: (value) =>
+                                      ValidationService.validatePassword(value),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _confirmPasswordController,
+                                  obscureText: _obscureConfirmPassword,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _handleRegister(),
+                                  decoration: InputDecoration(
+                                    labelText: 'Confirmar Password',
+                                    hintText: 'Confirmar Password',
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscureConfirmPassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscureConfirmPassword =
+                                              !_obscureConfirmPassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  validator: (value) {
+                                    if (value != _passwordController.text) {
+                                      return 'Las contraseñas no coinciden';
+                                    }
+                                    return ValidationService.validateRequired(
+                                      value,
+                                      'Confirmar Password',
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                if (authProvider.errorMessage != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.errorContainer,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.error,
+                                          size: 20,
                                         ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            authProvider.errorMessage!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.error,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                  const SizedBox(height: 16),
+                                ],
+                                CustomButton(
+                                  text: 'Registrar',
+                                  onPressed: authProvider.isLoading
+                                      ? null
+                                      : _handleRegister,
+                                  isLoading: authProvider.isLoading,
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '¿Ya tienes cuenta? ',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium,
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        authProvider.clearError();
+                                        context.go('/login');
+                                      },
+                                      child: Text(
+                                        'Login',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                        ],
-                        CustomButton(
-                          text: 'Registrar',
-                          onPressed: authProvider.isLoading
-                              ? null
-                              : _handleRegister,
-                          isLoading: authProvider.isLoading,
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '¿Ya tienes cuenta? ',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                authProvider.clearError();
-                                context.go('/login');
-                              },
-                              child: Text(
-                                'Login',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );

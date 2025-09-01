@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/community.dart';
 import '../providers/communities_provider_new.dart';
+import '../../posts/providers/posts_provider.dart';
 import '../widgets/community_card.dart';
 
 /// Pantalla de Comunidades - Lista todas las comunidades disponibles
@@ -224,8 +225,22 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               onTap: () {
                 context.push('/community/${community.id}');
               },
-              onSubscriptionToggle: () {
-                provider.toggleSubscription(community.id);
+              onSubscriptionToggle: () async {
+                await provider.toggleSubscription(community.id);
+
+                // Actualizar el feed después de cambio exitoso de suscripción
+                if (context.mounted) {
+                  try {
+                    final postsProvider = context.read<PostsProvider>();
+                    debugPrint(
+                      '🔄 Actualizando feed después de cambio de suscripción...',
+                    );
+                    await postsProvider.refreshPosts();
+                    debugPrint('✅ Feed actualizado exitosamente');
+                  } catch (e) {
+                    debugPrint('⚠️ Error al actualizar feed: $e');
+                  }
+                }
               },
             ),
           );

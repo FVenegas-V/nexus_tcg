@@ -37,7 +37,7 @@ class CommunityAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Información Básica', {
-            'fields': ('name', 'slug', 'description', 'game_type')
+            'fields': ('name', 'slug', 'description', 'game_type', 'category')
         }),
         ('Configuración', {
             'fields': ('is_public', 'difficulty_level', 'requires_approval', 'max_members')

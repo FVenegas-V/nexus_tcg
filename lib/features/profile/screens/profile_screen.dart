@@ -70,7 +70,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Mi Perfil'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: AppColors.primaryRed,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF8B1E1E), // Color superior
+                Color(0xFFF08A8A), // Color inferior
+              ],
+            ),
+          ),
+        ),
         foregroundColor: Colors.white,
         actions: [
           IconButton(

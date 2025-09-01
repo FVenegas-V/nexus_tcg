@@ -133,7 +133,12 @@ class _CommentComposerWidgetState extends State<CommentComposerWidget> {
 
   Widget _buildTextInput(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        8,
+      ), // Mejor padding horizontal
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -146,7 +151,10 @@ class _CommentComposerWidgetState extends State<CommentComposerWidget> {
             decoration: InputDecoration(
               hintText: widget.hintText,
               border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ), // Padding interno del campo
               counterText: _isExpanded
                   ? null
                   : '', // Ocultar contador cuando no está expandido

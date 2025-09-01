@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/community.dart';
 import '../providers/communities_provider_new.dart';
+import '../../posts/providers/posts_provider.dart';
 import 'join_leave_button.dart';
 
 /// Widget de tarjeta de comunidad con funcionalidad join/leave integrada
@@ -142,24 +143,51 @@ class CommunityCardWithJoinLeave extends StatelessWidget {
                       isLoading: provider.isJoinLeaveLoading(community.id),
                       isCompact: true,
                       onPressed: () async {
+                        final wasSubscribed = community.isSubscribed;
                         await provider.toggleSubscription(community.id);
 
                         if (context.mounted) {
+                          // Actualizar el feed después de cambio exitoso de suscripción
+                          try {
+                            final postsProvider = context.read<PostsProvider>();
+                            debugPrint(
+                              '🔄 Actualizando feed después de cambio de suscripción...',
+                            );
+                            await postsProvider.refreshPosts();
+                            debugPrint('✅ Feed actualizado exitosamente');
+                          } catch (e) {
+                            debugPrint('⚠️ Error al actualizar feed: $e');
+                          }
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                community.isSubscribed
+                                wasSubscribed
                                     ? 'Has salido de ${community.name}'
                                     : 'Te has unido a ${community.name}',
                               ),
-                              backgroundColor: community.isSubscribed
+                              backgroundColor: wasSubscribed
                                   ? Colors.orange
                                   : Colors.green,
                               duration: const Duration(seconds: 2),
                               action: SnackBarAction(
                                 label: 'Deshacer',
-                                onPressed: () {
-                                  provider.toggleSubscription(community.id);
+                                onPressed: () async {
+                                  await provider.toggleSubscription(
+                                    community.id,
+                                  );
+                                  // También actualizar el feed cuando se deshace
+                                  if (context.mounted) {
+                                    try {
+                                      final postsProvider = context
+                                          .read<PostsProvider>();
+                                      await postsProvider.refreshPosts();
+                                    } catch (e) {
+                                      debugPrint(
+                                        '⚠️ Error al actualizar feed en deshacer: $e',
+                                      );
+                                    }
+                                  }
                                 },
                               ),
                             ),

@@ -519,7 +519,16 @@ class PostsState extends ChangeNotifier {
   }
 
   void _updatePostsCache(List<Post> posts) {
+    debugPrint(
+      '🔍 DEBUG: _updatePostsCache - Actualizando ${posts.length} posts en cache',
+    );
     for (final post in posts) {
+      debugPrint('🔍 DEBUG: _updatePostsCache - Post ${post.id}:');
+      debugPrint('  - reactionsCount: ${post.reactionsCount}');
+      debugPrint('  - reactionsBreakdown: ${post.reactionsBreakdown}');
+      debugPrint(
+        '  - reactionsBreakdown.isEmpty: ${post.reactionsBreakdown.isEmpty}',
+      );
       _postsCache[post.id] = post;
     }
   }

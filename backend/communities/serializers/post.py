@@ -52,13 +52,15 @@ class PostListSerializer(serializers.ModelSerializer):
     user_reaction = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
     can_delete = serializers.SerializerMethodField()
+    reaction_breakdown = serializers.SerializerMethodField()
     
     class Meta:
         model = Post
         fields = [
             'id', 'title', 'excerpt', 'author', 'community',
             'created_at', 'updated_at', 'comment_count', 'reaction_count',
-            'image_count', 'has_images', 'thumbnail_url', 'user_reaction', 'can_edit', 'can_delete'
+            'image_count', 'has_images', 'thumbnail_url', 'user_reaction', 'can_edit', 'can_delete',
+            'reaction_breakdown'
         ]
     
     def get_thumbnail_url(self, obj):
@@ -106,6 +108,13 @@ class PostListSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return False
         return obj.can_delete(request.user)
+    
+    def get_reaction_breakdown(self, obj):
+        """Obtener estadísticas de reacciones para este post."""
+        from ..models import Reaction
+        breakdown = Reaction.get_reaction_breakdown(obj)
+        print(f"🔍 DEBUG PostListSerializer - Post {obj.id} breakdown: {breakdown}")
+        return breakdown
 
 
 class PostDetailSerializer(serializers.ModelSerializer):

@@ -36,21 +36,30 @@ class CommunityDetailScreen extends StatelessWidget {
                       'community-card-${community.id}', // Mismo tag que en la lista
                   child: Material(
                     color: Colors.transparent,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Información de la comunidad
-                        _buildCommunityInfo(context, community),
+                    child: SingleChildScrollView(
+                      physics:
+                          const NeverScrollableScrollPhysics(), // Evita doble scroll
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 100,
+                        ), // Espacio para FABs
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Información de la comunidad
+                            _buildCommunityInfo(context, community),
 
-                        // Estadísticas
-                        _buildCommunityStats(context, community),
+                            // Estadísticas
+                            _buildCommunityStats(context, community),
 
-                        // Tags de la comunidad
-                        _buildCommunityTags(context, community),
+                            // Tags de la comunidad
+                            _buildCommunityTags(context, community),
 
-                        // Sección de posts (mock)
-                        _buildPostsSection(context, community),
-                      ],
+                            // Sección de posts (mock)
+                            _buildPostsSection(context, community),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -59,24 +68,26 @@ class CommunityDetailScreen extends StatelessWidget {
           ),
 
           // Botones flotantes: suscripción y crear post
-          floatingActionButton: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Botón para crear post (solo si está suscrito)
-              if (community.isSubscribed) ...[
-                FloatingActionButton(
-                  heroTag: "create_post_fab",
-                  onPressed: () {
-                    // Pasar el ID de la comunidad para crear post
-                    context.push('/create-post?communityId=${community.id}');
-                  },
-                  child: const Icon(Icons.add),
-                ),
-                const SizedBox(height: 16),
+          floatingActionButton: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Botón para crear post (solo si está suscrito)
+                if (community.isSubscribed) ...[
+                  FloatingActionButton(
+                    heroTag: "create_post_fab",
+                    onPressed: () {
+                      // Pasar el ID de la comunidad para crear post
+                      context.push('/create-post?communityId=${community.id}');
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                // Botón de suscripción
+                _buildSubscriptionFAB(context, community, provider),
               ],
-              // Botón de suscripción
-              _buildSubscriptionFAB(context, community, provider),
-            ],
+            ),
           ),
         );
       },
@@ -251,7 +262,9 @@ class CommunityDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Tipo de juego y dificultad
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -270,7 +283,6 @@ class CommunityDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -564,16 +576,30 @@ class CommunityDetailScreen extends StatelessWidget {
       onPressed: provider.isJoinLeaveLoading(community.id)
           ? null
           : () async {
+              final wasSubscribed = community.isSubscribed;
               await provider.toggleSubscription(community.id);
+
+              // Actualizar el feed después de cambio exitoso de suscripción
               if (context.mounted) {
+                try {
+                  final postsProvider = context.read<PostsProvider>();
+                  debugPrint(
+                    '🔄 Actualizando feed después de cambio de suscripción...',
+                  );
+                  await postsProvider.refreshPosts();
+                  debugPrint('✅ Feed actualizado exitosamente');
+                } catch (e) {
+                  debugPrint('⚠️ Error al actualizar feed: $e');
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      community.isSubscribed
+                      wasSubscribed
                           ? 'Has salido de ${community.name}'
                           : 'Te has unido a ${community.name}',
                     ),
-                    backgroundColor: community.isSubscribed
+                    backgroundColor: wasSubscribed
                         ? Colors.orange
                         : Colors.green,
                   ),

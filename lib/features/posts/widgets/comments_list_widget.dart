@@ -173,33 +173,39 @@ class _CommentsListWidgetState extends State<CommentsListWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Comentario principal
-        CommentWidget(
-          comment: comment,
-          onReact: (reactionType) {
-            provider.reactToComment(comment.id, reactionType);
-          },
-          onReply: () {
-            _startReply(comment);
-          },
-          onEdit: comment.canBeEdited
-              ? (newContent) {
-                  provider.updateComment(
-                    widget.communityId,
-                    comment.id,
-                    newContent,
-                    postId: widget.postId,
-                  );
-                }
-              : null,
-          onDelete: comment.canDelete
-              ? () {
-                  _deleteComment(context, provider, comment);
-                }
-              : null,
-          onTap: widget.onCommentTap != null
-              ? () => widget.onCommentTap!(comment)
-              : null,
+        // Comentario principal con padding
+        Padding(
+          padding: EdgeInsets.only(
+            left: _getIndentationForLevel(comment.threadLevel),
+            right: 16,
+          ),
+          child: CommentWidget(
+            comment: comment,
+            onReact: (reactionType) {
+              provider.reactToComment(comment.id, reactionType);
+            },
+            onReply: () {
+              _startReply(comment);
+            },
+            onEdit: comment.canBeEdited
+                ? (newContent) {
+                    provider.updateComment(
+                      widget.communityId,
+                      comment.id,
+                      newContent,
+                      postId: widget.postId,
+                    );
+                  }
+                : null,
+            onDelete: comment.canDelete
+                ? () {
+                    _deleteComment(context, provider, comment);
+                  }
+                : null,
+            onTap: widget.onCommentTap != null
+                ? () => widget.onCommentTap!(comment)
+                : null,
+          ),
         ),
 
         // Respuestas anidadas
@@ -211,6 +217,7 @@ class _CommentsListWidgetState extends State<CommentsListWidget> {
           Padding(
             padding: EdgeInsets.only(
               left: _getIndentationForLevel(comment.threadLevel + 1),
+              right: 16,
               top: 8,
             ),
             child: _buildReplyComposer(context, provider, comment),
@@ -229,6 +236,7 @@ class _CommentsListWidgetState extends State<CommentsListWidget> {
         return Padding(
           padding: EdgeInsets.only(
             left: _getIndentationForLevel(reply.threadLevel),
+            right: 16,
           ),
           child: Column(
             children: [
@@ -271,6 +279,7 @@ class _CommentsListWidgetState extends State<CommentsListWidget> {
                 Padding(
                   padding: EdgeInsets.only(
                     left: _getIndentationForLevel(reply.threadLevel + 1),
+                    right: 16,
                     top: 8,
                   ),
                   child: _buildReplyComposer(context, provider, reply),
@@ -487,13 +496,13 @@ class _CommentsListWidgetState extends State<CommentsListWidget> {
   double _getIndentationForLevel(int level) {
     switch (level) {
       case 0:
-        return 0;
+        return 16; // Padding inicial para todos los comentarios
       case 1:
-        return 24;
+        return 40; // Respuestas de primer nivel
       case 2:
-        return 48;
+        return 64; // Respuestas de segundo nivel
       default:
-        return 48; // Máximo 3 niveles
+        return 64; // Máximo 3 niveles
     }
   }
 }

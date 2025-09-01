@@ -31,7 +31,19 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
             ),
             centerTitle: true,
             elevation: 0,
-            backgroundColor: const Color(0xFFE57373),
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF8B1E1E), // Color superior
+                    Color(0xFFF08A8A), // Color inferior
+                  ],
+                ),
+              ),
+            ),
+            foregroundColor: Colors.white,
             actions: [
               IconButton(
                 icon: Stack(
@@ -67,51 +79,41 @@ class _CommunitiesScreenSimpleState extends State<CommunitiesScreenSimple> {
               ),
             ],
           ),
-          body: Container(
-            color: const Color(0xFFE57373), // Fondo del color del AppBar
+          body: RefreshIndicator(
+            onRefresh: () => provider.refreshCommunities(),
+            color: const Color(0xFF8B1E1E),
             child: Container(
-              margin: const EdgeInsets.only(top: 20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  topRight: Radius.circular(25),
-                ),
-              ),
-              child: RefreshIndicator(
-                onRefresh: () => provider.refreshCommunities(),
-                color: const Color(0xFFE57373),
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    // Estados mejorados: loading, error, empty, content
-                    if (provider.isLoading)
-                      _buildLoadingState()
-                    else if (provider.hasError)
-                      _buildErrorState(provider.errorMessage, provider)
-                    else if (provider.isEmpty)
-                      _buildEmptyState(context)
-                    else
-                      ...provider.communities.map(
-                        (community) => Column(
-                          children: [
-                            _buildCommunityCard(
-                              context,
-                              community.name,
-                              '${community.memberCount} miembros',
-                              community.description,
-                              _getColorForGameType(community.gameType),
-                              _getIconForGameType(community.gameType),
-                              community.id,
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
+              decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  // Estados mejorados: loading, error, empty, content
+                  if (provider.isLoading)
+                    _buildLoadingState()
+                  else if (provider.hasError)
+                    _buildErrorState(provider.errorMessage, provider)
+                  else if (provider.isEmpty)
+                    _buildEmptyState(context)
+                  else
+                    ...provider.communities.map(
+                      (community) => Column(
+                        children: [
+                          _buildCommunityCard(
+                            context,
+                            community.name,
+                            '${community.memberCount} miembros',
+                            community.description,
+                            _getColorForGameType(community.gameType),
+                            _getIconForGameType(community.gameType),
+                            community.id,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                       ),
-                  ],
-                ), // Cerrar ListView
-              ), // Cerrar RefreshIndicator
+                    ),
+                ],
+              ),
             ),
           ),
         ); // Cerrar Scaffold

@@ -110,6 +110,17 @@ class EmptyStates {
     );
   }
 
+  static EmptyStateWidget welcomeNewUser({VoidCallback? onJoinCommunity}) {
+    return EmptyStateWidget(
+      icon: Icons.celebration,
+      title: '¡Bienvenido a Nexus TCG! 🎉',
+      description:
+          'Únete a comunidades de tus juegos favoritos para ver posts y participar en conversaciones emocionantes',
+      actionText: onJoinCommunity != null ? 'Explorar comunidades' : null,
+      onActionPressed: onJoinCommunity,
+    );
+  }
+
   static EmptyStateWidget searchNoResults(String query) {
     return EmptyStateWidget(
       icon: Icons.search_off,

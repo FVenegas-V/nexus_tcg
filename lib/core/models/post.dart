@@ -58,17 +58,69 @@ class Post {
     this.reactionsBreakdown = const {},
   });
 
+  /// Procesa el reactions_breakdown del backend y lo convierte al formato esperado
+  static Map<String, int> _parseReactionsBreakdown(dynamic breakdown) {
+    print("🔍 DEBUG Post._parseReactionsBreakdown - Input: $breakdown");
+    if (breakdown == null) return {};
+
+    // Si tiene la estructura nueva del backend: {total_count: X, breakdown: {...}}
+    if (breakdown is Map<String, dynamic> &&
+        breakdown.containsKey('breakdown')) {
+      print("🔍 DEBUG Post._parseReactionsBreakdown - Formato nuevo detectado");
+      final reactionsMap =
+          breakdown['breakdown'] as Map<String, dynamic>? ?? {};
+      final result = <String, int>{};
+
+      reactionsMap.forEach((key, value) {
+        if (value is Map<String, dynamic> && value.containsKey('count')) {
+          result[key] = _parseIntSafely(value['count']);
+        }
+      });
+
+      print("🔍 DEBUG Post._parseReactionsBreakdown - Resultado: $result");
+      return result;
+    }
+
+    // Si ya es un Map<String, int> directo (formato anterior)
+    if (breakdown is Map<String, dynamic> &&
+        breakdown.keys.any((key) => breakdown[key] is int)) {
+      print(
+        "🔍 DEBUG Post._parseReactionsBreakdown - Formato anterior detectado",
+      );
+      return Map<String, int>.from(breakdown);
+    }
+
+    print(
+      "🔍 DEBUG Post._parseReactionsBreakdown - Formato no reconocido, retornando vacío",
+    );
+    return {};
+  }
+
+  /// Parsea un valor a int de forma segura
+  static int _parseIntSafely(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
   /// Crear Post desde JSON (response del backend)
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['id'] as int,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id'].toString()) ?? 0,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? json['excerpt'] as String? ?? '',
 
       // Manejar comunidad (puede venir como objeto o campos planos)
       communityId:
           json['community_id'] as int? ??
-          (json['community'] != null ? json['community']['id'] as int : 0),
+          (json['community'] != null
+              ? (json['community']['id'] is int
+                    ? json['community']['id'] as int
+                    : int.tryParse(json['community']['id'].toString()) ?? 0)
+              : 0),
       communityName:
           json['community_name'] as String? ??
           (json['community'] != null
@@ -79,7 +131,11 @@ class Post {
       // Manejar autor (puede venir como objeto o campos planos)
       authorId:
           json['author_id'] as int? ??
-          (json['author'] != null ? json['author']['id'] as int : 0),
+          (json['author'] != null
+              ? (json['author']['id'] is int
+                    ? json['author']['id'] as int
+                    : int.tryParse(json['author']['id'].toString()) ?? 0)
+              : 0),
       authorUsername:
           json['author_username'] as String? ??
           (json['author'] != null
@@ -99,12 +155,12 @@ class Post {
       isDeleted: json['is_deleted'] as bool? ?? false,
 
       // Manejar contadores (diferentes nombres en backend)
-      commentsCount:
-          json['comments_count'] as int? ?? json['comment_count'] as int? ?? 0,
-      reactionsCount:
-          json['reactions_count'] as int? ??
-          json['reaction_count'] as int? ??
-          0,
+      commentsCount: _parseIntSafely(
+        json['comments_count'] ?? json['comment_count'],
+      ),
+      reactionsCount: _parseIntSafely(
+        json['reactions_count'] ?? json['reaction_count'],
+      ),
 
       images: json['images'] != null
           ? (json['images'] as List)
@@ -117,9 +173,35 @@ class Post {
       hasImages: json['has_images'] as bool? ?? false,
 
       userReaction: json['user_reaction'] as String?,
-      reactionsBreakdown: json['reactions_breakdown'] != null
-          ? Map<String, int>.from(json['reactions_breakdown'])
-          : {},
+      reactionsBreakdown: () {
+        print(
+          "🔍 DEBUG Post.fromJson - Post ${json['id']} iniciando parsing reaction_breakdown",
+        );
+        print(
+          "🔍 DEBUG Post.fromJson - json['reaction_breakdown'] != null: ${json['reaction_breakdown'] != null}",
+        );
+        print(
+          "🔍 DEBUG Post.fromJson - json['reaction_breakdown']: ${json['reaction_breakdown']}",
+        );
+
+        if (json['reaction_breakdown'] != null) {
+          print(
+            "🔍 DEBUG Post.fromJson - Procesando reaction_breakdown para post ${json['id']}",
+          );
+          final result = Post._parseReactionsBreakdown(
+            json['reaction_breakdown'],
+          );
+          print(
+            "🔍 DEBUG Post.fromJson - Post ${json['id']} reactionsBreakdown final: $result",
+          );
+          return result;
+        } else {
+          print(
+            "🔍 DEBUG Post.fromJson - Post ${json['id']} reaction_breakdown es null, retornando {}",
+          );
+          return <String, int>{};
+        }
+      }(),
     );
   }
 

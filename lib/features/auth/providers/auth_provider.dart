@@ -118,11 +118,11 @@ class AuthProvider extends ChangeNotifier {
 
         return true;
       } else {
-        _setError(result['message']);
+        _setError(result['message'] ?? 'Credenciales inválidas');
         return false;
       }
     } catch (e) {
-      _setError('Error de conexión');
+      _setError('Error de conexión con el servidor');
       return false;
     }
   }
@@ -152,7 +152,7 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      _setError('Error de conexión');
+      _setError('Error de conexión con el servidor');
       return false;
     }
   }
@@ -205,7 +205,7 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      _setError('Error de conexión');
+      _setError('Error de conexión con el servidor');
       return false;
     }
   }

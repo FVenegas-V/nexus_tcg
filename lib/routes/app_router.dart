@@ -14,7 +14,6 @@ import '../features/profile/screens/edit_profile_screen.dart';
 import '../features/profile/screens/edit_extended_profile_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/settings_screen.dart';
-import '../features/testing/screens/phase2_test_screen.dart';
 import '../features/communities/screens/communities_screen_simple.dart';
 import '../features/reputation/screens/leaderboard_screen.dart';
 import '../features/reputation/screens/reputation_dashboard_screen.dart';
@@ -72,12 +71,6 @@ class AppRouter {
         path: '/forgot-password',
         name: 'forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
-      ),
-      // Ruta de prueba para Fase 2 APIs
-      GoRoute(
-        path: '/phase2-test',
-        name: 'phase2-test',
-        builder: (context, state) => const Phase2TestScreen(),
       ),
       // Ruta de prueba para Communities APIs
       GoRoute(

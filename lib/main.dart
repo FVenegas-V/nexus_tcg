@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/http_service.dart';
 import 'core/services/comments_service.dart';
+import 'core/providers/tab_navigation_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/communities/providers/communities_provider_new.dart';
 import 'features/posts/providers/posts_provider.dart';
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => ReputationProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
+        ChangeNotifierProvider(create: (_) => TabNavigationProvider()),
       ],
       child: MaterialApp.router(
         title: 'Nexus TCG',

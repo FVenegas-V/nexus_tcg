@@ -78,14 +78,38 @@ class AuthService {
           };
         } else {
           debugPrint('❌ Login fallido con código: ${response.statusCode}');
+          debugPrint('📄 Response data en error: ${response.data}');
+
+          // Manejo específico de códigos de estado
+          if (response.statusCode == 401 || response.statusCode == 400) {
+            return {
+              'success': false,
+              'message': 'Credenciales inválidas',
+              'isReal': true,
+            };
+          } else {
+            return {
+              'success': false,
+              'message': 'Error del servidor (${response.statusCode})',
+              'isReal': true,
+            };
+          }
+        }
+      } catch (e) {
+        debugPrint('🚨 Error en API real: $e');
+        debugPrint('🔍 Tipo de error: ${e.runtimeType}');
+
+        // Si es un error HTTP de credenciales (401, 400), mostrar mensaje específico
+        if (e.toString().contains('401') ||
+            e.toString().contains('400') ||
+            e.toString().toLowerCase().contains('credenciales')) {
           return {
             'success': false,
             'message': 'Credenciales inválidas',
             'isReal': true,
           };
         }
-      } catch (e) {
-        debugPrint('🚨 Error en API real: $e');
+
         return {
           'success': false,
           'message': 'Error de conexión con el servidor',
