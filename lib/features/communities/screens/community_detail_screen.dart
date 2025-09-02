@@ -2,27 +2,169 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/community.dart';
+import '../../../core/models/post.dart';
+import '../../../core/services/communities_service.dart';
+import '../../../core/services/posts_service.dart';
 import '../providers/communities_provider_new.dart';
 import '../../posts/providers/posts_provider.dart';
 import '../../posts/widgets/post_card.dart';
+import '../../posts/screens/create_post_screen.dart';
+import 'community_posts_screen.dart';
 
 /// Pantalla de detalle de una comunidad específica
 /// Muestra información completa, posts y permite suscribirse
-class CommunityDetailScreen extends StatelessWidget {
+class CommunityDetailScreen extends StatefulWidget {
   final int communityId;
 
   const CommunityDetailScreen({super.key, required this.communityId});
 
   @override
+  State<CommunityDetailScreen> createState() => _CommunityDetailScreenState();
+}
+
+class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
+  Community? _communityDetail;
+  bool _isLoadingDetail = true;
+  String? _errorMessage;
+  final CommunitiesService _communitiesService = CommunitiesService();
+
+  // Variables para manejar posts de la comunidad
+  List<Post> _communityPosts = [];
+  bool _isLoadingPosts = true;
+  final PostsService _postsService = PostsService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCommunityDetail();
+    _loadCommunityPosts();
+  }
+
+  /// Cargar el detalle completo de la comunidad
+  Future<void> _loadCommunityDetail() async {
+    try {
+      setState(() {
+        _isLoadingDetail = true;
+        _errorMessage = null;
+      });
+
+      final communityDetail = await _communitiesService.getCommunity(
+        widget.communityId,
+      );
+
+      // Debug: verificar qué postCount está llegando
+      print('🏘️ Community detail loaded: ${communityDetail.name}');
+      print('🏘️ PostCount from backend: ${communityDetail.postCount}');
+      print('🏘️ IsSubscribed from backend: ${communityDetail.isSubscribed}');
+
+      if (mounted) {
+        setState(() {
+          _communityDetail = communityDetail;
+          _isLoadingDetail = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoadingDetail = false;
+        });
+      }
+    }
+  }
+
+  /// Actualizar silenciosamente el detalle de la comunidad sin mostrar loading
+  Future<void> _refreshCommunityDetail() async {
+    try {
+      final communityDetail = await _communitiesService.getCommunity(
+        widget.communityId,
+      );
+
+      print('🔄 Community detail refreshed silently: ${communityDetail.name}');
+      print('🔄 IsSubscribed after refresh: ${communityDetail.isSubscribed}');
+
+      if (mounted) {
+        setState(() {
+          _communityDetail = communityDetail;
+        });
+      }
+    } catch (e) {
+      print('❌ Error refreshing community detail: $e');
+      // No mostramos error UI para no interrumpir la experiencia
+    }
+  }
+
+  /// Cargar los posts específicos de esta comunidad
+  Future<void> _loadCommunityPosts() async {
+    try {
+      setState(() {
+        _isLoadingPosts = true;
+      });
+
+      final posts = await _postsService.getPosts(
+        communityId: widget.communityId,
+        ordering: '-created_at', // Más recientes primero
+        pageSize: 50, // Aumentar para mostrar más posts
+      );
+
+      // Debug: verificar cuántos posts se cargaron
+      print(
+        '📝 Posts loaded for community ${widget.communityId}: ${posts.length}',
+      );
+
+      // Debug crítico: mostrar cada post y su comunidad
+      for (int i = 0; i < posts.length && i < 5; i++) {
+        final post = posts[i];
+        print(
+          '🔍 Post $i: "${post.title}" - Community: ${post.communityName} (ID: ${post.communityId})',
+        );
+      }
+
+      if (mounted) {
+        setState(() {
+          _communityPosts = posts;
+          _isLoadingPosts = false;
+        });
+      }
+    } catch (e) {
+      print('❌ Error loading community posts: $e');
+      if (mounted) {
+        setState(() {
+          _communityPosts = [];
+          _isLoadingPosts = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Si está cargando el detalle, mostrar loading
+    if (_isLoadingDetail) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Cargando...')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Si hubo error cargando el detalle
+    if (_errorMessage != null) {
+      return _buildErrorScreen(context);
+    }
+
+    // Si no hay detalle, usar datos del provider como fallback
+    final community =
+        _communityDetail ??
+        context.read<CommunitiesProvider>().getCommunityById(
+          widget.communityId,
+        );
+
+    if (community == null) {
+      return _buildNotFoundScreen(context);
+    }
+
     return Consumer<CommunitiesProvider>(
       builder: (context, provider, child) {
-        final community = provider.getCommunityById(communityId);
-
-        if (community == null) {
-          return _buildNotFoundScreen(context);
-        }
-
         return Scaffold(
           body: CustomScrollView(
             slivers: [
@@ -76,9 +218,22 @@ class CommunityDetailScreen extends StatelessWidget {
                 if (community.isSubscribed) ...[
                   FloatingActionButton(
                     heroTag: "create_post_fab",
-                    onPressed: () {
-                      // Pasar el ID de la comunidad para crear post
-                      context.push('/create-post?communityId=${community.id}');
+                    onPressed: () async {
+                      // Navegar a crear post y esperar resultado
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreatePostScreen(
+                            preselectedCommunityId: community.id,
+                          ),
+                        ),
+                      );
+
+                      // Si se creó un post exitosamente, recargar
+                      if (result == true) {
+                        await _loadCommunityPosts();
+                        await _refreshCommunityDetail();
+                      }
                     },
                     child: const Icon(Icons.add),
                   ),
@@ -131,6 +286,49 @@ class CommunityDetailScreen extends StatelessWidget {
                 onPressed: () => context.pop(),
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Volver'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Construye la pantalla de error
+  Widget _buildErrorScreen(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Error')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Error al cargar comunidad',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage ?? 'Error desconocido',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _loadCommunityDetail,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reintentar'),
               ),
             ],
           ),
@@ -361,11 +559,14 @@ class CommunityDetailScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(
-            context,
-            icon: Icons.people,
-            label: 'Miembros',
-            value: _formatMemberCount(community.memberCount),
+          GestureDetector(
+            onTap: () => _showMembersList(context, community),
+            child: _buildStatItem(
+              context,
+              icon: Icons.people,
+              label: 'Miembros',
+              value: _formatMemberCount(community.memberCount),
+            ),
           ),
           _buildStatItem(
             context,
@@ -377,8 +578,7 @@ class CommunityDetailScreen extends StatelessWidget {
             context,
             icon: Icons.article,
             label: 'Posts',
-            value:
-                '${(community.memberCount * 0.15).round()}', // Mock calculation
+            value: '${community.postCount}', // Usar valor real del backend
           ),
         ],
       ),
@@ -453,11 +653,10 @@ class CommunityDetailScreen extends StatelessWidget {
   Widget _buildPostsSection(BuildContext context, Community community) {
     return Consumer<PostsProvider>(
       builder: (context, postsProvider, child) {
-        // Filtrar posts de esta comunidad específica
-        final communityPosts = postsProvider.posts
-            .where((post) => post.communityId == community.id)
-            .take(3) // Mostrar solo los primeros 3
-            .toList();
+        // Usar los posts cargados específicamente para esta comunidad
+        final postsToShow = _communityPosts.length > 6
+            ? _communityPosts.take(6).toList()
+            : _communityPosts;
 
         return Padding(
           padding: const EdgeInsets.all(24),
@@ -473,9 +672,27 @@ class CommunityDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  // Mostrar contador de posts real del backend
+                  Text(
+                    '${community.postCount} posts',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navegar a todos los posts de la comunidad
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CommunityPostsScreen(
+                            communityId: widget.communityId,
+                            communityName: community.name,
+                          ),
+                        ),
+                      );
                     },
                     child: const Text('Ver todos'),
                   ),
@@ -483,19 +700,41 @@ class CommunityDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // Mostrar loading si se están cargando los posts
+              if (_isLoadingPosts)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
               // Posts reales o mensaje si no hay
-              if (communityPosts.isEmpty)
+              else if (postsToShow.isEmpty)
                 _buildNoPosts(context)
               else
-                ...communityPosts
+                ...postsToShow
                     .map(
                       (post) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: PostCard(
                           post: post,
-                          onTap: () => context.go('/post/${post.id}'),
+                          onTap: () {
+                            final targetRoute =
+                                '/post/${post.id}?from=community&communityId=${community.id}';
+                            print(
+                              '🏘️ Navegando desde comunidad: $targetRoute',
+                            );
+                            context.push(targetRoute);
+                          },
                           onLike: () => postsProvider.toggleLike(post.id),
-                          onComment: () => context.go('/post/${post.id}'),
+                          onComment: () {
+                            final targetRoute =
+                                '/post/${post.id}?from=community&communityId=${community.id}';
+                            print(
+                              '🏘️ Navegando desde comunidad (comment): $targetRoute',
+                            );
+                            context.push(targetRoute);
+                          },
                           onShare: () => _showShareSnackbar(context),
                           onBookmark: () =>
                               postsProvider.toggleBookmark(post.id),
@@ -571,63 +810,119 @@ class CommunityDetailScreen extends StatelessWidget {
     Community community,
     CommunitiesProvider provider,
   ) {
-    return FloatingActionButton.extended(
-      heroTag: "community_subscription_fab",
-      onPressed: provider.isJoinLeaveLoading(community.id)
-          ? null
-          : () async {
-              final wasSubscribed = community.isSubscribed;
-              await provider.toggleSubscription(community.id);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: FloatingActionButton.extended(
+        heroTag: "community_subscription_fab",
+        backgroundColor: provider.isJoinLeaveLoading(community.id)
+            ? Theme.of(context).colorScheme.surfaceVariant
+            : (community.isSubscribed
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary),
+        onPressed: provider.isJoinLeaveLoading(community.id)
+            ? null
+            : () async {
+                final wasSubscribed = community.isSubscribed;
 
-              // Actualizar el feed después de cambio exitoso de suscripción
-              if (context.mounted) {
-                try {
-                  final postsProvider = context.read<PostsProvider>();
-                  debugPrint(
-                    '🔄 Actualizando feed después de cambio de suscripción...',
+                // Mostrar feedback inmediato optimista
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        wasSubscribed
+                            ? 'Saliendo de ${community.name}...'
+                            : 'Uniéndose a ${community.name}...',
+                      ),
+                      backgroundColor: Colors.blue,
+                      duration: const Duration(milliseconds: 1500),
+                    ),
                   );
-                  await postsProvider.refreshPosts();
-                  debugPrint('✅ Feed actualizado exitosamente');
-                } catch (e) {
-                  debugPrint('⚠️ Error al actualizar feed: $e');
                 }
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      wasSubscribed
-                          ? 'Has salido de ${community.name}'
-                          : 'Te has unido a ${community.name}',
-                    ),
-                    backgroundColor: wasSubscribed
-                        ? Colors.orange
-                        : Colors.green,
+                try {
+                  // Operación principal de suscripción
+                  await provider.toggleSubscription(community.id);
+
+                  // Actualizar UI inmediatamente después del toggle exitoso
+                  if (context.mounted) {
+                    // Actualizar silenciosamente el detalle de la comunidad
+                    _refreshCommunityDetail();
+
+                    // Mostrar mensaje de éxito
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          wasSubscribed
+                              ? 'Has salido de ${community.name}'
+                              : 'Te has unido a ${community.name}',
+                        ),
+                        backgroundColor: wasSubscribed
+                            ? Colors.orange
+                            : Colors.green,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+
+                    // Actualizar feed en background sin bloquear UI
+                    _updateFeedInBackground();
+                  }
+                } catch (e) {
+                  // Manejar errores
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
+              },
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(scale: animation, child: child);
+          },
+          child: provider.isJoinLeaveLoading(community.id)
+              ? const SizedBox(
+                  key: ValueKey('loading'),
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
-                );
-              }
-            },
-      icon: provider.isJoinLeaveLoading(community.id)
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : Icon(
-              community.isSubscribed ? Icons.check_circle : Icons.add_circle,
+                )
+              : Icon(
+                  community.isSubscribed
+                      ? Icons.check_circle
+                      : Icons.add_circle,
+                  key: ValueKey(
+                    community.isSubscribed ? 'subscribed' : 'unsubscribed',
+                  ),
+                ),
+        ),
+        label: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: Text(
+            provider.isJoinLeaveLoading(community.id)
+                ? 'Procesando...'
+                : (community.isSubscribed ? 'Unido' : 'Unirse'),
+            key: ValueKey(
+              provider.isJoinLeaveLoading(community.id)
+                  ? 'loading'
+                  : (community.isSubscribed ? 'subscribed' : 'unsubscribed'),
             ),
-      label: Text(
-        provider.isJoinLeaveLoading(community.id)
-            ? 'Procesando...'
-            : (community.isSubscribed ? 'Unido' : 'Unirse'),
+          ),
+        ),
       ),
-      backgroundColor: provider.isJoinLeaveLoading(community.id)
-          ? Theme.of(context).colorScheme.surfaceVariant
-          : (community.isSubscribed
-                ? Theme.of(context).colorScheme.secondary
-                : Theme.of(context).colorScheme.primary),
     );
   }
 
@@ -679,5 +974,124 @@ class CommunityDetailScreen extends StatelessWidget {
       default:
         return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     }
+  }
+
+  /// Muestra el modal con la lista de miembros de la comunidad
+  void _showMembersList(BuildContext context, Community community) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          maxChildSize: 0.9,
+          minChildSize: 0.3,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Barra de arrastre
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+
+                  // Título
+                  Text(
+                    'Miembros de ${community.name}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${community.memberCount} miembros',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Lista de miembros (placeholder por ahora)
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: 10, // Placeholder - en futuro será dinámico
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            child: Text(
+                              'M${index + 1}',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text('Miembro ${index + 1}'),
+                          subtitle: Text('Unido hace ${index + 1} días'),
+                          trailing: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                          onTap: () {
+                            // TODO: Navegar al perfil del miembro
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Perfil de Miembro ${index + 1}'),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Actualizar el feed en background sin bloquear la UI
+  Future<void> _updateFeedInBackground() async {
+    // Ejecutar en el siguiente frame para no bloquear la UI actual
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final postsProvider = context.read<PostsProvider>();
+        debugPrint('🔄 Actualizando feed en background...');
+        await postsProvider.refreshPosts();
+        debugPrint('✅ Feed actualizado exitosamente en background');
+      } catch (e) {
+        debugPrint('⚠️ Error al actualizar feed en background: $e');
+      }
+    });
   }
 }

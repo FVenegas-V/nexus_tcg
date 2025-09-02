@@ -2,12 +2,12 @@
 Configuración simple del panel de administración para depuración.
 TEMPORALMENTE DESHABILITADO - usar admin_safe.py
 """
-# from django.contrib import admin
-# from django.utils.html import format_html
-# from .models import (
-#     CommunityCategory, Community, CommunityMembership, CommunityTag,
-#     Post, Comment, Reaction
-# )
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import (
+    CommunityCategory, Community, CommunityMembership, CommunityTag,
+    Post, Comment, Reaction
+)
 
 # Todo el contenido del admin está temporalmente comentado para debugging
 # Usar communities/admin_safe.py para operaciones básicas

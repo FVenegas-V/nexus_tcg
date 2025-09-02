@@ -420,7 +420,7 @@ def calculate_reputation_score(user, ratings_received):
 
 ### Fase 5: Sistema de Notificaciones (Semana 11-12)
 **Objetivo**: Sistema de notificaciones en tiempo real para MVP  
-**Estado**: 🔄 **PLANIFICADA** - Estrategia MVP con Polling
+**Estado**: � **EN PROGRESO** (1/5 tickets completados) - Estrategia MVP con Polling
 
 #### Decisión de Implementación ✅
 **Estrategia Original vs MVP Adoptada:**
@@ -435,52 +435,109 @@ def calculate_reputation_score(user, ratings_received):
 - **Migración futura**: Fácil upgrade a push notifications post-MVP
 
 #### Funcionalidades Core MVP
-- [ ] **fase5-0001**: Sistema de notificaciones backend (modelos + APIs)
+- [x] ✅ **fase5-0001**: Sistema de notificaciones backend (modelos + APIs) - **✅ COMPLETADO (31 agosto 2025)**
 - [ ] **fase5-0002**: Polling inteligente en Flutter con configuración adaptativa
 - [ ] **fase5-0003**: UI de notificaciones con badges y listas
-- [ ] **fase5-0004**: Notificaciones email como fallback para actividad crítica
+- [x] ✅ **fase5-0004**: Notificaciones email como fallback para actividad crítica - **✅ COMPLETADO (31 agosto 2025)**
 - [ ] **fase5-0005**: Configuración de preferencias de notificaciones
 
-#### Tipos de Notificaciones Implementadas
-- ✅ **Nuevos posts** en comunidades suscritas
-- ✅ **Comentarios** en posts propios  
-- ✅ **Respuestas** a comentarios propios
-- ✅ **Valoraciones de reputación** recibidas
+#### ✅ **FASE5-0001 COMPLETADA** - Backend MVP Ready
 
-#### APIs Implementadas
-- `GET /api/notifications/` - Listar notificaciones del usuario con filtros
-- `GET /api/notifications/unread/` - Contador y lista de notificaciones no leídas
-- `PUT /api/notifications/{id}/read/` - Marcar notificación como leída
-- `PUT /api/notifications/read-all/` - Marcar todas como leídas
-- `GET /api/notifications/preferences/` - Obtener preferencias de notificación
-- `PUT /api/notifications/preferences/` - Configurar preferencias
-- Background signals para creación automática de notificaciones
+**🎯 Implementación Exitosa (31 agosto 2025):**
+- ✅ **Modelos Django**: `Notification` + `NotificationPreferences` con índices optimizados
+- ✅ **11 APIs REST**: 8 principales + 3 funcionales implementadas y funcionando
+- ✅ **7 Serializers especializados**: Optimizados para polling frecuente
+- ✅ **Admin Interface**: Gestión completa con filtros y acciones en lote
+- ✅ **Tests Suite**: 15+ tests unitarios pasando (modelos + APIs)
+- ✅ **Factory Methods**: Creación consistente de notificaciones
+- ✅ **Índices de BD**: 4 índices estratégicos para queries de polling
+- ✅ **Sistema de limpieza**: Automático para notificaciones antiguas (>30 días)
 
-#### Criterios de Validación MVP
-- ✅ **Polling eficiente**: Consultas cada 30 segundos cuando app está activa
-- ✅ **UI responsive**: Badge con contador y lista de notificaciones
-- ✅ **Email fallback**: Notificaciones críticas por email
-- ✅ **Configurabilidad**: Usuario puede elegir qué notificaciones recibir
-- ✅ **Performance**: Sistema no afecta fluidez de la app
-- ✅ **Batería optimizada**: Polling solo con app activa
+**🔧 APIs Implementadas y Funcionando:**
+- ✅ `GET /api/notifications/unread/` - **[POLLING OPTIMIZADO]** - Count + últimas 5
+- ✅ `GET /api/notifications/` - Lista paginada con filtros completos
+- ✅ `PUT /api/notifications/mark_all_read/` - Marcar todas como leídas
+- ✅ `POST /api/notifications/bulk_action/` - Acciones en lote
+- ✅ `GET /api/notifications/stats/` - Estadísticas detalladas de usuario
+- ✅ `GET /api/preferences/` - Configuración de preferencias (crear si no existe)
+- ✅ `PUT /api/preferences/` - Actualizar preferencias con validaciones
+- ✅ `GET /api/count/` - Endpoint ultra-ligero para badges
+- ✅ `GET /api/recent/` - Notificaciones últimas 24h
+- ✅ `POST /api/{id}/read/` - Marcar individual como leída
+- ✅ `POST /api/preferences/reset_to_defaults/` - Restaurar configuración
 
-#### Arquitectura Técnica
-**Backend Django:**
-- Modelo `Notification` con tipos y prioridades
-- Django signals automáticos para eventos importantes
-- APIs REST optimizadas con paginación
-- Sistema de preferencias por usuario
+**📊 Tipos de Notificación Implementados:**
+- ✅ **NEW_POST**: Nuevos posts en comunidades suscritas
+- ✅ **NEW_COMMENT**: Comentarios en posts propios  
+- ✅ **COMMENT_REPLY**: Respuestas a comentarios propios
+- ✅ **NEW_RATING**: Valoraciones de reputación recibidas
+- ✅ **COMMUNITY_JOIN**: Nuevo miembro en comunidad administrada
+- ✅ **COMMUNITY_MENTION**: Menciones en comunidades
 
-**Frontend Flutter:**
-- `NotificationService` con Timer para polling
-- `NotificationProvider` con estado reactivo
-- Badge indicators en navegación principal  
-- Lista de notificaciones con pull-to-refresh
+**🚀 Performance Optimizaciones Implementadas:**
+- **Endpoint de polling**: Limitado a 5 notificaciones más recientes
+- **Índices estratégicos**: Para queries `user + is_read + created_at`
+- **Select related**: Optimización de joins en queries
+- **Paginación**: Evita respuestas muy grandes en lista completa
+- **Factory methods**: Creación consistente con validaciones
 
-**Email Integration:**
-- Reutilización del sistema de emails existente
-- Templates HTML para notificaciones críticas
-- Configuración de frecuencia (inmediato, diario, semanal)
+#### ✅ **FASE5-0004 COMPLETADA** - Email Fallback System
+
+**📧 Sistema de Email Inteligente (31 agosto 2025):**
+- ✅ **Email Service**: Envío inteligente con deduplicación y rate limiting (5 emails/hora)
+- ✅ **6 Templates HTML**: Responsive para todos los tipos de notificación
+- ✅ **Automatización**: Django signals + Celery para envío automático
+- ✅ **Rate Limiting**: Máximo 5 emails/hora, bypass para notificaciones críticas
+- ✅ **Digest System**: Resúmenes diarios/semanales agrupados por tipo
+- ✅ **Testing Suite**: Tests unitarios e integración funcionando correctamente
+
+**🎨 Templates Profesionales Implementados:**
+- ✅ `new_post.html` - Nuevos posts en comunidades suscritas
+- ✅ `new_comment.html` - Comentarios en posts del usuario  
+- ✅ `post_reaction.html` - Reacciones (likes) a contenido del usuario
+- ✅ `security_alert.html` - Alertas críticas de seguridad
+- ✅ `daily_digest.html` - Resumen diario agrupado por tipos
+- ✅ `generic.html` - Template de fallback para casos no cubiertos
+
+**⚡ Automatización Completa Implementada:**
+- ✅ **Django Signals**: Envío automático al crear notificaciones críticas
+- ✅ **5 Celery Tasks**: Envío individual, digest diario/semanal, limpieza, monitoring
+- ✅ **Fallback Sync**: Envío síncrono si Celery no está disponible
+- ✅ **Auto Cleanup**: Limpieza automática de logs de email antiguos
+
+**📊 Base de Datos Actualizada:**
+- ✅ **Notification**: Campos `email_sent` y `email_sent_at` agregados
+- ✅ **NotificationPreferences**: 7 nuevos campos para configuración de email
+- ✅ **Migraciones**: Aplicadas exitosamente sin breaking changes
+
+#### Criterios de Validación MVP - **Progreso: 40% Completado**
+- ✅ **Backend APIs**: Sistema completo implementado y testeado
+- ⏳ **Polling eficiente**: Consultas cada 30 segundos cuando app está activa
+- ⏳ **UI responsive**: Badge con contador y lista de notificaciones
+- ✅ **Email fallback**: Notificaciones críticas por email con templates profesionales
+- ✅ **Configurabilidad**: Sistema de preferencias implementado
+- ⏳ **Performance**: Sistema no afecta fluidez de la app
+- ⏳ **Batería optimizada**: Polling solo con app activa
+
+#### Arquitectura Técnica - **Backend 100% Listo**
+**✅ Backend Django COMPLETADO:**
+- ✅ Modelo `Notification` con 6 tipos y 4 prioridades
+- ✅ Django signals automáticos para eventos importantes
+- ✅ APIs REST optimizadas con paginación y filtros
+- ✅ Sistema de preferencias por usuario con defaults inteligentes
+- ✅ Admin interface para gestión y moderación
+- ✅ Cleanup automático de notificaciones antiguas
+
+**⏳ Frontend Flutter (Pendiente):**
+- [ ] `NotificationService` con Timer para polling
+- [ ] `NotificationProvider` con estado reactivo
+- [ ] Badge indicators en navegación principal  
+- [ ] Lista de notificaciones con pull-to-refresh
+
+**⏳ Email Integration (Pendiente):**
+- [ ] Reutilización del sistema de emails existente
+- [ ] Templates HTML para notificaciones críticas
+- [ ] Configuración de frecuencia (inmediato, diario, semanal)
 
 #### Referencias de Especificaciones
 - [03-api-specification.md](./specs/03-api-specification.md) - Sección Notificaciones
@@ -684,7 +741,12 @@ Semana 11:    Fase 4 Frontend - Integración Flutter 🎯 PRÓXIMA FASE
               🔄 Perfiles públicos UI con scores de reputación
               🔄 Sistema de valoraciones con validaciones visuales
               🔄 Dashboard de reputación personalizado
-Semana 12-13: Fase 5 - Notificaciones MVP (Polling + Email + UI)
+Semana 12-13: Fase 5 - Notificaciones MVP (Polling + Email + UI) 🔥 EN PROGRESO (40% completado)
+              ✅ fase5-0001: Sistema notificaciones backend (Completado 31 agosto 2025)
+              ✅ fase5-0004: Email fallback system (Completado 31 agosto 2025)
+              ⏳ fase5-0002: Polling inteligente Flutter (SIGUIENTE)
+              ⏳ fase5-0003: UI notificaciones con badges (PENDIENTE)  
+              ⏳ fase5-0005: Integración completa y testing (PENDIENTE)
 Semana 14-15: Fase 6 - Búsqueda y Filtros Avanzados
 Semana 15-18: Fase 7 - Frontend Flutter 🚧 CASI COMPLETO (86% completado)
               ✅ fase7-0001: Autenticación UI (Completado)

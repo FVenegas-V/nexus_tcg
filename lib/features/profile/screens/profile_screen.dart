@@ -670,16 +670,54 @@ class _ReputationSection extends StatelessWidget {
       builder: (context, reputationProvider, child) {
         final stats = reputationProvider.getCachedReputationStats(userId);
 
-        if (stats == null) {
-          // Cargar stats si no están en caché
+        // Si hay un error de autenticación, no intentar cargar
+        if (reputationProvider.hasError &&
+            reputationProvider.errorMessage?.contains('401') == true) {
+          return _buildAuthErrorReputationSection(context);
+        }
+
+        if (stats == null && !reputationProvider.isLoading) {
+          // Cargar stats solo si no hay error de autenticación
           WidgetsBinding.instance.addPostFrameCallback((_) {
             reputationProvider.getReputationStats(userId);
           });
           return _buildLoadingReputationSection(context);
         }
 
-        return _buildReputationSection(context, stats);
+        if (reputationProvider.isLoading) {
+          return _buildLoadingReputationSection(context);
+        }
+
+        if (stats != null) {
+          return _buildReputationSection(context, stats);
+        }
+
+        return _buildLoadingReputationSection(context);
       },
+    );
+  }
+
+  Widget _buildAuthErrorReputationSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+          const SizedBox(width: 8),
+          Text(
+            'Reputación no disponible',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

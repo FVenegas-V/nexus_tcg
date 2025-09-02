@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/models/post.dart';
 import '../../../core/models/post_image.dart';
 import '../providers/posts_provider.dart';
@@ -148,8 +147,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           );
 
-          // Navegar de vuelta al feed
-          context.pop();
+          // Navegar de vuelta al feed con resultado exitoso
+          if (mounted) {
+            Navigator.pop(context, true);
+          }
         }
       } else {
         throw Exception('No se pudo crear el post');
@@ -223,7 +224,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           final shouldPop = await _showDiscardDialog();
           if (shouldPop && mounted) {
             // ignore: use_build_context_synchronously
-            context.pop();
+            Navigator.pop(context, false);
           }
         }
       },
@@ -236,7 +237,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               final shouldPop = await _showDiscardDialog();
               if (shouldPop && mounted) {
                 // ignore: use_build_context_synchronously
-                context.pop();
+                Navigator.pop(context, false);
               }
             },
           ),

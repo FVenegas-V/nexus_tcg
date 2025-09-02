@@ -4,7 +4,9 @@ import 'core/theme/app_theme.dart';
 import 'core/services/http_service.dart';
 import 'core/services/comments_service.dart';
 import 'core/providers/tab_navigation_provider.dart';
+import 'core/providers/notification_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/auth/services/auth_service.dart';
 import 'features/communities/providers/communities_provider_new.dart';
 import 'features/posts/providers/posts_provider.dart';
 import 'features/profile/providers/profile_provider.dart';
@@ -48,6 +50,23 @@ void _initializeServices() {
   RatingsService.instance.initialize();
 }
 
+/// Función helper para inicializar notificaciones de manera asíncrona
+void _initializeNotificationsAsync(
+  NotificationProvider notificationProvider,
+) async {
+  try {
+    final token = await AuthService.getAccessToken();
+    if (token != null) {
+      debugPrint('🔔 Token disponible, iniciando notificaciones');
+      notificationProvider.initialize(token);
+    } else {
+      debugPrint('❌ No hay token disponible para notificaciones');
+    }
+  } catch (e) {
+    debugPrint('❌ Error obteniendo token para notificaciones: $e');
+  }
+}
+
 /// Widget raíz de la aplicación
 /// Configura los providers, tema y navegación
 class MyApp extends StatelessWidget {
@@ -68,6 +87,26 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReputationProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
         ChangeNotifierProvider(create: (_) => TabNavigationProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
+          create: (_) => NotificationProvider(),
+          update: (context, authProvider, notificationProvider) {
+            if (notificationProvider != null) {
+              // Inicializar notificaciones cuando el usuario se autentica
+              if (authProvider.isAuthenticated) {
+                debugPrint(
+                  '🔔 Usuario autenticado, preparando notificaciones...',
+                );
+                // Usar un Future para obtener el token de manera asíncrona
+                _initializeNotificationsAsync(notificationProvider);
+              } else if (!authProvider.isAuthenticated) {
+                // Cerrar notificaciones cuando el usuario hace logout
+                debugPrint('🔔 Cerrando NotificationProvider...');
+                notificationProvider.shutdown();
+              }
+            }
+            return notificationProvider ?? NotificationProvider();
+          },
+        ),
       ],
       child: MaterialApp.router(
         title: 'Nexus TCG',

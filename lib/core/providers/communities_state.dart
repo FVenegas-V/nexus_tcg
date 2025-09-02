@@ -276,32 +276,29 @@ class CommunitiesState extends ChangeNotifier {
   Future<bool> joinCommunity(int communityId, {String? message}) async {
     try {
       _setLoading(true);
+
+      // UI Optimista: Actualizar la UI inmediatamente antes de la llamada a la API
+      _optimisticJoinUpdate(communityId);
+
       final membership = await _communitiesService.joinCommunity(
         communityId,
         message: message,
       );
 
-      // Agregar a las membresías del usuario
+      // Agregar a las membresías del usuario con datos reales de la API
+      _userMemberships.removeWhere(
+        (m) => m.communityId == communityId,
+      ); // Remover optimista
       _userMemberships.add(membership);
-
-      // Actualizar contador de miembros en la comunidad si está en cache
-      final communityIndex = _communities.indexWhere(
-        (c) => c.id == communityId,
-      );
-      if (communityIndex != -1) {
-        // Crear nueva instancia con member_count actualizado y isSubscribed = true
-        final updatedCommunity = Community.fromListJson({
-          ..._communities[communityIndex].toJson(),
-          'member_count': _communities[communityIndex].memberCount + 1,
-        }).copyWith(isSubscribed: true);
-        _communities[communityIndex] = updatedCommunity;
-      }
 
       _setError(null);
       notifyListeners();
       return true;
     } catch (e) {
+      // Revertir cambios optimistas si falla
+      _revertOptimisticJoinUpdate(communityId);
       _setError('Error al unirse a la comunidad: $e');
+      notifyListeners();
       return false;
     } finally {
       _setLoading(false);
@@ -312,30 +309,23 @@ class CommunitiesState extends ChangeNotifier {
   Future<bool> leaveCommunity(int communityId) async {
     try {
       _setLoading(true);
+
+      // UI Optimista: Actualizar la UI inmediatamente antes de la llamada a la API
+      _optimisticLeaveUpdate(communityId);
+
       await _communitiesService.leaveCommunity(communityId);
 
-      // Remover de las membresías del usuario
+      // Confirmar cambios con datos reales
       _userMemberships.removeWhere((m) => m.communityId == communityId);
-
-      // Actualizar contador de miembros en la comunidad si está en cache
-      final communityIndex = _communities.indexWhere(
-        (c) => c.id == communityId,
-      );
-      if (communityIndex != -1) {
-        final updatedCommunity = Community.fromListJson({
-          ..._communities[communityIndex].toJson(),
-          'member_count': (_communities[communityIndex].memberCount - 1)
-              .clamp(0, double.infinity)
-              .toInt(),
-        }).copyWith(isSubscribed: false);
-        _communities[communityIndex] = updatedCommunity;
-      }
 
       _setError(null);
       notifyListeners();
       return true;
     } catch (e) {
+      // Revertir cambios optimistas si falla
+      _revertOptimisticLeaveUpdate(communityId);
       _setError('Error al salir de la comunidad: $e');
+      notifyListeners();
       return false;
     } finally {
       _setLoading(false);
@@ -367,6 +357,92 @@ class CommunitiesState extends ChangeNotifier {
     } catch (e) {
       return null;
     }
+  }
+
+  // ==================== UI OPTIMISTA ====================
+
+  /// Variables para almacenar estado anterior para revertir si es necesario
+  Community? _previousCommunityState;
+  CommunityMembership? _previousMembershipState;
+
+  /// Actualización optimista para join - actualiza UI inmediatamente
+  void _optimisticJoinUpdate(int communityId) {
+    final communityIndex = _communities.indexWhere((c) => c.id == communityId);
+    if (communityIndex != -1) {
+      // Guardar estado anterior
+      _previousCommunityState = _communities[communityIndex];
+
+      // Crear nueva instancia con member_count actualizado y isSubscribed = true
+      final updatedCommunity = Community.fromListJson({
+        ..._communities[communityIndex].toJson(),
+        'member_count': _communities[communityIndex].memberCount + 1,
+      }).copyWith(isSubscribed: true);
+      _communities[communityIndex] = updatedCommunity;
+
+      // Agregar membresía optimista temporal (solo si tenemos acceso al usuario actual)
+      // En lugar de crear una membresía optimista completa, solo marcaremos el estado
+      // La UI ya se actualiza con isSubscribed = true
+
+      notifyListeners();
+    }
+  }
+
+  /// Revertir actualización optimista para join si falla
+  void _revertOptimisticJoinUpdate(int communityId) {
+    if (_previousCommunityState != null) {
+      final communityIndex = _communities.indexWhere(
+        (c) => c.id == communityId,
+      );
+      if (communityIndex != -1) {
+        _communities[communityIndex] = _previousCommunityState!;
+      }
+    }
+
+    _previousCommunityState = null;
+  }
+
+  /// Actualización optimista para leave - actualiza UI inmediatamente
+  void _optimisticLeaveUpdate(int communityId) {
+    final communityIndex = _communities.indexWhere((c) => c.id == communityId);
+    if (communityIndex != -1) {
+      // Guardar estado anterior
+      _previousCommunityState = _communities[communityIndex];
+
+      // Crear nueva instancia con member_count actualizado y isSubscribed = false
+      final updatedCommunity = Community.fromListJson({
+        ..._communities[communityIndex].toJson(),
+        'member_count': (_communities[communityIndex].memberCount - 1)
+            .clamp(0, double.infinity)
+            .toInt(),
+      }).copyWith(isSubscribed: false);
+      _communities[communityIndex] = updatedCommunity;
+
+      // Guardar y remover membresía actual
+      _previousMembershipState = getUserMembershipFor(communityId);
+      _userMemberships.removeWhere((m) => m.communityId == communityId);
+
+      notifyListeners();
+    }
+  }
+
+  /// Revertir actualización optimista para leave si falla
+  void _revertOptimisticLeaveUpdate(int communityId) {
+    if (_previousCommunityState != null) {
+      final communityIndex = _communities.indexWhere(
+        (c) => c.id == communityId,
+      );
+      if (communityIndex != -1) {
+        _communities[communityIndex] = _previousCommunityState!;
+      }
+    }
+
+    // Restaurar membresía anterior
+    if (_previousMembershipState != null) {
+      _userMemberships.add(_previousMembershipState!);
+    }
+
+    _previousCommunityState = null;
+    _previousMembershipState = null;
   }
 
   // ==================== MÉTODOS AUXILIARES ====================

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'users',
     'communities',  # Nueva app para sistema de comunidades
+    'notifications',  # Sistema de notificaciones MVP con polling
 ]
 
 MIDDLEWARE = [

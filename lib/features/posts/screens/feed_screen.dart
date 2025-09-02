@@ -7,6 +7,8 @@ import '../../../core/widgets/nexus_logo.dart';
 import '../../../core/widgets/loading_skeleton.dart';
 import '../../../core/widgets/empty_state_widget.dart';
 import '../../../core/providers/tab_navigation_provider.dart';
+import '../../../core/providers/notification_provider.dart';
+import '../../../screens/notifications/notifications_screen.dart';
 import '../../communities/providers/communities_provider_new.dart';
 
 /// Pantalla principal del feed de posts con paginación infinita
@@ -68,10 +70,27 @@ class _FeedScreenState extends State<FeedScreen> {
               // TODO: Implementar búsqueda
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {
-              // TODO: Implementar notificaciones
+          Consumer<NotificationProvider>(
+            builder: (context, notificationProvider, child) {
+              final unreadCount = notificationProvider.unreadCount;
+              return IconButton(
+                icon: Badge(
+                  label: Text('$unreadCount'),
+                  isLabelVisible: unreadCount > 0,
+                  child: const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsScreen(),
+                    ),
+                  );
+                },
+              );
             },
           ),
         ],

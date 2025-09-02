@@ -18,10 +18,19 @@ import '../widgets/comments_list_widget.dart';
 /// - Sistema de reacciones completo (6 tipos)
 /// - Sección de comentarios (preparada para futuro)
 /// - Acciones de post (editar, eliminar, compartir)
+/// - Navegación contextual (volver a origen: comunidad, home, etc.)
 class PostDetailScreen extends StatefulWidget {
   final int postId;
+  final String?
+  from; // Origen de la navegación: 'community', 'notification', etc.
+  final int? communityId; // ID de la comunidad si viene de ahí
 
-  const PostDetailScreen({super.key, required this.postId});
+  const PostDetailScreen({
+    super.key,
+    required this.postId,
+    this.from,
+    this.communityId,
+  });
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -62,6 +71,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// Navegar hacia atrás según el contexto
+  void _navigateBack() {
+    // Si viene de una comunidad, usar pop para mantener el stack
+    if (widget.from == 'community' && widget.communityId != null) {
+      context.pop();
+      return;
+    }
+
+    // Si viene de notificación, ir al home (donde están las notificaciones)
+    if (widget.from == 'notification') {
+      context.go('/home');
+      return;
+    }
+
+    // Comportamiento estándar: pop si es posible, sino home
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
     }
   }
 
@@ -131,14 +162,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Verificar si puede navegar hacia atrás, sino ir al home
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/home');
-            }
-          },
+          onPressed: _navigateBack,
         ),
         title: const Text('Post'),
         elevation: 0,

@@ -65,12 +65,32 @@ class ReputationProvider with ChangeNotifier {
     );
   }
 
-  /// Actualiza el token de autenticación (ya no necesario)
+  /// Actualiza el token de autenticación y limpia errores de autenticación
   void updateAuthToken(String? token) {
     // ReputationService usa automáticamente el token a través de HttpService
     debugPrint(
       '🔧 [REPUTATION] Token actualizado automáticamente via HttpService',
     );
+
+    // Limpiar errores de autenticación cuando se actualiza el token
+    if (_errorMessage?.contains('401') == true ||
+        _errorMessage?.contains('No autorizado') == true) {
+      _errorMessage = null;
+      _setState(ReputationState.initial);
+      debugPrint('🧹 [REPUTATION] Errores de autenticación limpiados');
+    }
+  }
+
+  /// Limpia errores de autenticación para permitir nuevos intentos
+  void clearAuthErrors() {
+    if (_errorMessage?.contains('401') == true ||
+        _errorMessage?.contains('No autorizado') == true) {
+      _errorMessage = null;
+      _setState(ReputationState.initial);
+      debugPrint(
+        '🧹 [REPUTATION] Errores de autenticación limpiados manualmente',
+      );
+    }
   }
 
   /// Obtiene las estadísticas de reputación de un usuario
@@ -82,6 +102,15 @@ class ReputationProvider with ChangeNotifier {
     if (!forceRefresh && _isDataCached(userId)) {
       debugPrint('🎯 [REPUTATION] Usando cache para usuario $userId');
       return _reputationCache[userId];
+    }
+
+    // Evitar reintentos si ya hay un error de autenticación
+    if (_state == ReputationState.error &&
+        _errorMessage?.contains('401') == true) {
+      debugPrint(
+        '🚫 [REPUTATION] Evitando reintento por error de autenticación',
+      );
+      return null;
     }
 
     _setState(ReputationState.loading);

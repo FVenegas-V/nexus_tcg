@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - Notificación</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .notification-badge {
+            background: #95a5a6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .notification-details {
+            background: #f8f9fa;
+            border-left: 4px solid #95a5a6;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #95a5a6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background: #7f8c8d;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        .unsubscribe {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 15px;
+        }
+        .unsubscribe a {
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">{{ app_name }}</div>
+            <div class="notification-badge">📮 Nueva Notificación</div>
+        </div>
+
+        <div class="content">
+            <h2>¡Hola {{ user.username }}!</h2>
+            
+            <p>Tienes una nueva notificación:</p>
+            
+            <div class="notification-details">
+                {{ notification.message }}
+            </div>
+            
+            <a href="{{ frontend_url }}/notifications" class="cta-button">
+                Ver Notificación
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>Gracias por ser parte de la comunidad {{ app_name }}.</p>
+            <p><strong>El equipo de {{ app_name }}</strong></p>
+            
+            <div class="unsubscribe">
+                <p>Puedes cambiar tus preferencias de notificaciones 
+                <a href="{{ unsubscribe_url }}">aquí</a>.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

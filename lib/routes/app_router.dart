@@ -118,7 +118,25 @@ class AppRouter {
         builder: (context, state) {
           final postIdString = state.pathParameters['id'] ?? '0';
           final postId = int.tryParse(postIdString) ?? 0;
-          return PostDetailScreen(postId: postId);
+
+          // Extraer parámetros de contexto de navegación
+          final from = state.uri.queryParameters['from'];
+          final communityIdString = state.uri.queryParameters['communityId'];
+          final communityId = communityIdString != null
+              ? int.tryParse(communityIdString)
+              : null;
+
+          print('🛤️ Router - PostDetail params:');
+          print('🛤️ postId: $postId');
+          print('🛤️ from: $from');
+          print('🛤️ communityId: $communityId');
+          print('🛤️ Full URI: ${state.uri}');
+
+          return PostDetailScreen(
+            postId: postId,
+            from: from,
+            communityId: communityId,
+          );
         },
       ),
       // Rutas de perfil de usuario

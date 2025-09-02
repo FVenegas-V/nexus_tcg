@@ -65,6 +65,8 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     # APIs de comunidades
     path('', include('communities.urls')),
+    # APIs de notificaciones (Fase 5)
+    path('api/', include('notifications.urls')),
 ]
 
 # Serve media files during development

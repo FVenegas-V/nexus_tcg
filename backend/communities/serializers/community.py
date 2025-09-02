@@ -46,15 +46,29 @@ class CommunityDetailSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField(read_only=True)
     member_count = serializers.IntegerField(read_only=True)
     post_count = serializers.IntegerField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
+    
+    def get_is_subscribed(self, obj):
+        """Determina si el usuario actual es miembro de esta comunidad."""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        # Verificar si el usuario tiene una membresía activa
+        return obj.memberships.filter(
+            user=request.user, 
+            status='active'
+        ).exists()
     
     class Meta:
         model = Community
         fields = [
             'id', 'name', 'slug', 'description', 'category', 
-            'game_type', 'difficulty_level', 'tags', 'rules',
+            'game_type', 'difficulty_level', 'tags',
             'is_public', 'member_count', 'post_count',
-            'max_members', 'requires_approval', 'image_url', 'banner_url',
-            'created_by', 'created_at', 'updated_at'
+            'max_members', 'requires_approval', 'image_url',
+            'created_by', 'created_at', 'updated_at',
+            'is_subscribed'
         ]
 
 

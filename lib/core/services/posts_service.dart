@@ -97,7 +97,7 @@ class PostsService {
 
       final Map<String, dynamic> queryParams = {};
 
-      if (communityId != null) queryParams['community_id'] = communityId;
+      if (communityId != null) queryParams['community'] = communityId;
       if (authorId != null) queryParams['author_id'] = authorId;
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
       if (ordering != null) queryParams['ordering'] = ordering;
@@ -259,9 +259,21 @@ class PostsService {
     try {
       debugPrint('😊 Toggle reacción $reactionType en post $postId...');
 
+      // Debug the request being sent
+      final requestData = ReactionRequest(reactionType: reactionType).toJson();
+      final requestUrl = '${ApiConfig.postsEndpoint}/$postId/toggle_reaction/';
+      final fullUrl = '${ApiConfig.baseUrl}$requestUrl';
+
+      debugPrint('🔍 DETAILED REQUEST DEBUG:');
+      debugPrint('  - Base URL: ${ApiConfig.baseUrl}');
+      debugPrint('  - Endpoint: $requestUrl');
+      debugPrint('  - Full URL: $fullUrl');
+      debugPrint('  - Request Data: $requestData');
+      debugPrint('  - HTTP Method: POST');
+
       final response = await _httpService.post(
         '${ApiConfig.postsEndpoint}/$postId/toggle_reaction/',
-        data: ReactionRequest(reactionType: reactionType).toJson(),
+        data: requestData,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
