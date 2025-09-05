@@ -222,7 +222,6 @@ curl -f http://localhost:8000/api/health/
 - **Scaling Guide**: Cómo escalar sistema futuro
 
 #### **🆘 Support Structure:**
-- **Primary Contact**: GitHub Copilot (handover notes)
 - **Documentation**: Comprehensive docs in `/docs/proyecto/`
 - **Code Comments**: Extensive inline documentation
 - **Test Suite**: Automated validation available
@@ -311,7 +310,6 @@ curl -f http://localhost:8000/api/health/
 
 ---
 
-*Desarrollado por: GitHub Copilot*  
 *Proyecto: Nexus TCG - Sistema Anti-Gaming*  
 *Ticket: FASE4-0006*  
 *Status: COMPLETED ✅*

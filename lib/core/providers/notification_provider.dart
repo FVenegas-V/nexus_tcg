@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../services/notification_service.dart';
 import '../services/notification_preferences_service.dart';
+import '../services/fcm_service.dart';
 import '../utils/logger.dart';
 
 /// Provider que gestiona el ciclo de vida del NotificationService
@@ -42,11 +43,42 @@ class NotificationProvider extends ChangeNotifier with WidgetsBindingObserver {
     // Configurar listener para cambios del servicio
     _notificationService.addListener(_onServiceChanged);
 
-    // Iniciar polling
+    // ✅ EXISTENTE: Iniciar polling (funciona cuando app activa)
     _notificationService.startPolling();
+
+    // 🆕 NUEVO: Inicializar FCM (funciona cuando app cerrada)
+    _initializeFCM();
 
     _isInitialized = true;
     notifyListeners();
+  }
+
+  /// Inicializar Firebase Cloud Messaging sin interferir con polling
+  void _initializeFCM() async {
+    try {
+      Logger.info('[NotificationProvider] Inicializando FCM...');
+      bool success = await FCMService.initialize();
+
+      if (success) {
+        Logger.info('[NotificationProvider] ✅ FCM inicializado correctamente');
+
+        // Mostrar información de debug del FCM
+        var debugInfo = FCMService.getDebugInfo();
+        Logger.info('[NotificationProvider] FCM Debug Info: $debugInfo');
+
+        // Mostrar token para copiar al backend
+        String? token = FCMService.token;
+        if (token != null) {
+          Logger.info(
+            '[NotificationProvider] FCM Token: ${token.substring(0, 20)}...',
+          );
+        }
+      } else {
+        Logger.warning('[NotificationProvider] ⚠️ FCM no se pudo inicializar');
+      }
+    } catch (e) {
+      Logger.error('[NotificationProvider] Error inicializando FCM: $e');
+    }
   }
 
   /// Cierra el servicio (logout)

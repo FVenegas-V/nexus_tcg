@@ -335,3 +335,75 @@ def recent_notifications(request):
         'notifications': serializer.data,
         'since': since
     })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def test_fcm_notification(request):
+    """
+    Endpoint de testing para Firebase Cloud Messaging
+    Fase 5-0006: Testing FCM demo con soporte para múltiples emuladores
+    """
+    from .fcm_service import FCMService
+    
+    # Obtener datos del request
+    title = request.data.get('title', 'Test FCM Notification')
+    body = request.data.get('body', 'Esta es una notificación de prueba desde Nexus TCG!')
+    token = request.data.get('token', None)  # Token específico opcional
+    send_to_all = request.data.get('send_to_all', False)  # Enviar a todos los tokens demo
+    
+    # Datos adicionales para la notificación
+    data = {
+        'type': 'test',
+        'user_id': str(request.user.id),
+        'timestamp': timezone.now().isoformat()
+    }
+    
+    try:
+        if token:
+            # Enviar a token específico
+            success = FCMService.send_notification(token, title, body, data)
+            message = f"Notificación enviada a token específico: {'✅ Éxito' if success else '❌ Falló'}"
+            return Response({
+                'success': success,
+                'message': message,
+                'fcm_available': FCMService.is_available(),
+                'title': title,
+                'body': body,
+                'token_used': 'specific'
+            }, status=status.HTTP_200_OK)
+            
+        elif send_to_all:
+            # Enviar a todos los tokens demo
+            result = FCMService.send_to_demo_tokens(title, body, data)
+            message = f"Notificación enviada a {result.get('success', 0)} dispositivos, {result.get('failure', 0)} fallos"
+            return Response({
+                'success': result.get('success', 0) > 0,
+                'message': message,
+                'fcm_available': FCMService.is_available(),
+                'title': title,
+                'body': body,
+                'token_used': 'all_demos',
+                'results': result
+            }, status=status.HTTP_200_OK)
+            
+        else:
+            # Enviar a token demo principal
+            success = FCMService.send_to_demo_token(title, body, data)
+            message = f"Notificación enviada a token demo principal: {'✅ Éxito' if success else '❌ Falló'}"
+            return Response({
+                'success': success,
+                'message': message,
+                'fcm_available': FCMService.is_available(),
+                'title': title,
+                'body': body,
+                'token_used': 'demo'
+            }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f"Error enviando notificación FCM: {str(e)}",
+            'fcm_available': FCMService.is_available(),
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

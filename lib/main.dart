@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/http_service.dart';
 import 'core/services/comments_service.dart';
+import 'core/services/navigation_service.dart'; // 🚀 NAVIGATION SERVICE
+import 'core/services/fcm_service.dart'; // 🔔 FCM SERVICE
 import 'core/providers/tab_navigation_provider.dart';
 import 'core/providers/notification_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
@@ -17,7 +19,10 @@ import 'features/reputation/services/ratings_service.dart';
 import 'routes/app_router.dart';
 
 /// Punto de entrada de la aplicación Nexus TCG
-void main() {
+void main() async {
+  // Asegurar que los widgets estén inicializados
+  WidgetsFlutterBinding.ensureInitialized();
+
   // Configurar para producción - filtrar mensajes de debug molesto
   FlutterError.onError = (FlutterErrorDetails details) {
     // Filtrar errores de RenderFlex overflow que aparecen como líneas rojas
@@ -36,18 +41,28 @@ void main() {
   };
 
   // Inicializar servicios core
-  _initializeServices();
+  await _initializeServices();
 
   runApp(const MyApp());
 }
 
 /// Inicializar servicios necesarios antes de arrancar la app
-void _initializeServices() {
+Future<void> _initializeServices() async {
   // Inicializar HttpService para APIs
   HttpService().initialize();
 
   // Inicializar RatingsService para el sistema de valoraciones
   RatingsService.instance.initialize();
+
+  // 🚀 NavigationService ya está configurado globalmente
+
+  // 🔔 Inicializar FCM para notificaciones push
+  try {
+    await FCMService.initialize();
+    debugPrint('🔔 FCM inicializado correctamente');
+  } catch (e) {
+    debugPrint('❌ Error inicializando FCM: $e');
+  }
 }
 
 /// Función helper para inicializar notificaciones de manera asíncrona

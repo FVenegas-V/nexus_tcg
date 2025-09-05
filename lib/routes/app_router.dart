@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../core/services/navigation_service.dart'; // 🚀 NAVIGATION SERVICE
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
@@ -24,6 +25,7 @@ import '../features/reputation/screens/rating_dialog_screen.dart';
 /// Maneja la navegación y protección de rutas basada en autenticación
 class AppRouter {
   static final GoRouter router = GoRouter(
+    navigatorKey: NavigationService.navigatorKey, // 🚀 NAVIGATOR KEY GLOBAL
     initialLocation: '/login',
     // Lógica de redirección para proteger rutas basada en autenticación
     redirect: (context, state) {

@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "C:\\Users\\Pipe\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "python.linting.enabled": false,
+    "python.analysis.typeCheckingMode": "off",
+    "files.associations": {
+        "*.py": "python"
+    }
+}

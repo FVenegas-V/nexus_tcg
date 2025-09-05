@@ -21,6 +21,9 @@ urlpatterns = [
     path('count/', views.notification_count, name='notification-count'),
     path('recent/', views.recent_notifications, name='recent-notifications'),
     path('<int:notification_id>/read/', views.mark_notification_read, name='mark-notification-read'),
+    
+    # FCM Testing endpoint (Fase 5-0006)
+    path('test-fcm/', views.test_fcm_notification, name='test-fcm-notification'),
 ]
 
 """

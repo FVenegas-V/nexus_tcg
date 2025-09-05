@@ -13,9 +13,94 @@ import logging
 
 from .models import Notification, NotificationPreferences
 from .email_service import NotificationEmailService
+from .fcm_service import FCMService  # 🚀 AGREGAR FCM
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
+def _get_navigation_data(notification):
+    """
+    Genera datos de navegación específicos según el tipo de notificación
+    Para permitir navegación directa desde push notifications
+    """
+    navigation_data = {}
+    
+    try:
+        # Obtener el objeto relacionado
+        related_object = notification.related_object
+        notification_type = notification.type
+        
+        if notification_type == 'NEW_COMMENT' and related_object:
+            # Comentario: navegar al post específico
+            if hasattr(related_object, 'post'):
+                post = related_object.post
+                navigation_data.update({
+                    'navigate_to': 'post_detail',
+                    'community_id': str(post.community.id) if post.community else None,
+                    'post_id': str(post.id),
+                    'comment_id': str(related_object.id),
+                    'highlight': 'comment'  # Para resaltar el comentario nuevo
+                })
+                
+        elif notification_type == 'COMMENT_REPLY' and related_object:
+            # Respuesta a comentario: navegar al post y al comentario específico
+            if hasattr(related_object, 'post'):
+                post = related_object.post
+                navigation_data.update({
+                    'navigate_to': 'post_detail',
+                    'community_id': str(post.community.id) if post.community else None,
+                    'post_id': str(post.id),
+                    'comment_id': str(related_object.id),
+                    'parent_comment_id': str(related_object.parent.id) if related_object.parent else None,
+                    'highlight': 'reply'
+                })
+                
+        elif notification_type == 'NEW_RATING' and related_object:
+            # Valoración: navegar al perfil del usuario
+            navigation_data.update({
+                'navigate_to': 'user_profile',
+                'target_user_id': str(notification.user.id),
+                'rating_id': str(related_object.id) if hasattr(related_object, 'id') else None,
+                'highlight': 'rating'
+            })
+            
+        elif notification_type == 'NEW_POST' and related_object:
+            # Nuevo post: navegar directamente al post
+            navigation_data.update({
+                'navigate_to': 'post_detail',
+                'community_id': str(related_object.community.id) if related_object.community else None,
+                'post_id': str(related_object.id),
+                'highlight': 'post'
+            })
+            
+        elif notification_type == 'COMMUNITY_JOIN' and related_object:
+            # Nuevo miembro: navegar a la comunidad
+            if hasattr(related_object, 'community'):
+                navigation_data.update({
+                    'navigate_to': 'community_detail',
+                    'community_id': str(related_object.community.id),
+                    'highlight': 'members'
+                })
+        
+        # Agregar metadatos generales
+        navigation_data.update({
+            'notification_type': notification_type,
+            'created_at': notification.created_at.isoformat()
+        })
+        
+        logger.debug(f"[FCM_NAV] Datos de navegación generados: {navigation_data}")
+        
+    except Exception as e:
+        logger.warning(f"[FCM_NAV] Error generando datos de navegación: {e}")
+        # Datos mínimos de fallback
+        navigation_data = {
+            'navigate_to': 'notifications_list',
+            'notification_type': notification.type,
+            'fallback': 'true'
+        }
+    
+    return navigation_data
 
 
 def should_notify_user(user, notification_type):
@@ -245,11 +330,44 @@ def handle_notification_email(sender, instance, created, **kwargs):
     Signal que se ejecuta cuando se crea una nueva notificación
     
     Determina si debe enviar email inmediato o programar para digest
+    🚀 AHORA TAMBIÉN ENVÍA FCM AUTOMÁTICAMENTE
     """
     if not created:
         return  # Solo procesar notificaciones nuevas
     
     try:
+        # 🚀 ENVIAR FCM AUTOMÁTICAMENTE (USANDO TOKENS DEMO)
+        if FCMService.is_available():
+            logger.info(f"[FCM_AUTO] Enviando notificación automática para {instance.user.username}")
+            
+            # 🎯 AGREGAR DATOS DE NAVEGACIÓN ESPECÍFICOS
+            navigation_data = _get_navigation_data(instance)
+            
+            fcm_data = {
+                'notification_id': str(instance.id),
+                'type': instance.type,
+                'user_id': str(instance.user.id),
+                'priority': instance.priority,
+                'auto_notification': 'true',
+                'timestamp': instance.created_at.isoformat(),
+                # 🎯 DATOS DE NAVEGACIÓN
+                **navigation_data
+            }
+            
+            fcm_result = FCMService.send_to_demo_tokens(
+                instance.title,
+                instance.message,
+                fcm_data
+            )
+            
+            if fcm_result and fcm_result.get('success', 0) > 0:
+                logger.info(f"[FCM_AUTO] ✅ FCM enviado exitosamente para notificación {instance.id}")
+            else:
+                logger.warning(f"[FCM_AUTO] ❌ Error enviando FCM para notificación {instance.id}")
+        else:
+            logger.debug("[FCM_AUTO] FCM no disponible, saltando envío")
+        
+        # === CÓDIGO ORIGINAL DE EMAIL ===
         # Verificar si debe enviar email inmediato
         if NotificationEmailService.should_send_email(instance):
             

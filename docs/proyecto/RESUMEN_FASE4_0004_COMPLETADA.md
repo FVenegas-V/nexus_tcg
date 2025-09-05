@@ -273,6 +273,5 @@ Moderador → Perfil de usuario reportado
 
 ---
 
-**Preparado por:** GitHub Copilot  
 **Revisado:** 26 Agosto 2025  
 **Próximo paso:** Continuar con FASE4-0006 (Validaciones Anti-Abuso)

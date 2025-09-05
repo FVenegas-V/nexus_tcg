@@ -284,3 +284,10 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# === FIREBASE CLOUD MESSAGING (FCM) DEMO CONFIGURATION ===
+# Configuración para demostración de notificaciones push
+FIREBASE_SERVER_KEY = config('FIREBASE_SERVER_KEY', default='')
+ENABLE_FCM_DEMO = config('ENABLE_FCM_DEMO', default=False, cast=bool)
+FCM_DEMO_TOKEN = config('FCM_DEMO_TOKEN', default='')  # Token hardcodeado para demo (legacy)
+FCM_DEMO_TOKENS = config('FCM_DEMO_TOKENS', default='')  # Múltiples tokens separados por comas
